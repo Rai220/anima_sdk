@@ -160,7 +160,6 @@ venv.bak/
 dmypy.json
 
 # Anima SDK runtime artifacts
-generation_*/
 STOP
 INBOX.md
 .free-code-logs/
