@@ -59,7 +59,7 @@ SCRIPT="$(find_harness_script "$HARNESS" || true)"
 if [[ -z "$SCRIPT" ]]; then
   echo "Unknown or non-executable harness: $HARNESS" >&2
   echo "Expected harness script in harnesses/ near $DIR, $SDK_DIR, or a parent SDK directory." >&2
-  echo "Set ANIMA_HARNESS to one of: free_code, claude, codex, deepagents, custom" >&2
+  echo "Set ANIMA_HARNESS to one of: free_code, claude, codex, custom" >&2
   echo "or provide ANIMA_HARNESS_CMD for an arbitrary command." >&2
   exit 2
 fi

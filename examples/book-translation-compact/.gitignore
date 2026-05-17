@@ -1,0 +1,21 @@
+# Local source book and generated artifacts.
+input/
+work/
+out/
+generation_*/
+
+# Agent and CLI logs can become large and may contain source text.
+.free-code-logs/
+**/.free-code-logs/
+
+# Stop markers are local runtime state.
+STOP
+INBOX.md
+
+# Keep publishable instructions and memory files tracked.
+!README.md
+!MAIN_GOAL.md
+!AGENTS.md
+!STATE.md
+!TODO.md
+!TRANSLATION_NOTES.md

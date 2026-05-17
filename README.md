@@ -26,8 +26,8 @@ SDK выделен из эксперимента [Rai220/anima](https://github.c
 ## Требования
 
 - Bash.
-- Один из поддерживаемых agent CLI: `free-code`, `claude`, `codex` или свой
-  CLI через `ANIMA_HARNESS_CMD`.
+- Один из поддерживаемых agent CLI: `free-code`, `claude`, `codex`,
+  `deepagents` или свой CLI через `ANIMA_HARNESS_CMD`.
 - `jq` опционален, но полезен для читаемого вывода `free-code` и `claude`.
 
 ## Быстрый старт
@@ -61,7 +61,20 @@ research
 При необходимости настройте `AGENTS.md`: язык, стиль работы, ограничения,
 правила проверки результата и формат памяти.
 
-Запустите мета-цикл:
+Дальше выберите один из двух способов запуска. Они независимы — нужно
+запустить что-то одно, а не оба сразу.
+
+Простой непрерывный цикл в текущей директории, без поколений:
+
+```bash
+bash loop.sh
+```
+
+`loop.sh` повторяет ходы агента в той же папке, пока агент сам не создаст
+файл `STOP`. Подходит для коротких задач, когда поколения не нужны и
+достаточно одной рабочей директории.
+
+Мета-цикл с поколениями `generation_N/`:
 
 ```bash
 bash meta_loop.sh
@@ -70,7 +83,9 @@ bash meta_loop.sh
 На первом запуске `meta_loop.sh` создаст `generation_1/`, скопирует туда
 `MAIN_GOAL.md`, `AGENTS.md`, `run.sh`, `loop.sh`, `harnesses/` и запустит
 `loop.sh`. Если внутри поколения появится файл `STOP`, следующий цикл создаст
-`generation_2/`.
+`generation_2/` и так далее. Подходит для долгих задач, в которых полезно
+начинать каждое поколение с чистого рабочего состояния, но с накопленным
+`AGENTS.md` из прошлого поколения.
 
 ## Способы запуска
 
@@ -123,7 +138,17 @@ ANIMA_MODEL=gpt-5.5
 ANIMA_HARNESS=codex ANIMA_MODEL=gpt-5.5 bash meta_loop.sh
 ANIMA_HARNESS=claude ANIMA_MODEL=claude-opus-4-7 bash meta_loop.sh
 ANIMA_HARNESS=free_code bash meta_loop.sh
+ANIMA_HARNESS=deepagents ANIMA_MODEL=openai:gpt-4o bash meta_loop.sh
+ANIMA_HARNESS=deepagents ANIMA_MODEL=gigachat:GigaChat-3-Ultra bash meta_loop.sh
 ```
+
+Для `deepagents` модель **обязательно** указывайте в формате
+`provider:model` (`openai:gpt-4o`, `anthropic:claude-opus-4-7`,
+`gigachat:GigaChat-3-Ultra`). В неинтерактивном режиме CLI не подхватывает
+глобальный `default-model` и без префикса завершается с ошибкой
+`Unable to infer a model provider for '<name>'`. В интерактивном запуске
+`deepagents` префикс не нужен, потому что используется сохранённая
+дефолтная модель.
 
 Переопределить бинарь:
 
@@ -131,6 +156,7 @@ ANIMA_HARNESS=free_code bash meta_loop.sh
 ANIMA_CODEX_BIN=/path/to/codex bash run.sh
 ANIMA_CLAUDE_BIN=/path/to/claude bash run.sh
 ANIMA_FREE_CODE_BIN=/path/to/free-code bash run.sh
+ANIMA_DEEPAGENTS_BIN=/path/to/deepagents bash run.sh
 ```
 
 Передать дополнительные аргументы:
@@ -138,6 +164,17 @@ ANIMA_FREE_CODE_BIN=/path/to/free-code bash run.sh
 ```bash
 ANIMA_CODEX_ARGS='--full-auto' bash run.sh
 ANIMA_CLAUDE_ARGS='--permission-mode bypassPermissions' bash run.sh
+ANIMA_DEEPAGENTS_ARGS='--mcp-config ./mcp.json' bash run.sh
+```
+
+Специфичные настройки `deepagents` (все опциональны):
+
+```bash
+ANIMA_DEEPAGENTS_AGENT=coder           # имя агента (-a)
+ANIMA_DEEPAGENTS_SHELL_ALLOW=all       # список разрешённых shell-команд (-S)
+ANIMA_DEEPAGENTS_AUTO_APPROVE=1        # авто-одобрение тулзов (-y), по умолчанию включено
+ANIMA_DEEPAGENTS_MAX_TURNS=20          # лимит ходов (--max-turns)
+ANIMA_DEEPAGENTS_QUIET=0               # 1 — чистый вывод для пайпа (--quiet)
 ```
 
 Использовать произвольный CLI:
@@ -164,16 +201,20 @@ cd my_experiment
 
 3. Запишите задачу в `MAIN_GOAL.md`.
 4. При необходимости создайте `anima.env` и выберите `ANIMA_HARNESS`.
-5. Запустите:
+5. Запустите один из режимов (что-то одно):
 
 ```bash
-bash meta_loop.sh
+bash loop.sh        # непрерывные ходы в текущей директории, без поколений
+bash meta_loop.sh   # поколения generation_N/ с переходом между ними
 ```
 
-6. Смотрите результаты в `generation_1/`, затем в следующих
-   `generation_N/`.
-7. Для ручных уточнений пишите в `generation_N/INBOX.md`.
-8. Для остановки поколения создайте `generation_N/STOP`.
+6. Если выбрали `meta_loop.sh`, смотрите результаты в `generation_1/`, затем
+   в следующих `generation_N/`. Если выбрали `loop.sh`, всё происходит прямо
+   в текущей директории.
+7. Для ручных уточнений пишите в `INBOX.md` (в текущей директории для
+   `loop.sh` или в `generation_N/INBOX.md` для `meta_loop.sh`).
+8. Для остановки создайте файл `STOP` рядом с `loop.sh` (для `meta_loop.sh`
+   — внутри текущего `generation_N/`).
 
 Runtime-артефакты `STOP`, `INBOX.md`, `.free-code-logs/` и локальный
 `anima.env` не предназначены для коммита в SDK. Директории `generation_N/`

@@ -14,7 +14,7 @@ if [[ "${ANIMA_CODEX_SKIP_GIT_REPO_CHECK:-1}" != "0" ]]; then
 fi
 
 if [[ "${ANIMA_CODEX_FULL_AUTO:-1}" != "0" ]]; then
-  cmd+=(--sandbox "${ANIMA_CODEX_SANDBOX:-workspace-write}")
+  cmd+=(--full-auto)
 fi
 
 if [[ -n "${ANIMA_MODEL:-}" ]]; then

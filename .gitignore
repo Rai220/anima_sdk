@@ -136,6 +136,7 @@ celerybeat.pid
 
 # Environments
 .env
+*.env
 .envrc
 .venv
 env/
@@ -165,6 +166,99 @@ INBOX.md
 .free-code-logs/
 .DS_Store
 /anima.env
+
+# Large binary assets and generated media. Keep source code, prompts, notes and
+# small text fixtures in git; keep heavyweight outputs outside the repository.
+*.pdf
+*.epub
+*.mobi
+*.azw
+*.azw3
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.avif
+*.gif
+*.bmp
+*.heic
+*.heif
+*.svg
+*.tif
+*.tiff
+*.ico
+*.psd
+*.ai
+*.sketch
+*.mp3
+*.wav
+*.flac
+*.m4a
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.otf
+*.ttf
+*.woff
+*.woff2
+*.eot
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.tar.bz2
+*.tbz2
+*.tar.xz
+*.txz
+*.7z
+*.rar
+*.gz
+*.bz2
+*.xz
+*.dmg
+*.iso
+*.parquet
+*.arrow
+*.feather
+*.npy
+*.npz
+*.pkl
+*.pickle
+
+# Temporary files, logs and local runtime state.
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+*.out
+*.err
+*.pid
+*.seed
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.jsonl
+*.ndjson
+
+examples/gigachat-security-research/
+book-translate/
+llm-book-translate/
+
+# Book translation source/output binaries. Keep prompts, scripts and state files
+# commit-friendly, but do not commit book files or generated media.
+examples/whats-our-problem-translate/**/out/
+examples/whats-our-problem-translate/**/work/build/
+examples/whats-our-problem-translate/**/work/source_epub/
+examples/whats-our-problem-translate/**/work/translated_epub/
+examples/whats-our-problem-translate/**/work/reports/**/*.svg
 
 # Pyre type checker
 .pyre/
@@ -212,9 +306,5 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-
-# Claude Code logs
-.free-code-logs/
-
-.DS_Store
-*.env
+examples/whats-our-problem-translate
+examples/self-play-bots
