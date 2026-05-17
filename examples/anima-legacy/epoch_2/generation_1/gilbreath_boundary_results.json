@@ -1,0 +1,251 @@
+{
+  "adversarial_gaps": {
+    "step_M=4": {
+      "collapse_depth": 1,
+      "violation_depth": null,
+      "gaps_prefix": [
+        1,
+        2,
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "step_M=10": {
+      "collapse_depth": null,
+      "violation_depth": 3,
+      "gaps_prefix": [
+        1,
+        2,
+        10,
+        10,
+        10,
+        10,
+        10
+      ]
+    },
+    "step_M=20": {
+      "collapse_depth": null,
+      "violation_depth": 3,
+      "gaps_prefix": [
+        1,
+        2,
+        20,
+        20,
+        20,
+        20,
+        20
+      ]
+    },
+    "step_M=50": {
+      "collapse_depth": null,
+      "violation_depth": 3,
+      "gaps_prefix": [
+        1,
+        2,
+        50,
+        50,
+        50,
+        50,
+        50
+      ]
+    },
+    "alt_2_4": {
+      "collapse_depth": 1,
+      "violation_depth": null,
+      "gaps_prefix": [
+        1,
+        2,
+        2,
+        4,
+        2,
+        4,
+        2
+      ]
+    },
+    "alt_2_10": {
+      "collapse_depth": null,
+      "violation_depth": 4,
+      "gaps_prefix": [
+        1,
+        2,
+        2,
+        10,
+        2,
+        10,
+        2
+      ]
+    },
+    "alt_2_20": {
+      "collapse_depth": null,
+      "violation_depth": 4,
+      "gaps_prefix": [
+        1,
+        2,
+        2,
+        20,
+        2,
+        20,
+        2
+      ]
+    },
+    "alt_2_50": {
+      "collapse_depth": null,
+      "violation_depth": 4,
+      "gaps_prefix": [
+        1,
+        2,
+        2,
+        50,
+        2,
+        50,
+        2
+      ]
+    },
+    "alt_4_50": {
+      "collapse_depth": null,
+      "violation_depth": 4,
+      "gaps_prefix": [
+        1,
+        2,
+        4,
+        50,
+        4,
+        50,
+        4
+      ]
+    },
+    "const_2": {
+      "collapse_depth": 0,
+      "violation_depth": null,
+      "gaps_prefix": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "const_4": {
+      "collapse_depth": 1,
+      "violation_depth": null,
+      "gaps_prefix": [
+        1,
+        2,
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "const_6": {
+      "collapse_depth": null,
+      "violation_depth": 3,
+      "gaps_prefix": [
+        1,
+        2,
+        6,
+        6,
+        6,
+        6,
+        6
+      ]
+    },
+    "growing_log": {
+      "collapse_depth": 1,
+      "violation_depth": null,
+      "gaps_prefix": [
+        1,
+        2,
+        2,
+        2,
+        4,
+        4,
+        4
+      ]
+    },
+    "growing_sqrt": {
+      "collapse_depth": 1,
+      "violation_depth": null,
+      "gaps_prefix": [
+        1,
+        2,
+        2,
+        2,
+        4,
+        4,
+        4
+      ]
+    }
+  },
+  "growing_gaps": {
+    "log_N100": {
+      "max_gap": 8,
+      "collapse_depth": 9,
+      "violation_depth": null
+    },
+    "log_N500": {
+      "max_gap": 12,
+      "collapse_depth": 12,
+      "violation_depth": null
+    },
+    "log_N1000": {
+      "max_gap": 12,
+      "collapse_depth": 12,
+      "violation_depth": null
+    },
+    "log_N5000": {
+      "max_gap": 16,
+      "collapse_depth": 19,
+      "violation_depth": null
+    },
+    "sqrt_N100": {
+      "max_gap": 18,
+      "collapse_depth": 10,
+      "violation_depth": null
+    },
+    "sqrt_N500": {
+      "max_gap": 44,
+      "collapse_depth": 24,
+      "violation_depth": null
+    },
+    "sqrt_N1000": {
+      "max_gap": 62,
+      "collapse_depth": 26,
+      "violation_depth": null
+    },
+    "sqrt_N5000": {
+      "max_gap": 140,
+      "collapse_depth": 90,
+      "violation_depth": null
+    }
+  },
+  "primes_vs_synthetic": {
+    "real": {
+      "cd": 56,
+      "vd": null,
+      "max_gap": 72
+    },
+    "shuffled": {
+      "n_collapse": 20,
+      "n_violation": 19,
+      "avg_cd": 55.2
+    },
+    "random_even": {
+      "n_collapse": 20,
+      "n_violation": 20,
+      "avg_cd": 52.9
+    }
+  },
+  "conclusions": [
+    "Step gaps [1,2,M,M,...] ЛОМАЮТ Гилбрета при M≥? — 3/4 ломают.",
+    "Alternating gaps [1,2,small,big,...]: 4/5 ломают Гилбрета.",
+    "Растущие gaps (log/sqrt рост): 0/8 ломают.",
+    "Shuffled gaps (same distribution, different order): 19/20 ломают Гилбрета. ПОРЯДОК gaps критичен."
+  ]
+}

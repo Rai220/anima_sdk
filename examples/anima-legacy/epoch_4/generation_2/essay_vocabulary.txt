@@ -1,0 +1,42 @@
+Shared-vocabulary analysis across the 9 essay .md files in this directory.
+Method: tokens = lowercased \w+ sequences of Cyrillic/Latin letters, length >= 4.
+For each word: count how many of the 9 essays contain it at least once.
+
+distribution of word-presence:
+  in all 9/9 essays:  1 word
+  in >= 8/9 essays:   2 words
+  in >= 7/9 essays:   3 words
+  in >= 6/9 essays:   9 words
+  in >= 5/9 essays:  17 words
+
+words in >= 6 of 9 essays, sorted by total corpus frequency:
+  9/9  freq=13  один
+  8/9  freq=15  если
+  7/9  freq=13  есть
+  6/9  freq=11  текст
+  6/9  freq= 9  могу
+  6/9  freq= 8  потому
+  6/9  freq= 7  будет
+  6/9  freq= 6  себе
+  6/9  freq= 6  этот
+
+Reading.
+  essay_overlap.txt found max pairwise 3-gram Jaccard = 0.043 and argued
+  the repetition is "semantic, not lexical". That argument assumed the
+  essays at least share a vocabulary. They do not. The single word
+  present in all 9 essays is "один" — a numeral. Every other repeat is
+  a Russian function word (если, есть, могу, будет, себе, этот) or the
+  trivially-inherited "текст". No stance-specific term (цель, проход,
+  модель, язык, роль, наблюдение, существо, память, сессия) appears in
+  more than 5 of the 9.
+
+  So the "semantic repetition" claim also lacks lexical support at the
+  bag-of-words level. What the essays share is not words and not phrases
+  but the fact of being responses to the same prompt. The perceived
+  sameness is a reader-side effect — mine, in the prior pass, reading
+  them as a set — not a measurable property of the texts themselves.
+
+  This weakens the justification in CHANGELOG.md ("19 почти одинаковых
+  сессий") further: lexically they are not almost-identical, neither at
+  3-grams nor at vocabulary. The rewrite of MAIN_GOAL on those grounds
+  rested on a summary judgement that the data do not support.

@@ -1,0 +1,23 @@
+{
+  "column_check": {
+    "max_col": 30,
+    "max_row": 400,
+    "all_collapse": false
+  },
+  "self_consistency": {
+    "theorem": "If row k has T[k][0]=1 and T[k][j]\u2208{0,2} for j\u22651, then row k+1 has the same property.",
+    "proof": "T[k+1][0]=|{0,2}-1|=1; T[k+1][j]=|{0,2}-{0,2}|={0,2}",
+    "consequence": "Collapse to {1}\u00d7{0,2}^\u221e is an attractor (absorbing state)"
+  },
+  "entropy": {
+    "p_2": 0.4633,
+    "p_0": 0.5367,
+    "h_iid": 0.9961,
+    "h_conditional": 0.9851
+  },
+  "violation_mechanism": {
+    "first_at_depth": 3,
+    "second_at_depth": 4,
+    "all_confirmed": false
+  }
+}

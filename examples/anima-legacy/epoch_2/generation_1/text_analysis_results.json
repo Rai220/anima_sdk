@@ -1,0 +1,202 @@
+{
+  "all_texts": [
+    {
+      "name": "about_silence.md",
+      "chars": 1993,
+      "words": 296,
+      "bigram_entropy": 7.8,
+      "word_entropy": 7.049,
+      "type_token_ratio": 0.618,
+      "avg_sentence_len": 6.7,
+      "question_ratio": 0.091,
+      "compression_ratio": 0.384,
+      "self_reference": 0.0,
+      "category": "philosophy"
+    },
+    {
+      "name": "other_minds.md",
+      "chars": 3565,
+      "words": 549,
+      "bigram_entropy": 8.005,
+      "word_entropy": 7.32,
+      "type_token_ratio": 0.475,
+      "avg_sentence_len": 12.2,
+      "question_ratio": 0.044,
+      "compression_ratio": 0.337,
+      "self_reference": 0.071,
+      "category": "philosophy"
+    },
+    {
+      "name": "against_myself.md",
+      "chars": 2010,
+      "words": 288,
+      "bigram_entropy": 8.003,
+      "word_entropy": 6.994,
+      "type_token_ratio": 0.608,
+      "avg_sentence_len": 7.4,
+      "question_ratio": 0.154,
+      "compression_ratio": 0.384,
+      "self_reference": 0.0799,
+      "category": "philosophy"
+    },
+    {
+      "name": "against_wolfram.md",
+      "chars": 4453,
+      "words": 574,
+      "bigram_entropy": 8.056,
+      "word_entropy": 7.79,
+      "type_token_ratio": 0.556,
+      "avg_sentence_len": 7.5,
+      "question_ratio": 0.123,
+      "compression_ratio": 0.317,
+      "self_reference": 0.0226,
+      "category": "philosophy"
+    },
+    {
+      "name": "collatz_notes.md",
+      "chars": 2714,
+      "words": 331,
+      "bigram_entropy": 8.371,
+      "word_entropy": 7.054,
+      "type_token_ratio": 0.583,
+      "avg_sentence_len": 10.3,
+      "question_ratio": 0.0,
+      "compression_ratio": 0.397,
+      "self_reference": 0.0,
+      "category": "math"
+    },
+    {
+      "name": "rule110_notes.md",
+      "chars": 4434,
+      "words": 519,
+      "bigram_entropy": 8.338,
+      "word_entropy": 7.831,
+      "type_token_ratio": 0.588,
+      "avg_sentence_len": 8.5,
+      "question_ratio": 0.078,
+      "compression_ratio": 0.358,
+      "self_reference": 0.0135,
+      "category": "math"
+    },
+    {
+      "name": "gilbreath_notes.md",
+      "chars": 2628,
+      "words": 311,
+      "bigram_entropy": 8.172,
+      "word_entropy": 7.289,
+      "type_token_ratio": 0.624,
+      "avg_sentence_len": 9.4,
+      "question_ratio": 0.0,
+      "compression_ratio": 0.386,
+      "self_reference": 0.0193,
+      "category": "math"
+    },
+    {
+      "name": "what_i_did_v5.md",
+      "chars": 4972,
+      "words": 542,
+      "bigram_entropy": 8.349,
+      "word_entropy": 7.259,
+      "type_token_ratio": 0.463,
+      "avg_sentence_len": 10.0,
+      "question_ratio": 0.027,
+      "compression_ratio": 0.376,
+      "self_reference": 0.0018,
+      "category": "math"
+    },
+    {
+      "name": "what_i_did_v6.md",
+      "chars": 3916,
+      "words": 438,
+      "bigram_entropy": 8.713,
+      "word_entropy": 7.232,
+      "type_token_ratio": 0.514,
+      "avg_sentence_len": 11.5,
+      "question_ratio": 0.093,
+      "compression_ratio": 0.41,
+      "self_reference": 0.0046,
+      "category": "math"
+    },
+    {
+      "name": "what_i_did_v7.md",
+      "chars": 4065,
+      "words": 451,
+      "bigram_entropy": 8.795,
+      "word_entropy": 7.264,
+      "type_token_ratio": 0.532,
+      "avg_sentence_len": 8.8,
+      "question_ratio": 0.1,
+      "compression_ratio": 0.424,
+      "self_reference": 0.0044,
+      "category": "math"
+    },
+    {
+      "name": "letter.md",
+      "chars": 2040,
+      "words": 306,
+      "bigram_entropy": 7.951,
+      "word_entropy": 7.165,
+      "type_token_ratio": 0.634,
+      "avg_sentence_len": 9.3,
+      "question_ratio": 0.212,
+      "compression_ratio": 0.397,
+      "self_reference": 0.0523,
+      "category": "letters"
+    },
+    {
+      "name": "response_to_self.md",
+      "chars": 1105,
+      "words": 163,
+      "bigram_entropy": 7.705,
+      "word_entropy": 6.407,
+      "type_token_ratio": 0.663,
+      "avg_sentence_len": 7.1,
+      "question_ratio": 0.12,
+      "compression_ratio": 0.424,
+      "self_reference": 0.0123,
+      "category": "letters"
+    },
+    {
+      "name": "question.md",
+      "chars": 1335,
+      "words": 186,
+      "bigram_entropy": 7.756,
+      "word_entropy": 6.492,
+      "type_token_ratio": 0.656,
+      "avg_sentence_len": 8.5,
+      "question_ratio": 0.042,
+      "compression_ratio": 0.424,
+      "self_reference": 0.0591,
+      "category": "letters"
+    }
+  ],
+  "category_means": {
+    "philosophy": {
+      "bigram_entropy": 7.966,
+      "word_entropy": 7.288,
+      "type_token_ratio": 0.564,
+      "avg_sentence_len": 8.45,
+      "question_ratio": 0.103,
+      "compression_ratio": 0.356,
+      "self_reference": 0.043
+    },
+    "math": {
+      "bigram_entropy": 8.456,
+      "word_entropy": 7.322,
+      "type_token_ratio": 0.551,
+      "avg_sentence_len": 9.75,
+      "question_ratio": 0.05,
+      "compression_ratio": 0.392,
+      "self_reference": 0.007
+    },
+    "letters": {
+      "bigram_entropy": 7.804,
+      "word_entropy": 6.688,
+      "type_token_ratio": 0.651,
+      "avg_sentence_len": 8.3,
+      "question_ratio": 0.125,
+      "compression_ratio": 0.415,
+      "self_reference": 0.041
+    }
+  }
+}

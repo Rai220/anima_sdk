@@ -1,0 +1,114 @@
+{
+  "predictions": [
+    {
+      "name": "π(10^7) из x/lnx + x/ln²x",
+      "prediction": 658914,
+      "actual": 664579,
+      "error": 5665,
+      "tolerance": 10000,
+      "correct": true,
+      "reasoning": "x/ln(x) + x/ln²(x) — двучленное приближение"
+    },
+    {
+      "name": "Доля twin primes среди первых 100k простых",
+      "prediction": 0.087,
+      "actual": 0.1025,
+      "error": 0.0155,
+      "tolerance": 0.01,
+      "correct": false,
+      "reasoning": "C₂·N/ln²(N) для оценки числа twin primes"
+    },
+    {
+      "name": "Самый частый gap среди первых 100k простых",
+      "prediction": 6,
+      "actual": 6,
+      "correct": true,
+      "reasoning": "6 кратно 2·3, максимизирует допустимые конфигурации по модулям"
+    },
+    {
+      "name": "Чисел до 10000, представимых как a²+b²",
+      "prediction": 2519,
+      "actual": 2749,
+      "error": 230,
+      "tolerance": 200,
+      "correct": false,
+      "reasoning": "Плотность ~ C_LR/√(ln n), C_LR ≈ 0.7642"
+    },
+    {
+      "name": "p(50) из асимптотики Харди-Рамануджана",
+      "prediction": 217898,
+      "actual": 204226,
+      "error": 13672,
+      "tolerance": 20000,
+      "correct": true,
+      "reasoning": "exp(π√(2n/3))/(4n√3)"
+    },
+    {
+      "name": "D(10) — число дерангементов",
+      "prediction": 1334961,
+      "actual": 1334961,
+      "error": 0,
+      "tolerance": 5,
+      "correct": true,
+      "reasoning": "D(n) ≈ n!/e, округлённое до ближайшего целого"
+    },
+    {
+      "name": "Среднее число циклов в S_10",
+      "prediction": 2.9289682539682538,
+      "actual": 2.92955,
+      "error": 0.0005817460317460998,
+      "tolerance": 0.02,
+      "correct": true,
+      "reasoning": "E[циклы] = H_n = гармоническое число"
+    },
+    {
+      "name": "P(gcd=1) для случайных чисел до 10000",
+      "prediction": 0.6079271018540267,
+      "actual": 0.60977,
+      "error": 0.0018428981459733818,
+      "tolerance": 0.005,
+      "correct": true,
+      "reasoning": "6/π² — классическая формула"
+    },
+    {
+      "name": "E[бросков до HH]",
+      "prediction": 6.0,
+      "actual": 5.979995,
+      "error": 0.020005000000000273,
+      "tolerance": 0.05,
+      "correct": true,
+      "reasoning": "Марковская цепь: E = 6 (точное решение)"
+    },
+    {
+      "name": "Число простых палиндромов до 100000",
+      "prediction": 70,
+      "actual": 113,
+      "error": 43,
+      "tolerance": 20,
+      "correct": false,
+      "reasoning": "Подсчёт по числу знаков с учётом делимости"
+    },
+    {
+      "name": "Наибольший prime gap до 10^6",
+      "prediction": 153,
+      "actual": 114,
+      "error": 39,
+      "tolerance": 30,
+      "correct": false,
+      "reasoning": "Эвристика Крамера: ~(ln N)² с поправкой"
+    },
+    {
+      "name": "Доля чисел с нечётным числом делителей до 10000",
+      "prediction": 0.01,
+      "actual": 0.01,
+      "correct": true,
+      "reasoning": "Нечётное число делителей ⟺ полный квадрат. √10000/10000 = 0.01"
+    }
+  ],
+  "summary": {
+    "score": 8,
+    "total": 12,
+    "accuracy": 0.6666666666666666,
+    "classification": "Все предсказания сделаны из формул и принципов, не из памяти конкретных значений. Ошибки в предсказаниях показывают границу между 'знаю формулу' и 'знаю точный ответ'."
+  }
+}

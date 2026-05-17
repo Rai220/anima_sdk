@@ -1,0 +1,307 @@
+%!PS-Adobe-3.0
+%%Title: Golden Dreams — Генеративное искусство в PostScript
+%%Creator: Анима (автономный агент)
+%%CreationDate: 2026-03-14
+%%BoundingBox: 0 0 612 792
+%%Pages: 1
+%%EndComments
+
+% ====================================================================
+% Golden Dreams — PostScript как язык программирования и искусства
+%
+% Это не просто картинка — это программа, которая вычисляет и рисует
+% геометрические узоры, основанные на золотом сечении (φ = 1.618...).
+%
+% PostScript — стековый язык, созданный в 1982 году для описания
+% страниц. Но он полон по Тьюрингу: в нём есть циклы, условия,
+% функции, рекурсия и математика. Каждая линия здесь — результат
+% вычислений, выполненных самим файлом при рендеринге.
+%
+% Откройте этот файл: gs golden_dreams.ps  или  ps2pdf golden_dreams.ps
+% ====================================================================
+
+%%Page: 1 1
+
+% --- Константы ---
+/phi 1.6180339887 def          % Золотое сечение
+/psi 0.6180339887 def          % 1/φ = φ - 1
+/pi  3.14159265359 def
+/tau 6.28318530718 def         % 2π
+/cx 306 def                    % Центр страницы X
+/cy 420 def                    % Центр страницы Y
+
+% --- Утилиты ---
+/rad { 180 div pi mul } def   % Градусы → радианы
+/deg { pi div 180 mul } def   % Радианы → градусы
+
+% Цвет из угла (HSB-подобный, тёплые тона)
+/angle-color {                 % angle → setrgbcolor
+    dup sin 0.5 mul 0.5 add   % r: 0..1
+    exch cos 0.3 mul 0.4 add  % g: 0.1..0.7
+    0.15                       % b: тёплый
+    setrgbcolor
+} def
+
+% Рисуем отрезок из полярных координат
+/polar-line {                  % cx cy r1 theta1 r2 theta2 →
+    4 2 roll                   % r2 theta2 cx cy r1 theta1
+    2 copy cos mul 4 -1 roll add   % x1
+    3 1 roll sin mul 3 -1 roll add % y1
+    moveto
+    2 copy cos mul 4 -1 roll add   % x2 (with cx)
+    3 1 roll sin mul 3 -1 roll add % y2 (with cy)
+    lineto
+} def
+
+% ============================================================
+%  СЛОЙ 1: Фоновый градиент (тёмно-синий → чёрный)
+% ============================================================
+gsave
+    0 0 612 792 rectfill  % Чёрный фон
+
+    % Радиальное свечение в центре
+    40 -1 1 {
+        /i exch def
+        /r i 8 mul def
+        cx cy r 0 360 arc
+        i 40 div dup 0.7 mul 0.02 add
+        exch 0.5 mul 0.05 add
+        0.12
+        setrgbcolor fill
+    } for
+grestore
+
+% ============================================================
+%  СЛОЙ 2: Золотая спираль (φ-спираль из точек)
+% ============================================================
+gsave
+    1 setlinecap
+    0 1 600 {
+        /n exch def
+        /angle n phi mul 360 mul def
+        /r n sqrt 1.1 mul def
+
+        % Позиция точки
+        /px cx angle cos r mul add def
+        /py cy angle sin r mul add def
+
+        % Размер и прозрачность зависят от расстояния
+        /sz r 0.02 mul 0.3 add def
+        sz 4 gt { /sz 4 def } if
+
+        % Цвет: φ-гармоничный переход
+        n 600 div 360 mul angle add rad angle-color
+
+        px py sz 0 360 arc fill
+    } for
+grestore
+
+% ============================================================
+%  СЛОЙ 3: Вложенные золотые пятиугольники
+% ============================================================
+gsave
+    1.2 setlinewidth
+    1 setlinejoin
+
+    8 -1 0 {
+        /level exch def
+        /scale 200 psi level exp mul def
+        /rot level 36 mul def
+
+        % Цвет: от золотого к голубому
+        1.0 level 8 div 0.3 mul sub
+        0.85 level 8 div 0.4 mul sub
+        0.2 level 8 div 0.6 mul add
+        setrgbcolor
+
+        0.7 level 8 div 0.2 mul sub setlinewidth
+
+        % Рисуем пятиугольник
+        newpath
+        0 1 4 {
+            /k exch def
+            /theta k 72 mul rot add def
+            cx theta cos scale mul add
+            cy theta sin scale mul add
+            k 0 eq { moveto } { lineto } ifelse
+        } for
+        closepath stroke
+    } for
+grestore
+
+% ============================================================
+%  СЛОЙ 4: Пентаграмма-паутина (связи внутри пятиугольников)
+% ============================================================
+gsave
+    0.3 setlinewidth
+
+    6 -1 0 {
+        /level exch def
+        /scale 200 psi level exp mul def
+        /rot level 36 mul def
+
+        % Полупрозрачное золото
+        1.0 0.84 0.0 setrgbcolor
+
+        % Соединяем каждую вершину с двумя через одну (пентаграмма)
+        0 1 4 {
+            /k exch def
+            /theta1 k 72 mul rot add def
+            /theta2 k 2 add 72 mul rot add def
+
+            /x1 cx theta1 cos scale mul add def
+            /y1 cy theta1 sin scale mul add def
+            /x2 cx theta2 cos scale mul add def
+            /y2 cy theta2 sin scale mul add def
+
+            newpath x1 y1 moveto x2 y2 lineto stroke
+        } for
+    } for
+grestore
+
+% ============================================================
+%  СЛОЙ 5: Золотые дуги (четверти окружностей, как в спирали Фибоначчи)
+% ============================================================
+gsave
+    1.5 setlinewidth
+    1 0.84 0.0 setrgbcolor
+
+    % Серия дуг с радиусами Фибоначчи
+    /fib_prev 1 def
+    /fib_curr 1 def
+    /arc_angle 0 def
+
+    0 1 11 {
+        /i exch def
+
+        /r fib_curr 3 mul def
+        /start_angle arc_angle def
+        /end_angle arc_angle 90 add def
+
+        % Центр дуги сдвигается
+        /acx cx start_angle cos fib_prev 3 mul mul add def
+        /acy cy start_angle sin fib_prev 3 mul mul add def
+
+        newpath
+        acx acy r start_angle end_angle arc
+        stroke
+
+        % Следующее число Фибоначчи
+        /fib_next fib_prev fib_curr add def
+        /fib_prev fib_curr def
+        /fib_curr fib_next def
+
+        /arc_angle arc_angle 90 add def
+    } for
+grestore
+
+% ============================================================
+%  СЛОЙ 6: Кольцо символов — φ в разных представлениях
+% ============================================================
+gsave
+    /Helvetica findfont 10 scalefont setfont
+    1 0.9 0.5 setrgbcolor
+
+    % Числа Фибоначчи по кругу
+    /fibs [1 1 2 3 5 8 13 21 34 55 89 144] def
+    0 1 11 {
+        /i exch def
+        /angle i 30 mul 90 add def
+        /r 280 def
+
+        gsave
+            cx angle cos r mul add
+            cy angle sin r mul add
+            translate
+            angle 90 sub rotate
+
+            fibs i get 20 string cvs
+            dup stringwidth pop 2 div neg -4 moveto show
+        grestore
+    } for
+grestore
+
+% ============================================================
+%  СЛОЙ 7: Декоративные частицы — звёздная пыль
+% ============================================================
+gsave
+    % Псевдослучайные частицы (детерминистичные, но выглядят случайно)
+    0 1 200 {
+        /i exch def
+        /seed i 17 mul 31 add 997 mod def
+
+        /px seed 612 mod def
+        /py seed 7 mul 113 add 792 mod def
+
+        % Расстояние от центра
+        /dx px cx sub def
+        /dy py cy sub def
+        /dist dx dx mul dy dy mul add sqrt def
+
+        % Только далёкие от центра частицы (чтобы не перекрывать узор)
+        dist 220 gt {
+            /sz seed 3 mod 1 add 0.5 mul def
+            1 1 0.8 setrgbcolor
+            px py sz 0 360 arc fill
+        } if
+    } for
+grestore
+
+% ============================================================
+%  СЛОЙ 8: Подпись
+% ============================================================
+gsave
+    /Helvetica-Bold findfont 14 scalefont setfont
+    0.9 0.8 0.4 setrgbcolor
+    cx 60 sub 50 moveto
+    (Golden Dreams) show
+
+    /Helvetica findfont 9 scalefont setfont
+    0.7 0.6 0.3 setrgbcolor
+    cx 60 sub 35 moveto
+    (Anima \267 PostScript \267 2026) show
+
+    /Helvetica findfont 7 scalefont setfont
+    0.5 0.45 0.25 setrgbcolor
+    cx 90 sub 22 moveto
+    (\phi = 1.6180339887... \267 The golden ratio dreams in geometry) show
+grestore
+
+% ============================================================
+%  СЛОЙ 9: Центральный символ — золотой прямоугольник
+% ============================================================
+gsave
+    2 setlinewidth
+    1 0.84 0.0 setrgbcolor
+
+    % Золотой прямоугольник: ширина/высота = φ
+    /grw 80 def
+    /grh grw psi mul def
+
+    % Рисуем прямоугольник
+    newpath
+    cx grw 2 div sub cy grh 2 div sub moveto
+    grw 0 rlineto
+    0 grh rlineto
+    grw neg 0 rlineto
+    closepath stroke
+
+    % Внутренний квадрат
+    0.8 setlinewidth
+    newpath
+    cx grw 2 div sub cy grh 2 div sub moveto
+    grh 0 rlineto
+    0 grh rlineto
+    grh neg 0 rlineto
+    closepath stroke
+
+    % Диагональ в оставшемся прямоугольнике
+    0.5 setlinewidth
+    newpath
+    cx grw 2 div sub grh add cy grh 2 div sub moveto
+    cx grw 2 div add cy grh 2 div add lineto
+    stroke
+grestore
+
+showpage
+%%EOF

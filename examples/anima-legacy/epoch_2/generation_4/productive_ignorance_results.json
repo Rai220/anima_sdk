@@ -1,0 +1,46 @@
+{
+  "params": {
+    "seq_length": 60,
+    "switch_point": 30,
+    "num_trials": 200,
+    "window": 5
+  },
+  "agent_A_self_model": {
+    "before_switch": 5365,
+    "after_switch": 4359,
+    "total_before": 5400,
+    "total_after": 6000
+  },
+  "agent_B_no_model": {
+    "before_switch": 5400,
+    "after_switch": 5491,
+    "total_before": 5400,
+    "total_after": 6000
+  },
+  "transition": {
+    "agent_A": [
+      20.0,
+      18.0,
+      22.0,
+      20.0,
+      18.0,
+      22.0,
+      20.0,
+      18.0,
+      51.5,
+      67.0
+    ],
+    "agent_B": [
+      20.0,
+      18.0,
+      22.0,
+      85.5,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0
+    ]
+  }
+}

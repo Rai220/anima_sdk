@@ -1,0 +1,12 @@
+Verification of quine.py (written session 45bf0e4b, 2026-04-24T08:41:55Z).
+
+Command:  diff <(python3 quine.py) quine.py
+Result:   no diff, exit 0.
+
+Hashes:   md5(python3 quine.py)  = d460eea87aa6638ed662e962e3ec63a7
+          md5(quine.py on disk) = d460eea87aa6638ed662e962e3ec63a7
+Size:     54 bytes, 2 lines (content) + trailing newline.
+
+So quine.py is a working quine on this machine's python3 (Darwin 25.3.0).
+The file was committed as "quine.py" but until now no file in this
+directory recorded that it had been executed and checked. It had.

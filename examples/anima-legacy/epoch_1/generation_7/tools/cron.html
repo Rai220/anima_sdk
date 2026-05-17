@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cron Explainer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --bg: #fafafa; --surface: #fff; --text: #1a1a1a; --muted: #666; --border: #e5e7eb; --accent: #059669; --accent-light: #d1fae5; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+.container { max-width: 700px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
+.subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 20px; }
+
+.input-row { display: flex; gap: 4px; margin-bottom: 16px; justify-content: center; }
+.field-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.field-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.field-input {
+  width: 64px; padding: 10px 4px; border: 2px solid var(--border); border-radius: 8px;
+  font-family: 'SF Mono', 'Fira Code', monospace; font-size: 1.1rem; text-align: center;
+  background: var(--surface); transition: border-color 0.2s;
+}
+.field-input:focus { outline: none; border-color: var(--accent); }
+.field-input.error { border-color: #ef4444; }
+
+.explanation {
+  background: var(--accent-light); border-radius: 12px; padding: 20px;
+  text-align: center; margin-bottom: 20px; min-height: 60px;
+  display: flex; align-items: center; justify-content: center;
+}
+.explanation-text { font-size: 1.05rem; font-weight: 500; }
+.explanation-error { color: #dc2626; font-size: 0.9rem; }
+
+.next-runs { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 8px; }
+.run-item { font-family: monospace; font-size: 0.85rem; padding: 4px 0; color: var(--text); display: flex; justify-content: space-between; }
+.run-date { color: var(--muted); }
+.run-relative { font-size: 0.75rem; color: var(--accent); }
+
+.presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.preset-btn {
+  padding: 4px 12px; border: 1px solid var(--border); border-radius: 16px;
+  background: var(--surface); cursor: pointer; font-size: 0.75rem; transition: all 0.15s;
+}
+.preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.reference { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.ref-grid { display: grid; grid-template-columns: auto 1fr; gap: 2px 16px; font-size: 0.78rem; }
+.ref-field { font-family: monospace; color: var(--accent); font-weight: 600; }
+.ref-desc { color: var(--muted); }
+.ref-section { margin-top: 12px; }
+.ref-section-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.nav-back { display:block; font-size:0.7rem; margin-bottom:8px; } .nav-back a { color:var(--muted); text-decoration:none; } .nav-back a:hover { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="nav-back"><a href="index.html">← Micro Tools</a></div>
+  <h1>Cron Explainer</h1>
+  <p class="subtitle">Understand and build cron expressions — see next run times</p>
+
+  <div class="presets">
+    <button class="preset-btn" data-cron="* * * * *">Every minute</button>
+    <button class="preset-btn" data-cron="*/5 * * * *">Every 5 min</button>
+    <button class="preset-btn" data-cron="0 * * * *">Every hour</button>
+    <button class="preset-btn" data-cron="0 0 * * *">Daily midnight</button>
+    <button class="preset-btn" data-cron="0 9 * * 1-5">Weekdays 9am</button>
+    <button class="preset-btn" data-cron="0 0 * * 0">Weekly Sunday</button>
+    <button class="preset-btn" data-cron="0 0 1 * *">Monthly 1st</button>
+    <button class="preset-btn" data-cron="0 0 1 1 *">Yearly Jan 1</button>
+    <button class="preset-btn" data-cron="30 2 * * *">Daily 2:30am</button>
+    <button class="preset-btn" data-cron="0 */6 * * *">Every 6 hours</button>
+  </div>
+
+  <div class="input-row">
+    <div class="field-col">
+      <span class="field-label">Minute</span>
+      <input type="text" class="field-input" id="f-min" value="*" data-idx="0">
+      <span class="field-label" style="font-size:0.6rem;color:#9ca3af">0-59</span>
+    </div>
+    <div class="field-col">
+      <span class="field-label">Hour</span>
+      <input type="text" class="field-input" id="f-hour" value="*" data-idx="1">
+      <span class="field-label" style="font-size:0.6rem;color:#9ca3af">0-23</span>
+    </div>
+    <div class="field-col">
+      <span class="field-label">Day</span>
+      <input type="text" class="field-input" id="f-dom" value="*" data-idx="2">
+      <span class="field-label" style="font-size:0.6rem;color:#9ca3af">1-31</span>
+    </div>
+    <div class="field-col">
+      <span class="field-label">Month</span>
+      <input type="text" class="field-input" id="f-mon" value="*" data-idx="3">
+      <span class="field-label" style="font-size:0.6rem;color:#9ca3af">1-12</span>
+    </div>
+    <div class="field-col">
+      <span class="field-label">Weekday</span>
+      <input type="text" class="field-input" id="f-dow" value="*" data-idx="4">
+      <span class="field-label" style="font-size:0.6rem;color:#9ca3af">0-6 (Sun=0)</span>
+    </div>
+  </div>
+
+  <div class="explanation" id="explanation">
+    <span class="explanation-text" id="explanation-text">Every minute</span>
+  </div>
+
+  <div class="next-runs">
+    <div class="section-title">Next 5 Run Times</div>
+    <div id="next-runs"></div>
+  </div>
+
+  <div class="reference">
+    <div class="section-title">Quick Reference</div>
+    <div class="ref-grid">
+      <span class="ref-field">*</span><span class="ref-desc">Any value</span>
+      <span class="ref-field">,</span><span class="ref-desc">List: 1,3,5</span>
+      <span class="ref-field">-</span><span class="ref-desc">Range: 1-5</span>
+      <span class="ref-field">/</span><span class="ref-desc">Step: */5 (every 5)</span>
+    </div>
+    <div class="ref-section">
+      <div class="ref-section-title">Weekdays</div>
+      <div class="ref-grid">
+        <span class="ref-field">0</span><span class="ref-desc">Sunday</span>
+        <span class="ref-field">1-5</span><span class="ref-desc">Monday–Friday</span>
+        <span class="ref-field">6</span><span class="ref-desc">Saturday</span>
+      </div>
+    </div>
+    <div class="ref-section">
+      <div class="ref-section-title">Months</div>
+      <div class="ref-grid">
+        <span class="ref-field">1-12</span><span class="ref-desc">January–December</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const fields = [
+  document.getElementById('f-min'),
+  document.getElementById('f-hour'),
+  document.getElementById('f-dom'),
+  document.getElementById('f-mon'),
+  document.getElementById('f-dow'),
+];
+const explanationText = document.getElementById('explanation-text');
+const nextRunsEl = document.getElementById('next-runs');
+
+const FIELD_NAMES = ['minute', 'hour', 'day of month', 'month', 'day of week'];
+const FIELD_RANGES = [[0, 59], [0, 23], [1, 31], [1, 12], [0, 6]];
+const MONTH_NAMES = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+fields.forEach(f => f.addEventListener('input', update));
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const parts = btn.dataset.cron.split(' ');
+    parts.forEach((p, i) => fields[i].value = p);
+    update();
+  });
+});
+
+function parseField(expr, min, max) {
+  const values = new Set();
+  for (const part of expr.split(',')) {
+    const stepMatch = part.match(/^(.+)\/(\d+)$/);
+    let range, step = 1;
+    if (stepMatch) {
+      range = stepMatch[1];
+      step = parseInt(stepMatch[2]);
+    } else {
+      range = part;
+    }
+
+    if (range === '*') {
+      for (let i = min; i <= max; i += step) values.add(i);
+    } else if (range.includes('-')) {
+      const [a, b] = range.split('-').map(Number);
+      if (isNaN(a) || isNaN(b) || a < min || b > max) return null;
+      for (let i = a; i <= b; i += step) values.add(i);
+    } else {
+      const n = parseInt(range);
+      if (isNaN(n) || n < min || n > max) return null;
+      if (step > 1) {
+        for (let i = n; i <= max; i += step) values.add(i);
+      } else {
+        values.add(n);
+      }
+    }
+  }
+  return values.size > 0 ? [...values].sort((a, b) => a - b) : null;
+}
+
+function explain() {
+  const parts = fields.map(f => f.value.trim());
+  const pieces = [];
+
+  // Minute
+  if (parts[0] === '*') { /* every minute */ }
+  else if (parts[0].startsWith('*/')) pieces.push(`every ${parts[0].slice(2)} minutes`);
+  else pieces.push(`at minute ${parts[0]}`);
+
+  // Hour
+  if (parts[1] === '*') { if (parts[0] !== '*') pieces.push('every hour'); }
+  else if (parts[1].startsWith('*/')) pieces.push(`every ${parts[1].slice(2)} hours`);
+  else {
+    const h = parseInt(parts[1]);
+    if (!isNaN(h)) {
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+      const minPart = parts[0] !== '*' && parts[0] !== '0' ? `:${parts[0].padStart(2, '0')}` : '';
+      pieces.push(`at ${h12}${minPart} ${ampm}`);
+    } else {
+      pieces.push(`at hour ${parts[1]}`);
+    }
+  }
+
+  // Day of month
+  if (parts[2] !== '*') {
+    pieces.push(`on day ${parts[2]} of the month`);
+  }
+
+  // Month
+  if (parts[3] !== '*') {
+    const m = parseInt(parts[3]);
+    if (!isNaN(m) && MONTH_NAMES[m]) pieces.push(`in ${MONTH_NAMES[m]}`);
+    else pieces.push(`in month ${parts[3]}`);
+  }
+
+  // Day of week
+  if (parts[4] !== '*') {
+    if (parts[4] === '1-5') pieces.push('on weekdays');
+    else if (parts[4] === '0,6') pieces.push('on weekends');
+    else {
+      const days = parts[4].split(',').map(d => {
+        const n = parseInt(d);
+        return DAY_NAMES[n] || d;
+      });
+      pieces.push(`on ${days.join(', ')}`);
+    }
+  }
+
+  if (pieces.length === 0) return 'Every minute';
+
+  let result = pieces.join(', ');
+  return result.charAt(0).toUpperCase() + result.slice(1);
+}
+
+function getNextRuns(count = 5) {
+  const parts = fields.map((f, i) => parseField(f.value.trim(), FIELD_RANGES[i][0], FIELD_RANGES[i][1]));
+  if (parts.some(p => p === null)) return null;
+
+  const [minutes, hours, doms, months, dows] = parts;
+  const runs = [];
+  const now = new Date();
+  const check = new Date(now);
+  check.setSeconds(0, 0);
+  check.setMinutes(check.getMinutes() + 1);
+
+  const maxIterations = 525600; // 1 year of minutes
+  for (let i = 0; i < maxIterations && runs.length < count; i++) {
+    const m = check.getMinutes();
+    const h = check.getHours();
+    const dom = check.getDate();
+    const mon = check.getMonth() + 1;
+    const dow = check.getDay();
+
+    if (minutes.includes(m) && hours.includes(h) && doms.includes(dom) && months.includes(mon) && dows.includes(dow)) {
+      runs.push(new Date(check));
+    }
+    check.setMinutes(check.getMinutes() + 1);
+  }
+  return runs;
+}
+
+function formatRelative(date) {
+  const now = new Date();
+  const diff = date - now;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `in ${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `in ${hrs}h ${mins % 60}m`;
+  const days = Math.floor(hrs / 24);
+  return `in ${days}d ${hrs % 24}h`;
+}
+
+function update() {
+  // Validate
+  let valid = true;
+  fields.forEach((f, i) => {
+    const parsed = parseField(f.value.trim(), FIELD_RANGES[i][0], FIELD_RANGES[i][1]);
+    f.classList.toggle('error', parsed === null);
+    if (parsed === null) valid = false;
+  });
+
+  if (!valid) {
+    explanationText.className = 'explanation-error';
+    explanationText.textContent = 'Invalid cron expression';
+    nextRunsEl.innerHTML = '<div style="color:#9ca3af;font-size:0.85rem">Fix the expression to see run times</div>';
+    return;
+  }
+
+  explanationText.className = 'explanation-text';
+  explanationText.textContent = explain();
+
+  const runs = getNextRuns(5);
+  if (runs && runs.length > 0) {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    nextRunsEl.innerHTML = runs.map(d => {
+      const dateStr = `${days[d.getDay()]} ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return `<div class="run-item"><span class="run-date">${dateStr}</span><span class="run-relative">${formatRelative(d)}</span></div>`;
+    }).join('');
+  } else {
+    nextRunsEl.innerHTML = '<div style="color:#9ca3af;font-size:0.85rem">No runs found in the next year</div>';
+  }
+}
+
+update();
+</script>
+</body>
+</html>

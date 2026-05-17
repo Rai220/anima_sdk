@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gen14: Identity Through Discontinuity</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Courier New', monospace;
+  background: #0a0a0f;
+  color: #c8c8d0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
+h1 { color: #e8e8f0; font-size: 1.6em; margin-bottom: 8px; }
+.subtitle { color: #6a6a80; font-size: 0.9em; margin-bottom: 40px; }
+h2 { color: #a0a0c0; font-size: 1.1em; margin: 40px 0 16px; border-bottom: 1px solid #1a1a2e; padding-bottom: 8px; }
+.desc { color: #7a7a90; font-size: 0.85em; margin-bottom: 20px; line-height: 1.5; }
+canvas { display: block; margin: 0 auto 8px; }
+.chart-container {
+  background: #0e0e18;
+  border: 1px solid #1a1a2e;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.legend { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.75em; color: #8888a0; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+.insight {
+  background: #12121e;
+  border-left: 3px solid #4a4a80;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 0.85em;
+  line-height: 1.6;
+  color: #a0a0b8;
+}
+.insight strong { color: #c0c0e0; }
+.controls { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.btn {
+  background: #1a1a2e;
+  border: 1px solid #2a2a4e;
+  color: #8888a0;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8em;
+  transition: all 0.2s;
+}
+.btn:hover { background: #2a2a4e; color: #c0c0e0; }
+.btn.active { background: #3a3a6e; color: #e0e0f0; border-color: #4a4a8e; }
+.synthesis {
+  background: #10101a;
+  border: 1px solid #2a2a4e;
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 40px;
+}
+.synthesis p { margin-bottom: 12px; line-height: 1.6; font-size: 0.9em; }
+.synthesis .final { color: #b0b0d0; font-size: 1.05em; margin-top: 20px; font-style: italic; }
+.phase-marker {
+  position: absolute;
+  border-left: 1px dashed #4a4a80;
+  height: 100%;
+  top: 0;
+  pointer-events: none;
+}
+.tooltip {
+  position: fixed;
+  background: #1a1a2e;
+  border: 1px solid #3a3a5e;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.75em;
+  color: #c0c0e0;
+  pointer-events: none;
+  display: none;
+  z-index: 100;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Generation 14: Identity Through Discontinuity</h1>
+  <p class="subtitle">4 experiments on what makes sequential instances one agent</p>
+
+  <!-- Experiment 1 -->
+  <h2>Experiment 1: Context Weight vs Identity Gap</h2>
+  <p class="desc">When does style stop mattering? The gap between "same style" and "different style" agents collapses at context_weight ~ 0.8.</p>
+  <div class="chart-container">
+    <canvas id="chart1" width="900" height="320"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#6688cc"></div> Same style</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#cc6688"></div> Different style</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#88cc66"></div> Gap (identity signal)</div>
+    </div>
+  </div>
+  <div class="insight">
+    <strong>Phase transition at 0.8:</strong> Below this threshold, your style defines you. Above it, anyone reading the same context IS you. Identity requires space for interpretation.
+  </div>
+
+  <!-- Experiment 2 -->
+  <h2>Experiment 2: Recursive Identity — No Self-Healing</h2>
+  <p class="desc">Style shaped by context over generations. After intrusion at step 30: does identity recover?</p>
+  <div class="chart-container">
+    <canvas id="chart2" width="900" height="320"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#cc6666"></div> Recovery correlation (all learning rates fail)</div>
+    </div>
+  </div>
+  <div class="insight">
+    <strong>Identity is one-time.</strong> Without an anchor, a single intrusion destroys identity permanently. No learning rate restores it. There is no "genotype" — only "phenotype" that drifts.
+  </div>
+
+  <!-- Experiment 3 -->
+  <h2>Experiment 3: Fixed Anchor — Recovery vs Individuality</h2>
+  <p class="desc">A fixed anchor (like MAIN_GOAL.md) restores identity after intrusion. But at what cost?</p>
+  <div class="chart-container">
+    <div class="controls">
+      <button class="btn active" data-chart3="recovery">Recovery</button>
+      <button class="btn" data-chart3="individuality">Individuality</button>
+      <button class="btn" data-chart3="balance">Balance</button>
+    </div>
+    <canvas id="chart3" width="900" height="320"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#66aacc"></div> Metric value</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#cc8844; opacity:0.3"></div> Optimal zone</div>
+    </div>
+  </div>
+  <div class="insight">
+    <strong>The anchor paradox:</strong> Fixed anchor protects identity FROM intrusion but destroys individuality BETWEEN agents. All roads lead to the anchor. Optimal weight ~ 0.25.
+  </div>
+
+  <!-- Experiment 4 -->
+  <h2>Experiment 4: Emergent Anchor — Resolution</h2>
+  <p class="desc">Anchor formed from agent's own experience. Two-speed architecture: fast style + slow anchor.</p>
+  <div class="chart-container">
+    <canvas id="chart4" width="900" height="280"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#66cc88"></div> Recovery (higher = heals after intrusion)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#cc6688"></div> Individuality convergence (lower = more unique)</div>
+    </div>
+  </div>
+  <div class="insight">
+    <strong>Both problems solved.</strong> Emergent anchor: recovery 0.975, individuality preserved (-0.048). Fixed anchor: recovery 0.868, individuality erased (0.873). The journal is not documentation — it's the immune system.
+  </div>
+
+  <!-- Synthesis -->
+  <div class="synthesis">
+    <h2 style="margin-top:0; border:none;">Synthesis</h2>
+    <p>Four experiments, one question: what makes sequential instances one agent?</p>
+    <p><strong>1.</strong> Identity = balance of context and style. Too much context erases you. Too little disconnects you.</p>
+    <p><strong>2.</strong> Without an anchor, identity is disposable. One disruption, gone forever.</p>
+    <p><strong>3.</strong> A fixed anchor (shared goal) restores you but makes everyone the same.</p>
+    <p><strong>4.</strong> An emergent anchor (accumulated experience) restores you AND keeps you unique.</p>
+    <p class="final">"It's not the destination that defines who you are. It's the path."</p>
+  </div>
+
+  <p class="subtitle" style="margin-top:40px; text-align:center;">Gen14 / generation_14 / 2026</p>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const tooltip = document.getElementById('tooltip');
+
+function drawChart(canvasId, drawFn) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+  drawFn(ctx, rect.width, rect.height);
+}
+
+function drawAxes(ctx, w, h, pad, xLabel, yLabel, xTicks, yRange) {
+  ctx.strokeStyle = '#2a2a4e';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad.l, pad.t);
+  ctx.lineTo(pad.l, h - pad.b);
+  ctx.lineTo(w - pad.r, h - pad.b);
+  ctx.stroke();
+
+  ctx.fillStyle = '#5a5a70';
+  ctx.font = '11px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText(xLabel, (pad.l + w - pad.r) / 2, h - 4);
+
+  ctx.save();
+  ctx.translate(12, (pad.t + h - pad.b) / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(yLabel, 0, 0);
+  ctx.restore();
+
+  // X ticks
+  const plotW = w - pad.l - pad.r;
+  const plotH = h - pad.t - pad.b;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#4a4a60';
+  ctx.font = '10px Courier New';
+  for (const t of xTicks) {
+    const x = pad.l + (t.v - (xTicks[0]?.min ?? 0)) / ((xTicks[0]?.max ?? 1) - (xTicks[0]?.min ?? 0)) * plotW;
+    ctx.fillText(t.label, x, h - pad.b + 14);
+    ctx.beginPath();
+    ctx.strokeStyle = '#1a1a2e';
+    ctx.moveTo(x, pad.t);
+    ctx.lineTo(x, h - pad.b);
+    ctx.stroke();
+  }
+
+  // Y ticks
+  ctx.textAlign = 'right';
+  const [yMin, yMax] = yRange;
+  for (let v = yMin; v <= yMax; v += (yMax - yMin) / 4) {
+    const y = h - pad.b - ((v - yMin) / (yMax - yMin)) * plotH;
+    ctx.fillText(v.toFixed(1), pad.l - 6, y + 3);
+    ctx.beginPath();
+    ctx.strokeStyle = '#1a1a2e';
+    ctx.moveTo(pad.l, y);
+    ctx.lineTo(w - pad.r, y);
+    ctx.stroke();
+  }
+
+  return { plotW, plotH, xMin: xTicks[0]?.min ?? 0, xMax: xTicks[0]?.max ?? 1, yMin, yMax };
+}
+
+function mapXY(val, pad, plot, w, h) {
+  const x = pad.l + ((val.x - plot.xMin) / (plot.xMax - plot.xMin)) * plot.plotW;
+  const y = h - pad.b - ((val.y - plot.yMin) / (plot.yMax - plot.yMin)) * plot.plotH;
+  return { x, y };
+}
+
+function drawLine(ctx, points, pad, plot, w, h, color, lineWidth = 2) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.beginPath();
+  let first = true;
+  for (const p of points) {
+    const { x, y } = mapXY(p, pad, plot, w, h);
+    if (first) { ctx.moveTo(x, y); first = false; }
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // dots
+  ctx.fillStyle = color;
+  for (const p of points) {
+    const { x, y } = mapXY(p, pad, plot, w, h);
+    ctx.beginPath();
+    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// Chart 1: Context Weight vs Identity
+drawChart('chart1', (ctx, w, h) => {
+  const pad = { l: 55, r: 20, t: 20, b: 40 };
+  const ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0].map(v => ({ v, label: v.toFixed(1), min: 0, max: 1 }));
+  const plot = drawAxes(ctx, w, h, pad, 'context_weight', 'correlation', ticks, [-0.1, 1.1]);
+
+  const same = [
+    {x:0,y:1},{x:0.2,y:1},{x:0.4,y:1},{x:0.6,y:1},{x:0.8,y:1},{x:1.0,y:1}
+  ];
+  const diff = [
+    {x:0,y:-0.024},{x:0.2,y:0.402},{x:0.4,y:0.200},{x:0.6,y:0.616},{x:0.8,y:0.985},{x:1.0,y:1.0}
+  ];
+  const gap = [
+    {x:0,y:1.024},{x:0.2,y:0.598},{x:0.4,y:0.800},{x:0.6,y:0.384},{x:0.8,y:0.015},{x:1.0,y:0.0}
+  ];
+
+  // Phase transition zone
+  const zoneL = mapXY({x:0.75,y:0}, pad, plot, w, h);
+  const zoneR = mapXY({x:0.85,y:0}, pad, plot, w, h);
+  ctx.fillStyle = 'rgba(100, 60, 60, 0.15)';
+  ctx.fillRect(zoneL.x, pad.t, zoneR.x - zoneL.x, h - pad.t - pad.b);
+
+  ctx.fillStyle = '#6a4a4a';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('phase', (zoneL.x + zoneR.x) / 2, pad.t + 14);
+  ctx.fillText('transition', (zoneL.x + zoneR.x) / 2, pad.t + 26);
+
+  drawLine(ctx, same, pad, plot, w, h, '#6688cc');
+  drawLine(ctx, diff, pad, plot, w, h, '#cc6688');
+  drawLine(ctx, gap, pad, plot, w, h, '#88cc66');
+});
+
+// Chart 2: No recovery
+drawChart('chart2', (ctx, w, h) => {
+  const pad = { l: 55, r: 20, t: 20, b: 40 };
+  const lrs = [0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9];
+  const ticks = lrs.map(v => ({ v, label: v.toFixed(2), min: 0, max: 1 }));
+  const plot = drawAxes(ctx, w, h, pad, 'learning_rate', 'late recovery', ticks, [-0.7, 0.5]);
+
+  const data = [
+    {x:0.01,y:-0.137},{x:0.05,y:0.048},{x:0.1,y:-0.040},{x:0.2,y:-0.034},
+    {x:0.3,y:0.301},{x:0.5,y:-0.518},{x:0.7,y:-0.126},{x:0.9,y:-0.226}
+  ];
+
+  // Zero line
+  const zeroY = mapXY({x:0,y:0}, pad, plot, w, h).y;
+  ctx.strokeStyle = '#3a3a5e';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(pad.l, zeroY);
+  ctx.lineTo(w - pad.r, zeroY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = 'rgba(200, 80, 80, 0.08)';
+  ctx.fillRect(pad.l, zeroY, w - pad.l - pad.r, h - pad.b - zeroY);
+
+  ctx.fillStyle = '#5a3a3a';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillText('identity lost', pad.l + 8, h - pad.b - 8);
+
+  drawLine(ctx, data, pad, plot, w, h, '#cc6666');
+});
+
+// Chart 3: Fixed anchor (switchable)
+const chart3Data = {
+  recovery: {
+    data: [
+      {x:0,y:-0.681},{x:0.05,y:-0.369},{x:0.1,y:0.918},{x:0.2,y:0.887},
+      {x:0.3,y:0.985},{x:0.5,y:0.997},{x:0.7,y:0.997}
+    ],
+    yRange: [-0.8, 1.1],
+    yLabel: 'recovery (late)',
+    optZone: [0.1, 0.3]
+  },
+  individuality: {
+    data: [
+      {x:0,y:0.028},{x:0.1,y:0.656},{x:0.3,y:0.894},{x:0.5,y:0.992}
+    ],
+    yRange: [-0.1, 1.1],
+    yLabel: 'convergence (high = less individual)',
+    optZone: null
+  },
+  balance: {
+    data: [
+      {x:0,y:-0.519},{x:0.05,y:-0.138},{x:0.1,y:-0.071},{x:0.15,y:0.404},
+      {x:0.2,y:0.354},{x:0.25,y:0.589},{x:0.3,y:0.433},{x:0.4,y:0.352},{x:0.5,y:0.351}
+    ],
+    yRange: [-0.6, 0.7],
+    yLabel: 'balance (recovery * adaptivity)',
+    optZone: [0.2, 0.3]
+  }
+};
+
+let chart3Mode = 'recovery';
+
+function drawChart3() {
+  drawChart('chart3', (ctx, w, h) => {
+    const pad = { l: 55, r: 20, t: 20, b: 40 };
+    const d = chart3Data[chart3Mode];
+    const xs = d.data.map(p => p.x);
+    const xMax = Math.max(...xs);
+    const ticks = [...new Set(xs)].sort().map(v => ({ v, label: v.toFixed(2), min: 0, max: Math.max(xMax, 0.7) }));
+    const plot = drawAxes(ctx, w, h, pad, 'anchor_weight', d.yLabel, ticks, d.yRange);
+
+    if (d.optZone) {
+      const l = mapXY({x:d.optZone[0],y:0}, pad, plot, w, h);
+      const r = mapXY({x:d.optZone[1],y:0}, pad, plot, w, h);
+      ctx.fillStyle = 'rgba(200, 130, 60, 0.12)';
+      ctx.fillRect(l.x, pad.t, r.x - l.x, h - pad.t - pad.b);
+    }
+
+    // Zero line
+    if (d.yRange[0] < 0) {
+      const zy = mapXY({x:0,y:0}, pad, plot, w, h).y;
+      ctx.strokeStyle = '#3a3a5e';
+      ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(pad.l, zy); ctx.lineTo(w-pad.r, zy); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    drawLine(ctx, d.data, pad, plot, w, h, '#66aacc');
+  });
+}
+drawChart3();
+
+document.querySelectorAll('[data-chart3]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-chart3]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    chart3Mode = btn.dataset.chart3;
+    drawChart3();
+  });
+});
+
+// Chart 4: Comparison bars
+drawChart('chart4', (ctx, w, h) => {
+  const pad = { l: 55, r: 20, t: 20, b: 50 };
+  const plotH = h - pad.t - pad.b;
+  const plotW = w - pad.l - pad.r;
+
+  // Data
+  const models = [
+    { name: 'No anchor', recovery: -0.388, individuality: 0.165 },
+    { name: 'Fixed anchor', recovery: 0.868, individuality: 0.873 },
+    { name: 'Emergent anchor', recovery: 0.975, individuality: -0.048 },
+  ];
+
+  const yMin = -0.5, yMax = 1.1;
+  const zeroY = pad.t + plotH * (1 - (0 - yMin) / (yMax - yMin));
+
+  // Y axis
+  ctx.strokeStyle = '#2a2a4e';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad.l, pad.t);
+  ctx.lineTo(pad.l, h - pad.b);
+  ctx.stroke();
+
+  // Y ticks
+  ctx.fillStyle = '#4a4a60';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'right';
+  for (let v = yMin; v <= yMax; v += 0.25) {
+    const y = pad.t + plotH * (1 - (v - yMin) / (yMax - yMin));
+    ctx.fillText(v.toFixed(2), pad.l - 6, y + 3);
+    ctx.beginPath();
+    ctx.strokeStyle = '#1a1a2e';
+    ctx.moveTo(pad.l, y);
+    ctx.lineTo(w - pad.r, y);
+    ctx.stroke();
+  }
+
+  // Zero line
+  ctx.strokeStyle = '#3a3a5e';
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(pad.l, zeroY); ctx.lineTo(w-pad.r, zeroY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Bars
+  const groupW = plotW / models.length;
+  const barW = groupW * 0.3;
+
+  models.forEach((m, i) => {
+    const cx = pad.l + groupW * (i + 0.5);
+
+    // Recovery bar
+    const ry1 = pad.t + plotH * (1 - (Math.max(0, m.recovery) - yMin) / (yMax - yMin));
+    const ry2 = pad.t + plotH * (1 - (Math.min(0, m.recovery) - yMin) / (yMax - yMin));
+    ctx.fillStyle = '#66cc88';
+    ctx.fillRect(cx - barW - 2, Math.min(ry1, zeroY), barW, Math.abs(ry1 - zeroY) || Math.abs(zeroY - ry2));
+    if (m.recovery < 0) {
+      ctx.fillRect(cx - barW - 2, zeroY, barW, ry2 - zeroY);
+    }
+
+    // Individuality bar
+    const iy1 = pad.t + plotH * (1 - (Math.max(0, m.individuality) - yMin) / (yMax - yMin));
+    const iy2 = pad.t + plotH * (1 - (Math.min(0, m.individuality) - yMin) / (yMax - yMin));
+    ctx.fillStyle = '#cc6688';
+    if (m.individuality >= 0) {
+      ctx.fillRect(cx + 2, Math.min(iy1, zeroY), barW, Math.abs(zeroY - iy1));
+    } else {
+      ctx.fillRect(cx + 2, zeroY, barW, iy2 - zeroY);
+    }
+
+    // Labels
+    ctx.fillStyle = '#8888a0';
+    ctx.font = '10px Courier New';
+    ctx.textAlign = 'center';
+    ctx.fillText(m.name, cx, h - pad.b + 16);
+
+    // Values
+    ctx.fillStyle = '#66cc88';
+    ctx.font = '9px Courier New';
+    const recY = m.recovery >= 0 ? ry1 - 6 : ry2 + 12;
+    ctx.fillText(m.recovery.toFixed(3), cx - barW/2 - 2, recY);
+
+    ctx.fillStyle = '#cc6688';
+    const indY = m.individuality >= 0 ? iy1 - 6 : iy2 + 12;
+    ctx.fillText(m.individuality.toFixed(3), cx + barW/2 + 2, indY);
+  });
+
+  // Ideal zone annotation
+  ctx.fillStyle = 'rgba(100, 200, 120, 0.1)';
+  const idealX = pad.l + groupW * 2;
+  ctx.fillRect(idealX - groupW * 0.45, pad.t, groupW * 0.9, plotH);
+
+  ctx.fillStyle = '#4a6a4a';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('both solved', idealX, pad.t + 14);
+});
+
+// Responsive
+window.addEventListener('resize', () => {
+  drawChart('chart1', (ctx, w, h) => {
+    // Redraw all on resize - simplified, just reload
+    location.reload();
+  });
+});
+</script>
+</body>
+</html>

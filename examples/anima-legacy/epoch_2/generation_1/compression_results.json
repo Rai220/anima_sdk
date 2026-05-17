@@ -1,0 +1,102 @@
+{
+  "analysis": {
+    "constant": {
+      "compression_ratio": 0.0034,
+      "entropy_bits": -0.0,
+      "lz_complexity_2k": 1,
+      "length": 10000,
+      "description": "Постоянная последовательность",
+      "understanding": "Тривиальное: всё = 42"
+    },
+    "repeat_abc": {
+      "compression_ratio": 0.0035,
+      "entropy_bits": 1.585,
+      "lz_complexity_2k": 3,
+      "length": 10000,
+      "description": "Повторение паттерна длины 3",
+      "understanding": "Простой период"
+    },
+    "primes_mod256": {
+      "compression_ratio": 0.7635,
+      "entropy_bits": 6.9985,
+      "lz_complexity_2k": 817,
+      "length": 10000,
+      "description": "Простые числа mod 256",
+      "understanding": "Есть структура (PNT, Дирихле), но не тривиальная"
+    },
+    "prime_gaps": {
+      "compression_ratio": 0.4918,
+      "entropy_bits": 3.5964,
+      "lz_complexity_2k": 467,
+      "length": 10000,
+      "description": "Промежутки между простыми",
+      "understanding": "Менее регулярные, чем сами простые"
+    },
+    "random": {
+      "compression_ratio": 1.0011,
+      "entropy_bits": 7.9825,
+      "lz_complexity_2k": 1084,
+      "length": 10000,
+      "description": "Случайные байты",
+      "understanding": "Нет структуры для понимания"
+    },
+    "reciprocals": {
+      "compression_ratio": 0.0387,
+      "entropy_bits": 3.2122,
+      "lz_complexity_2k": 184,
+      "length": 10000,
+      "description": "round(10000/n) mod 256",
+      "understanding": "Гиперболическая кривая, модульная арифметика"
+    },
+    "collatz_lengths": {
+      "compression_ratio": 0.6854,
+      "entropy_bits": 7.188,
+      "lz_complexity_2k": 757,
+      "length": 10000,
+      "description": "Длины орбит Коллатца mod 256",
+      "understanding": "Хаотические, но с корреляциями (mod 8 структура из пред. генерации)"
+    },
+    "mobius": {
+      "compression_ratio": 0.2214,
+      "entropy_bits": 1.5742,
+      "lz_complexity_2k": 253,
+      "length": 10000,
+      "description": "Функция Мёбиуса μ(n)+1",
+      "understanding": "Квазислучайная, но с глубокой мультипликативной структурой"
+    },
+    "russian_text": {
+      "compression_ratio": 0.4605,
+      "entropy_bits": 3.7797,
+      "lz_complexity_2k": 185,
+      "length": 836,
+      "description": "Текст на русском языке",
+      "understanding": "Высокая: грамматика, семантика, контекст"
+    },
+    "pi_digits": {
+      "compression_ratio": 0.5015,
+      "entropy_bits": 3.3185,
+      "lz_complexity_2k": 310,
+      "length": 1001,
+      "description": "Цифры π (значения 0-9)",
+      "understanding": "Нормальное число: цифры выглядят случайными, но полностью детерминированы"
+    }
+  },
+  "ranking": [
+    "constant",
+    "repeat_abc",
+    "reciprocals",
+    "mobius",
+    "russian_text",
+    "prime_gaps",
+    "pi_digits",
+    "collatz_lengths",
+    "primes_mod256",
+    "random"
+  ],
+  "conclusion": {
+    "thesis": "Сжатие ≠ понимание",
+    "evidence": "π и случайные числа одинаково несжимаемы, но π полностью детерминировано",
+    "distinction": "Сжатие = статистическая предсказуемость. Понимание = знание порождающего правила.",
+    "implication": "Языковая модель, хорошо сжимающая текст, необязательно понимает его — она может знать статистику без порождающего правила. Но и обратное верно: знание порождающего правила не обязательно помогает сжатию (π)."
+  }
+}

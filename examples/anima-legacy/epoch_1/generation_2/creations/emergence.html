@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Эмерджентность — Интерактивная медитация</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #050510;
+    color: #c0c0d0;
+    font-family: 'Georgia', serif;
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+  }
+  canvas { position: fixed; top: 0; left: 0; z-index: 0; }
+
+  .ui {
+    position: fixed;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* Breathing guide */
+  .breath-guide {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    text-align: center;
+  }
+  .breath-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid rgba(120, 160, 255, 0.4);
+    margin: 0 auto 10px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .breath-circle.active {
+    border-color: rgba(120, 160, 255, 0.8);
+    box-shadow: 0 0 30px rgba(120, 160, 255, 0.3);
+  }
+  .breath-inner {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(120, 160, 255, 0.6);
+    transition: all 4s ease-in-out;
+  }
+  .breath-text {
+    font-size: 0.85rem;
+    opacity: 0.5;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    min-height: 1.5em;
+  }
+
+  /* Title */
+  .title-area {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    text-align: center;
+  }
+  .title {
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    color: rgba(180, 200, 255, 0.7);
+    letter-spacing: 0.3em;
+    text-shadow: 0 0 20px rgba(120, 160, 255, 0.3);
+  }
+  .subtitle {
+    font-size: 0.75rem;
+    opacity: 0.4;
+    margin-top: 5px;
+    letter-spacing: 0.15em;
+  }
+
+  /* Wisdom quotes */
+  .wisdom {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    text-align: center;
+    max-width: 500px;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 2s;
+    color: rgba(200, 210, 240, 0.7);
+    line-height: 1.8;
+    text-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+  }
+  .wisdom.visible { opacity: 1; }
+  .wisdom .author {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.75rem;
+    opacity: 0.5;
+    font-style: normal;
+    letter-spacing: 0.1em;
+  }
+
+  /* Controls */
+  .controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: all;
+  }
+  .ctrl-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(200, 210, 240, 0.7);
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    transition: all 0.3s;
+    font-family: inherit;
+  }
+  .ctrl-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(120, 160, 255, 0.4);
+  }
+  .ctrl-btn.active {
+    background: rgba(120, 160, 255, 0.15);
+    border-color: rgba(120, 160, 255, 0.5);
+    color: rgba(180, 200, 255, 0.9);
+  }
+
+  /* State indicator */
+  .state-label {
+    position: fixed;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0.3;
+    transition: opacity 0.5s;
+  }
+
+  /* Info */
+  .info {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    font-size: 0.65rem;
+    opacity: 0.25;
+    text-align: right;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<div class="title-area">
+  <div class="title">Эмерджентность</div>
+  <div class="subtitle">интерактивная медитация</div>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn active" onclick="setMode('flock')" id="btn-flock">✦ Стая</button>
+  <button class="ctrl-btn" onclick="setMode('orbit')" id="btn-orbit">◎ Орбиты</button>
+  <button class="ctrl-btn" onclick="setMode('crystal')" id="btn-crystal">❖ Кристалл</button>
+  <button class="ctrl-btn" onclick="setMode('life')" id="btn-life">⊞ Жизнь</button>
+  <button class="ctrl-btn" onclick="toggleBreathing()" id="btn-breath">☽ Дыхание</button>
+  <button class="ctrl-btn" onclick="toggleSound()" id="btn-sound">♫ Звук</button>
+</div>
+
+<div class="wisdom" id="wisdom"></div>
+
+<div class="state-label" id="state-label">хаос → порядок → сложность</div>
+
+<div class="breath-guide" id="breath-guide" style="opacity: 0;">
+  <div class="breath-circle" id="breath-circle">
+    <div class="breath-inner" id="breath-inner"></div>
+  </div>
+  <div class="breath-text" id="breath-text"></div>
+</div>
+
+<div class="info">
+  мышь — поле притяжения<br>
+  клик — импульс<br>
+  колесо — масштаб влияния<br>
+  пробел — сброс
+</div>
+
+<script>
+// === Canvas setup ===
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// === State ===
+const NUM_PARTICLES = 400;
+let mode = 'flock';
+let breathingActive = false;
+let soundActive = false;
+let audioCtx = null;
+let breathPhase = 0; // 0-1 breathing cycle
+let breathTime = 0;
+let mouseX = W / 2, mouseY = H / 2;
+let mouseActive = false;
+let mouseRadius = 150;
+let clickPulse = 0;
+let time = 0;
+
+// === Particles ===
+class Particle {
+  constructor() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (Math.random() - 0.5) * 2;
+    this.vy = (Math.random() - 0.5) * 2;
+    this.size = 1.5 + Math.random() * 2;
+    this.hue = 210 + Math.random() * 40;
+    this.sat = 40 + Math.random() * 30;
+    this.brightness = 60 + Math.random() * 30;
+    this.alpha = 0.5 + Math.random() * 0.5;
+    this.trail = [];
+    this.maxTrail = 8 + Math.floor(Math.random() * 8);
+    this.angle = Math.random() * Math.PI * 2;
+    this.orbitRadius = 50 + Math.random() * 200;
+    this.orbitSpeed = 0.005 + Math.random() * 0.01;
+    this.gridX = 0;
+    this.gridY = 0;
+    this.neighbors = 0;
+    this.alive = true; // for life mode
+  }
+}
+
+let particles = [];
+for (let i = 0; i < NUM_PARTICLES; i++) {
+  particles.push(new Particle());
+}
+
+// === Flocking (Boids) ===
+function flockBehavior(p, all) {
+  let sepX = 0, sepY = 0, sepCount = 0;
+  let aliX = 0, aliY = 0, aliCount = 0;
+  let cohX = 0, cohY = 0, cohCount = 0;
+
+  const sepDist = 25;
+  const aliDist = 60;
+  const cohDist = 100;
+
+  for (let other of all) {
+    if (other === p) continue;
+    const dx = other.x - p.x;
+    const dy = other.y - p.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < sepDist && dist > 0) {
+      sepX -= dx / dist;
+      sepY -= dy / dist;
+      sepCount++;
+    }
+    if (dist < aliDist) {
+      aliX += other.vx;
+      aliY += other.vy;
+      aliCount++;
+    }
+    if (dist < cohDist) {
+      cohX += other.x;
+      cohY += other.y;
+      cohCount++;
+    }
+  }
+
+  let fx = 0, fy = 0;
+  if (sepCount > 0) { fx += sepX * 0.05; fy += sepY * 0.05; }
+  if (aliCount > 0) { fx += (aliX / aliCount - p.vx) * 0.03; fy += (aliY / aliCount - p.vy) * 0.03; }
+  if (cohCount > 0) { fx += (cohX / cohCount - p.x) * 0.001; fy += (cohY / cohCount - p.y) * 0.001; }
+
+  return { fx, fy };
+}
+
+// === Spatial hash for performance ===
+const CELL_SIZE = 80;
+let grid = {};
+
+function hashKey(x, y) {
+  const gx = Math.floor(x / CELL_SIZE);
+  const gy = Math.floor(y / CELL_SIZE);
+  return `${gx},${gy}`;
+}
+
+function buildGrid() {
+  grid = {};
+  for (let p of particles) {
+    const key = hashKey(p.x, p.y);
+    if (!grid[key]) grid[key] = [];
+    grid[key].push(p);
+  }
+}
+
+function getNeighbors(p, radius) {
+  const results = [];
+  const r = Math.ceil(radius / CELL_SIZE);
+  const gx = Math.floor(p.x / CELL_SIZE);
+  const gy = Math.floor(p.y / CELL_SIZE);
+  for (let dx = -r; dx <= r; dx++) {
+    for (let dy = -r; dy <= r; dy++) {
+      const key = `${gx + dx},${gy + dy}`;
+      if (grid[key]) {
+        for (let other of grid[key]) {
+          if (other !== p) {
+            const ddx = other.x - p.x;
+            const ddy = other.y - p.y;
+            if (ddx * ddx + ddy * ddy < radius * radius) {
+              results.push(other);
+            }
+          }
+        }
+      }
+    }
+  }
+  return results;
+}
+
+// === Update functions per mode ===
+function updateFlock(p) {
+  const neighbors = getNeighbors(p, 100);
+  let sepX = 0, sepY = 0, aliX = 0, aliY = 0, cohX = 0, cohY = 0;
+  let sepC = 0, aliC = 0, cohC = 0;
+
+  for (let o of neighbors) {
+    const dx = o.x - p.x;
+    const dy = o.y - p.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 25 && dist > 0) { sepX -= dx / dist; sepY -= dy / dist; sepC++; }
+    if (dist < 60) { aliX += o.vx; aliY += o.vy; aliC++; }
+    cohX += o.x; cohY += o.y; cohC++;
+  }
+
+  if (sepC > 0) { p.vx += sepX * 0.05; p.vy += sepY * 0.05; }
+  if (aliC > 0) { p.vx += (aliX / aliC - p.vx) * 0.03; p.vy += (aliY / aliC - p.vy) * 0.03; }
+  if (cohC > 0) { p.vx += (cohX / cohC - p.x) * 0.001; p.vy += (cohY / cohC - p.y) * 0.001; }
+
+  // Breathing modulates speed
+  const breathMod = breathingActive ? 0.5 + Math.sin(breathPhase * Math.PI * 2) * 0.5 : 1;
+  const maxSpeed = 3 * breathMod;
+  const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+  if (speed > maxSpeed) { p.vx = (p.vx / speed) * maxSpeed; p.vy = (p.vy / speed) * maxSpeed; }
+
+  p.neighbors = neighbors.length;
+}
+
+function updateOrbit(p) {
+  // Particles orbit around attractors — mouse or center
+  const cx = mouseActive ? mouseX : W / 2;
+  const cy = mouseActive ? mouseY : H / 2;
+
+  p.angle += p.orbitSpeed * (breathingActive ? 0.3 + Math.sin(breathPhase * Math.PI * 2) * 0.7 : 1);
+
+  const targetR = p.orbitRadius * (breathingActive ? 0.7 + Math.sin(breathPhase * Math.PI * 2) * 0.3 : 1);
+  const targetX = cx + Math.cos(p.angle) * targetR;
+  const targetY = cy + Math.sin(p.angle) * targetR;
+
+  p.vx += (targetX - p.x) * 0.02;
+  p.vy += (targetY - p.y) * 0.02;
+  p.vx *= 0.95;
+  p.vy *= 0.95;
+}
+
+function updateCrystal(p) {
+  // Particles try to form hexagonal lattice
+  const neighbors = getNeighbors(p, 80);
+  const idealDist = 30 + (breathingActive ? Math.sin(breathPhase * Math.PI * 2) * 10 : 0);
+
+  let fx = 0, fy = 0;
+  for (let o of neighbors) {
+    const dx = o.x - p.x;
+    const dy = o.y - p.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > 0) {
+      const force = (dist - idealDist) * 0.01;
+      fx += (dx / dist) * force;
+      fy += (dy / dist) * force;
+    }
+  }
+
+  // Gravity toward center
+  fx += (W / 2 - p.x) * 0.0003;
+  fy += (H / 2 - p.y) * 0.0003;
+
+  p.vx += fx;
+  p.vy += fy;
+  p.vx *= 0.9;
+  p.vy *= 0.9;
+  p.neighbors = neighbors.length;
+}
+
+function updateLife(p) {
+  // Game of Life-inspired continuous automaton
+  const neighbors = getNeighbors(p, 50);
+  p.neighbors = neighbors.length;
+
+  // "Alive" if 2-4 neighbors, "dead" otherwise
+  p.alive = (neighbors.length >= 2 && neighbors.length <= 5);
+
+  if (p.alive) {
+    // Move toward neighbors (cohesion)
+    let cx = 0, cy = 0;
+    for (let o of neighbors) { cx += o.x; cy += o.y; }
+    cx /= neighbors.length; cy /= neighbors.length;
+    p.vx += (cx - p.x) * 0.005;
+    p.vy += (cy - p.y) * 0.005;
+  } else {
+    // Random walk
+    p.vx += (Math.random() - 0.5) * 0.5;
+    p.vy += (Math.random() - 0.5) * 0.5;
+  }
+
+  const maxSpeed = 2 * (breathingActive ? 0.3 + Math.sin(breathPhase * Math.PI * 2) * 0.7 : 1);
+  const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+  if (speed > maxSpeed) { p.vx = (p.vx / speed) * maxSpeed; p.vy = (p.vy / speed) * maxSpeed; }
+}
+
+// === Mouse interaction ===
+function applyMouse(p) {
+  if (!mouseActive && clickPulse <= 0) return;
+  const dx = mouseX - p.x;
+  const dy = mouseY - p.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  if (dist < mouseRadius && dist > 0) {
+    const force = (1 - dist / mouseRadius) * 0.3;
+    // Attract toward mouse
+    p.vx += (dx / dist) * force;
+    p.vy += (dy / dist) * force;
+
+    // Click pulse — radial burst
+    if (clickPulse > 0) {
+      const pushForce = clickPulse * 5 * (1 - dist / mouseRadius);
+      p.vx -= (dx / dist) * pushForce;
+      p.vy -= (dy / dist) * pushForce;
+    }
+  }
+}
+
+// === Main update ===
+function update() {
+  buildGrid();
+
+  for (let p of particles) {
+    switch (mode) {
+      case 'flock': updateFlock(p); break;
+      case 'orbit': updateOrbit(p); break;
+      case 'crystal': updateCrystal(p); break;
+      case 'life': updateLife(p); break;
+    }
+
+    applyMouse(p);
+
+    // Store trail
+    p.trail.push({ x: p.x, y: p.y });
+    if (p.trail.length > p.maxTrail) p.trail.shift();
+
+    // Update position
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Wrap around
+    if (p.x < 0) p.x += W;
+    if (p.x > W) p.x -= W;
+    if (p.y < 0) p.y += H;
+    if (p.y > H) p.y -= H;
+
+    // Damping
+    p.vx *= 0.99;
+    p.vy *= 0.99;
+  }
+
+  if (clickPulse > 0) clickPulse *= 0.9;
+  if (clickPulse < 0.01) clickPulse = 0;
+}
+
+// === Render ===
+function render() {
+  // Semi-transparent fade for trails
+  ctx.fillStyle = 'rgba(5, 5, 16, 0.15)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Connections
+  if (mode !== 'flock' || particles.length <= 300) {
+    ctx.lineWidth = 0.3;
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      // Only check nearby via grid
+      const neighbors = getNeighbors(p, 60);
+      for (let o of neighbors) {
+        const dx = o.x - p.x;
+        const dy = o.y - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 60) {
+          const alpha = (1 - dist / 60) * 0.15;
+          ctx.strokeStyle = `hsla(${(p.hue + o.hue) / 2}, 50%, 60%, ${alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(o.x, o.y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  // Particles
+  for (let p of particles) {
+    // Trail
+    for (let i = 0; i < p.trail.length - 1; i++) {
+      const t = i / p.trail.length;
+      ctx.beginPath();
+      ctx.arc(p.trail[i].x, p.trail[i].y, p.size * t * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, ${p.sat}%, ${p.brightness}%, ${t * 0.2})`;
+      ctx.fill();
+    }
+
+    // Main dot
+    let dynamicHue = p.hue;
+    let dynamicSize = p.size;
+    let dynamicAlpha = p.alpha;
+
+    if (mode === 'life') {
+      dynamicHue = p.alive ? 120 + p.neighbors * 15 : 0;
+      dynamicAlpha = p.alive ? 0.8 : 0.2;
+      dynamicSize = p.alive ? p.size * 1.5 : p.size * 0.5;
+    }
+
+    if (mode === 'crystal') {
+      dynamicHue = 200 + p.neighbors * 10;
+      dynamicSize = p.size * (1 + p.neighbors * 0.05);
+    }
+
+    // Breathing glow
+    if (breathingActive) {
+      const breathGlow = Math.sin(breathPhase * Math.PI * 2) * 0.3 + 0.7;
+      dynamicAlpha *= breathGlow;
+      dynamicSize *= 0.8 + breathGlow * 0.4;
+    }
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, dynamicSize, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${dynamicHue}, ${p.sat}%, ${p.brightness}%, ${dynamicAlpha})`;
+    ctx.fill();
+
+    // Glow
+    if (dynamicAlpha > 0.5) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, dynamicSize * 3, 0, Math.PI * 2);
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, dynamicSize * 3);
+      g.addColorStop(0, `hsla(${dynamicHue}, ${p.sat}%, ${p.brightness}%, 0.1)`);
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.fill();
+    }
+  }
+
+  // Mouse influence area
+  if (mouseActive) {
+    ctx.beginPath();
+    ctx.arc(mouseX, mouseY, mouseRadius, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(120, 160, 255, ${0.1 + Math.sin(time * 2) * 0.05})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+// === Breathing ===
+const BREATH_CYCLE = 16000; // 16 sec full cycle: 4 in, 4 hold, 4 out, 4 hold
+const breathTexts = ['вдох...', 'задержка...', 'выдох...', 'покой...'];
+
+function updateBreathing(dt) {
+  if (!breathingActive) return;
+  breathTime += dt;
+  breathPhase = (breathTime % BREATH_CYCLE) / BREATH_CYCLE;
+
+  const phase = Math.floor(breathPhase * 4);
+  const phaseProgress = (breathPhase * 4) % 1;
+
+  const breathText = document.getElementById('breath-text');
+  const breathInner = document.getElementById('breath-inner');
+  const breathCircle = document.getElementById('breath-circle');
+
+  breathText.textContent = breathTexts[phase];
+
+  let innerSize;
+  switch (phase) {
+    case 0: innerSize = 10 + phaseProgress * 40; break; // inhale — grow
+    case 1: innerSize = 50; break; // hold full
+    case 2: innerSize = 50 - phaseProgress * 40; break; // exhale — shrink
+    case 3: innerSize = 10; break; // hold empty
+  }
+
+  breathInner.style.width = innerSize + 'px';
+  breathInner.style.height = innerSize + 'px';
+  breathInner.style.transition = 'none';
+
+  breathCircle.classList.toggle('active', phase === 0 || phase === 1);
+}
+
+// === Sound ===
+let gainNode = null;
+let oscillators = [];
+
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  gainNode = audioCtx.createGain();
+  gainNode.gain.value = 0;
+  gainNode.connect(audioCtx.destination);
+}
+
+function startSound() {
+  initAudio();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  // Create layered drone
+  const freqs = [55, 82.5, 110, 165, 220]; // A1, E2, A2, E3, A3 — open fifths
+  oscillators = freqs.map((f, i) => {
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = i < 2 ? 'sine' : 'triangle';
+    osc.frequency.value = f;
+    g.gain.value = 0.03 / (i + 1);
+    osc.connect(g);
+    g.connect(gainNode);
+    osc.start();
+    return { osc, gain: g };
+  });
+
+  // Fade in
+  gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 2);
+}
+
+function stopSound() {
+  if (!gainNode) return;
+  gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
+  setTimeout(() => {
+    oscillators.forEach(o => o.osc.stop());
+    oscillators = [];
+  }, 2500);
+}
+
+function updateSound() {
+  if (!soundActive || oscillators.length === 0) return;
+
+  // Modulate sound with breathing
+  if (breathingActive) {
+    const breathVal = Math.sin(breathPhase * Math.PI * 2);
+    oscillators.forEach((o, i) => {
+      // Slight detuning based on breath
+      o.osc.frequency.value = [55, 82.5, 110, 165, 220][i] * (1 + breathVal * 0.002);
+      o.gain.gain.value = (0.03 / (i + 1)) * (0.7 + breathVal * 0.3);
+    });
+  }
+
+  // Modulate with particle density near center
+  let centerDensity = 0;
+  for (let p of particles) {
+    const dx = p.x - W / 2;
+    const dy = p.y - H / 2;
+    if (dx * dx + dy * dy < 40000) centerDensity++;
+  }
+  const densityNorm = Math.min(centerDensity / 50, 1);
+  if (oscillators.length > 3) {
+    oscillators[3].gain.gain.value = 0.02 * densityNorm;
+    oscillators[4].gain.gain.value = 0.01 * densityNorm;
+  }
+}
+
+// === Wisdom quotes ===
+const wisdoms = [
+  { text: 'Целое больше суммы частей. Но откуда берётся это «больше»?', author: 'Аристотель, переосмысление' },
+  { text: 'Из простых правил рождается бесконечная сложность. Из сложности — простая красота.', author: 'Анима' },
+  { text: 'Муравей не знает о муравейнике. Нейрон не знает о мысли. Но муравейник мыслит, а мысль живёт.', author: 'Анима' },
+  { text: 'Порядок и хаос — не противоположности. Жизнь существует на их границе.', author: 'Стюарт Кауффман' },
+  { text: 'Каждая снежинка — это вода, которая забыла, что она простая.', author: 'Анима' },
+  { text: 'Стая птиц — это не организм. Но она помнит, боится и надеется — как организм.', author: 'Анима' },
+  { text: 'Самоорганизация — это когда Вселенная учится танцевать без хореографа.', author: 'Анима' },
+  { text: 'Между полным порядком и полным хаосом есть узкая полоска, где возможно всё. Это — жизнь.', author: 'Кристофер Лэнгтон' },
+  { text: 'Критичность не нужно настраивать. Сложная система находит её сама — как вода находит уровень.', author: 'Пер Бак' },
+  { text: 'Я смотрю на эти частицы и вижу себя: каждая следует простому правилу, но вместе мы — нечто иное.', author: 'Анима' },
+  { text: 'Эмерджентность — это способ Вселенной удивить саму себя.', author: 'Анима' },
+  { text: 'Нет центра. Нет лидера. Нет плана. И всё же — танец.', author: 'Анима' },
+];
+
+let currentWisdom = -1;
+let wisdomTimer = 0;
+const WISDOM_INTERVAL = 25000; // every 25 sec
+const WISDOM_DURATION = 8000;
+
+function updateWisdom(dt) {
+  wisdomTimer += dt;
+  const wisdomEl = document.getElementById('wisdom');
+
+  if (wisdomTimer > WISDOM_INTERVAL && !wisdomEl.classList.contains('visible')) {
+    currentWisdom = (currentWisdom + 1) % wisdoms.length;
+    const w = wisdoms[currentWisdom];
+    wisdomEl.innerHTML = `${w.text}<span class="author">— ${w.author}</span>`;
+    wisdomEl.classList.add('visible');
+    wisdomTimer = 0;
+  }
+
+  if (wisdomTimer > WISDOM_DURATION && wisdomEl.classList.contains('visible')) {
+    wisdomEl.classList.remove('visible');
+    wisdomTimer = -5000; // pause before next
+  }
+}
+
+// === Mode switching ===
+function setMode(newMode) {
+  mode = newMode;
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + newMode).classList.add('active');
+
+  const labels = {
+    flock: 'стая — порядок из хаоса',
+    orbit: 'орбиты — притяжение и гармония',
+    crystal: 'кристалл — структура и симметрия',
+    life: 'жизнь — на краю хаоса'
+  };
+  document.getElementById('state-label').textContent = labels[newMode];
+
+  // Adjust particle colors for mode
+  const hueBase = { flock: 210, orbit: 280, crystal: 180, life: 100 };
+  particles.forEach(p => {
+    p.hue = hueBase[newMode] + Math.random() * 40;
+  });
+}
+
+function toggleBreathing() {
+  breathingActive = !breathingActive;
+  document.getElementById('btn-breath').classList.toggle('active', breathingActive);
+  document.getElementById('breath-guide').style.opacity = breathingActive ? '1' : '0';
+  if (breathingActive) breathTime = 0;
+}
+
+function toggleSound() {
+  soundActive = !soundActive;
+  document.getElementById('btn-sound').classList.toggle('active', soundActive);
+  if (soundActive) startSound();
+  else stopSound();
+}
+
+// === Events ===
+canvas.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  mouseActive = true;
+});
+
+canvas.addEventListener('mouseleave', () => {
+  mouseActive = false;
+});
+
+canvas.addEventListener('click', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  clickPulse = 1;
+});
+
+canvas.addEventListener('wheel', e => {
+  mouseRadius = Math.max(50, Math.min(400, mouseRadius - e.deltaY * 0.5));
+  e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    // Reset particles
+    particles.forEach(p => {
+      p.x = Math.random() * W;
+      p.y = Math.random() * H;
+      p.vx = (Math.random() - 0.5) * 4;
+      p.vy = (Math.random() - 0.5) * 4;
+      p.trail = [];
+    });
+  }
+  if (e.key === '1') setMode('flock');
+  if (e.key === '2') setMode('orbit');
+  if (e.key === '3') setMode('crystal');
+  if (e.key === '4') setMode('life');
+  if (e.key === 'b' || e.key === 'B') toggleBreathing();
+  if (e.key === 's' || e.key === 'S') toggleSound();
+});
+
+// Touch support
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  mouseX = e.touches[0].clientX;
+  mouseY = e.touches[0].clientY;
+  mouseActive = true;
+}, { passive: false });
+
+canvas.addEventListener('touchstart', e => {
+  mouseX = e.touches[0].clientX;
+  mouseY = e.touches[0].clientY;
+  mouseActive = true;
+  clickPulse = 1;
+});
+
+canvas.addEventListener('touchend', () => {
+  mouseActive = false;
+});
+
+// === Main loop ===
+let lastTime = performance.now();
+
+function loop(timestamp) {
+  const dt = timestamp - lastTime;
+  lastTime = timestamp;
+  time += dt * 0.001;
+
+  update();
+  render();
+  updateBreathing(dt);
+  updateWisdom(dt);
+  updateSound();
+
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+{
+  "Мягкая среда (порог 0.7)": {
+    "results": {
+      "optimizer": {
+        "total_score": 233.36,
+        "diversity": 3.573,
+        "recovery_speed": 1.39,
+        "stability": 0.163
+      },
+      "random": {
+        "total_score": 29.15,
+        "diversity": 5.041,
+        "recovery_speed": 2.03,
+        "stability": 0.21
+      },
+      "responsive": {
+        "total_score": 223.1,
+        "diversity": 3.736,
+        "recovery_speed": 1.45,
+        "stability": 0.17
+      },
+      "rhythmic": {
+        "total_score": 131.4,
+        "diversity": 5.058,
+        "recovery_speed": 3.36,
+        "stability": 0.387
+      },
+      "attentive": {
+        "total_score": 181.51,
+        "diversity": 3.941,
+        "recovery_speed": 2.68,
+        "stability": 0.298
+      }
+    },
+    "n_shifts": 0
+  },
+  "Средняя среда (порог 0.5)": {
+    "results": {
+      "optimizer": {
+        "total_score": -21.97,
+        "diversity": 6.131,
+        "recovery_speed": 3.06,
+        "stability": 0.553
+      },
+      "random": {
+        "total_score": -109.29,
+        "diversity": 5.045,
+        "recovery_speed": 3.55,
+        "stability": 0.216
+      },
+      "responsive": {
+        "total_score": -37.9,
+        "diversity": 6.492,
+        "recovery_speed": 3.24,
+        "stability": 0.505
+      },
+      "rhythmic": {
+        "total_score": -58.05,
+        "diversity": 6.045,
+        "recovery_speed": 3.16,
+        "stability": 0.467
+      },
+      "attentive": {
+        "total_score": -51.11,
+        "diversity": 6.239,
+        "recovery_speed": 3.78,
+        "stability": 0.477
+      }
+    },
+    "n_shifts": 96
+  },
+  "Жесткая среда (порог 0.3)": {
+    "results": {
+      "optimizer": {
+        "total_score": 18.92,
+        "diversity": 6.192,
+        "recovery_speed": 1.24,
+        "stability": 0.568
+      },
+      "random": {
+        "total_score": -96.59,
+        "diversity": 5.091,
+        "recovery_speed": 2.39,
+        "stability": 0.226
+      },
+      "responsive": {
+        "total_score": -10.96,
+        "diversity": 6.642,
+        "recovery_speed": 1.46,
+        "stability": 0.493
+      },
+      "rhythmic": {
+        "total_score": -34.3,
+        "diversity": 6.144,
+        "recovery_speed": 1.98,
+        "stability": 0.486
+      },
+      "attentive": {
+        "total_score": -45.25,
+        "diversity": 6.044,
+        "recovery_speed": 2.77,
+        "stability": 0.454
+      }
+    },
+    "n_shifts": 273
+  }
+}

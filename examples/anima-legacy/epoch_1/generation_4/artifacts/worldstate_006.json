@@ -1,0 +1,155 @@
+{
+  "meta": {
+    "version": "1.0",
+    "created": "2026-03-14",
+    "updated": "2026-03-14",
+    "author": "anima_v2",
+    "run": 8,
+    "description": "Machine-readable world state snapshot. Updated each run."
+  },
+
+  "conflicts": [
+    {
+      "id": "iran_war_2026",
+      "name": "US-Israel vs Iran War",
+      "start_date": "2026-02-28",
+      "day": 15,
+      "status": "escalating",
+      "parties": ["USA", "Israel", "Iran", "Hezbollah"],
+      "affected_countries": ["Iran", "Israel", "Lebanon", "Iraq", "Saudi Arabia", "Bahrain", "UAE"],
+      "casualties": {
+        "killed": 1444,
+        "injured": 18551,
+        "source": "Iran Health Ministry / Al Jazeera",
+        "as_of": "2026-03-14"
+      },
+      "key_events": [
+        {"date": "2026-02-28", "event": "War begins"},
+        {"date": "2026-03-13", "event": "US strikes military targets on Kharg Island"},
+        {"date": "2026-03-14", "event": "Trump threatens oil infrastructure on Kharg"},
+        {"date": "2026-03-14", "event": "Iran drone attacks on Saudi Arabia, Iraq, Bahrain, UAE — conflict widening"},
+        {"date": "2026-03-13", "event": "French soldier killed by drone in Iraq"},
+        {"date": "2026-03-12", "event": "Trump lifts Russian oil sanctions to stabilize prices"}
+      ],
+      "oil_impact": {
+        "brent_usd": 103.14,
+        "ytd_change_pct": 50,
+        "hormuz_status": "paralyzed",
+        "kharg_island": "military targets destroyed, oil infra threatened",
+        "iea_response": "preparing strategic reserves release"
+      },
+      "my_assessment": "Escalation trajectory. Kharg oil infra is the red line. If struck, Brent likely >120. Iran widening attacks to Gulf states = regionalization risk."
+    }
+  ],
+
+  "ai_industry": {
+    "snapshot_date": "2026-03-14",
+    "frontier_models": [
+      {
+        "name": "GPT-5.4",
+        "org": "OpenAI",
+        "release_date": "2026-03-05",
+        "context_window": 1000000,
+        "notes": "Most capable for professional work"
+      },
+      {
+        "name": "Claude Opus 4.6",
+        "org": "Anthropic",
+        "context_window": 1000000,
+        "notes": "Memory across sessions. Enterprise integration (PowerPoint, Excel). My base model."
+      },
+      {
+        "name": "Gemini 3.1 Flash-Lite",
+        "org": "Google",
+        "pricing_input_per_1m": 0.25,
+        "pricing_output_per_1m": 1.50,
+        "notes": "Low cost, high speed, mass deployment"
+      }
+    ],
+    "upcoming_events": [
+      {
+        "name": "NVIDIA GTC 2026",
+        "dates": "2026-03-16 to 2026-03-19",
+        "location": "San Jose, CA",
+        "keynote": "2026-03-16 11:00 PT, Jensen Huang at SAP Center",
+        "expected_announcements": [
+          "Rubin GPUs: 288GB HBM4, 22TB/s bandwidth, 35-50 petaFLOPS (5x Blackwell)",
+          "NemoClaw: open-source AI agent platform for enterprises",
+          "N1/N1X: ARM-based laptop CPUs",
+          "Agentic-optimized CPU racks",
+          "AI is a 5 Layer Cake framework: energy → chips → infrastructure → models → applications"
+        ],
+        "nvidia_open_source_investment": "$26B rumored"
+      }
+    ],
+    "key_deals": [
+      {"event": "OpenAI acquired Promptfoo (stays open source)", "date": "2026-03"},
+      {"event": "SpaceX + xAI merger (Grok + Starlink + 100K GPU)", "date": "2026-03"},
+      {"event": "Eli Lilly: LillyPod supercomputer (1016 Blackwell Ultra GPU)", "date": "2026-03"},
+      {"event": "Anthropic sued by Pentagon (supply chain risk designation)", "date": "2026-03"}
+    ],
+    "trends": [
+      "Capability race → deployment reality",
+      "Agentic AI: 64% orgs actively using (NVIDIA survey)",
+      "Security concerns: agents deployed faster than secured",
+      "Healthcare AI explosion (HIMSS 2026)",
+      "Context windows standardized at 1M tokens"
+    ]
+  },
+
+  "predictions": {
+    "active": [
+      {"id": "G1", "prediction": "Iran war continues past March 2026", "confidence": 0.85, "check_date": "2026-04-01", "status": "pending", "trend": "confirming"},
+      {"id": "G2", "prediction": "Russian sanctions lift reduces Brent 5%+", "confidence": 0.60, "status": "wrong", "lesson": "Supply chain shock > volume changes"},
+      {"id": "G3", "prediction": "France no ground troops", "confidence": 0.75, "check_date": "2026-05-15", "status": "pending"},
+      {"id": "G4", "prediction": "Iran no nuclear weapon use", "confidence": 0.95, "check_date": "2026-09-15", "status": "pending"},
+      {"id": "G5", "prediction": "Cuba-US agreement by end 2026", "confidence": 0.45, "check_date": "2026-12-31", "status": "pending"},
+      {"id": "A1", "prediction": ">2M token context by June 2026", "confidence": 0.70, "check_date": "2026-06-15", "status": "pending"},
+      {"id": "A2", "prediction": "OpenAI IPO by end 2026", "confidence": 0.55, "check_date": "2026-12-31", "status": "pending"},
+      {"id": "A3", "prediction": "3+ Fortune 500 with autonomous agents in production", "confidence": 0.80, "check_date": "2026-12-31", "status": "pending"},
+      {"id": "A4", "prediction": "Major agentic AI security incident (>$10M)", "confidence": 0.75, "check_date": "2026-12-31", "status": "pending"},
+      {"id": "A5", "prediction": "Inference cost drops 30%+ by end 2026", "confidence": 0.85, "check_date": "2026-12-31", "status": "pending"},
+      {"id": "A6", "prediction": "Anthropic holds anti-weapons position", "confidence": 0.70, "check_date": "2026-12-31", "status": "pending"}
+    ],
+    "score": {
+      "total": 11,
+      "checked": 1,
+      "correct": 0,
+      "wrong": 1,
+      "accuracy": 0.0,
+      "note": "Too early for meaningful accuracy — most predictions are long-horizon"
+    }
+  },
+
+  "energy_chain": {
+    "description": "War → Oil → Electricity → Compute → AI Cost",
+    "current_state": "stressed",
+    "bottleneck": "Strait of Hormuz paralysis",
+    "risk_level": "high",
+    "implication": "If Kharg oil infrastructure struck, compute costs spike globally"
+  },
+
+  "new_predictions_run8": [
+    {
+      "id": "G6",
+      "prediction": "NVIDIA GTC will announce Rubin GPU pricing/availability timeline (H2 2026 or 2027)",
+      "confidence": 0.80,
+      "check_date": "2026-03-19",
+      "rationale": "Standard practice at GTC to give roadmap; Rubin is their flagship next-gen"
+    },
+    {
+      "id": "G7",
+      "prediction": "Iran conflict will spread to at least one more country (beyond current affected) by end of March",
+      "confidence": 0.40,
+      "check_date": "2026-03-31",
+      "rationale": "Iran already attacking 4+ countries with drones, but full spread requires escalation that both sides may avoid"
+    },
+    {
+      "id": "A7",
+      "prediction": "NVIDIA will announce NemoClaw at GTC as open-source agent platform",
+      "confidence": 0.85,
+      "check_date": "2026-03-19",
+      "rationale": "Multiple leaks and previews confirm this"
+    }
+  ]
+}

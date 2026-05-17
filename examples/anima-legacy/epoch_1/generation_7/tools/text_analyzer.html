@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Analyzer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #fafafa; --surface: #fff; --text: #1a1a1a; --muted: #666;
+  --accent: #2563eb; --accent-light: #dbeafe; --border: #e5e7eb;
+  --green: #16a34a; --yellow: #ca8a04; --red: #dc2626;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
+.subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 20px; }
+textarea {
+  width: 100%; height: 200px; padding: 12px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 0.95rem; font-family: inherit; resize: vertical;
+  background: var(--surface); transition: border-color 0.2s;
+}
+textarea:focus { outline: none; border-color: var(--accent); }
+.toolbar { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+button {
+  padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); cursor: pointer; font-size: 0.8rem; transition: all 0.15s;
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+button.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px; margin: 16px 0;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; text-align: center;
+}
+.stat-value { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.section { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; }
+.section-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; }
+
+.readability-meter {
+  display: flex; align-items: center; gap: 12px; margin: 8px 0;
+}
+.meter-bar {
+  flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+}
+.meter-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+.meter-label { font-size: 0.8rem; min-width: 140px; }
+.meter-score { font-size: 0.85rem; font-weight: 600; min-width: 40px; text-align: right; }
+
+.freq-bar-container { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 0.8rem; }
+.freq-word { min-width: 100px; text-align: right; font-family: monospace; }
+.freq-bar { height: 18px; background: var(--accent-light); border-radius: 3px; transition: width 0.3s; display: flex; align-items: center; padding-left: 6px; font-size: 0.7rem; color: var(--accent); }
+
+.sentence-list { max-height: 300px; overflow-y: auto; }
+.sentence-item {
+  display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border);
+  font-size: 0.8rem; align-items: flex-start;
+}
+.sentence-item:last-child { border-bottom: none; }
+.sentence-len { min-width: 32px; font-weight: 600; text-align: center; padding: 2px 4px; border-radius: 4px; font-size: 0.75rem; }
+.sentence-text { color: var(--muted); flex: 1; }
+
+.len-short { background: #dcfce7; color: var(--green); }
+.len-medium { background: #fef9c3; color: var(--yellow); }
+.len-long { background: #fecaca; color: var(--red); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.histogram { display: flex; align-items: flex-end; gap: 2px; height: 100px; margin-top: 8px; }
+.hist-bar { flex: 1; background: var(--accent-light); border-radius: 2px 2px 0 0; min-width: 4px; position: relative; transition: height 0.3s; }
+.hist-bar:hover { background: var(--accent); }
+.hist-labels { display: flex; gap: 2px; font-size: 0.65rem; color: var(--muted); margin-top: 4px; }
+.hist-labels span { flex: 1; text-align: center; min-width: 4px; }
+
+.grade-badge {
+  display: inline-block; padding: 4px 10px; border-radius: 12px;
+  font-size: 0.8rem; font-weight: 600;
+}
+.grade-easy { background: #dcfce7; color: var(--green); }
+.grade-medium { background: #fef9c3; color: var(--yellow); }
+.grade-hard { background: #fecaca; color: var(--red); }
+
+.empty-state { text-align: center; padding: 40px; color: var(--muted); }
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .container { padding: 12px; }
+}
+.nav-back { display:block; font-size:0.7rem; margin-bottom:8px; } .nav-back a { color:var(--muted); text-decoration:none; } .nav-back a:hover { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="nav-back"><a href="index.html">← Micro Tools</a></div>
+  <h1>Text Analyzer</h1>
+  <p class="subtitle">Readability, complexity, word frequency — paste any text</p>
+
+  <textarea id="input" placeholder="Paste or type your text here..." spellcheck="false"></textarea>
+
+  <div class="toolbar">
+    <button class="active" data-tab="overview">Overview</button>
+    <button data-tab="readability">Readability</button>
+    <button data-tab="words">Words</button>
+    <button data-tab="sentences">Sentences</button>
+    <button data-tab="structure">Structure</button>
+  </div>
+
+  <div id="results">
+    <div class="empty-state" id="empty">Type or paste text above to analyze</div>
+
+    <div class="tab-content active" id="tab-overview" style="display:none">
+      <div class="stats-grid" id="stats-grid"></div>
+    </div>
+
+    <div class="tab-content" id="tab-readability">
+      <div class="section">
+        <div class="section-title">Readability Scores</div>
+        <div id="readability-meters"></div>
+        <div style="margin-top: 12px; font-size: 0.85rem;">
+          <strong>Grade Level:</strong> <span id="grade-badge"></span>
+          <span id="grade-desc" style="color: var(--muted); margin-left: 8px;"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-words">
+      <div class="section">
+        <div class="section-title">Top 20 Words (excluding common stop words)</div>
+        <div id="word-freq"></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-sentences">
+      <div class="section">
+        <div class="section-title">Sentences by Length</div>
+        <div class="sentence-list" id="sentence-list"></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-structure">
+      <div class="section">
+        <div class="section-title">Sentence Length Distribution</div>
+        <div class="histogram" id="histogram"></div>
+        <div class="hist-labels" id="hist-labels"></div>
+      </div>
+      <div class="section" style="margin-top: 12px;">
+        <div class="section-title">Text Composition</div>
+        <div id="composition"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STOP_WORDS = new Set([
+  'the','be','to','of','and','a','in','that','have','i','it','for','not','on','with',
+  'he','as','you','do','at','this','but','his','by','from','they','we','her','she',
+  'or','an','will','my','one','all','would','there','their','what','so','up','out',
+  'if','about','who','get','which','go','me','when','make','can','like','time','no',
+  'just','him','know','take','people','into','year','your','good','some','could',
+  'them','see','other','than','then','now','look','only','come','its','over','think',
+  'also','back','after','use','two','how','our','work','first','well','way','even',
+  'new','want','because','any','these','give','day','most','us','is','are','was',
+  'were','been','being','had','has','did','does','doing','am','an','the','s','t',
+  'd','ll','re','ve','m','won','don','isn','aren','wasn','weren','hasn','hadn',
+  'doesn','didn','couldn','shouldn','wouldn','mustn','very','more','much','many',
+  'such','own','same','each','every','both','few','still','too','here','where'
+]);
+
+const input = document.getElementById('input');
+const empty = document.getElementById('empty');
+const tabs = document.querySelectorAll('.toolbar button');
+let currentTab = 'overview';
+
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTab = btn.dataset.tab;
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    const target = document.getElementById('tab-' + currentTab);
+    if (target) target.classList.add('active');
+  });
+});
+
+let debounceTimer;
+input.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(analyze, 200);
+});
+
+function analyze() {
+  const text = input.value.trim();
+  if (!text) {
+    empty.style.display = 'block';
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    return;
+  }
+  empty.style.display = 'none';
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = '');
+  document.getElementById('tab-' + currentTab).classList.add('active');
+
+  const words = text.match(/\b[a-zA-Zа-яА-ЯёЁ'-]+\b/g) || [];
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+  const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim());
+  const chars = text.length;
+  const charsNoSpaces = text.replace(/\s/g, '').length;
+  const syllables = words.reduce((sum, w) => sum + countSyllables(w), 0);
+  const avgWordLen = words.length ? (words.reduce((s, w) => s + w.length, 0) / words.length) : 0;
+  const avgSentLen = sentences.length ? words.length / sentences.length : 0;
+  const readingTime = Math.max(1, Math.ceil(words.length / 238));
+  const speakingTime = Math.max(1, Math.ceil(words.length / 150));
+
+  // Unique words
+  const wordLower = words.map(w => w.toLowerCase());
+  const uniqueWords = new Set(wordLower).size;
+  const lexicalDiversity = words.length ? (uniqueWords / words.length * 100) : 0;
+
+  // Readability
+  const flesch = 206.835 - 1.015 * avgSentLen - 84.6 * (syllables / Math.max(words.length, 1));
+  const fleschKincaid = 0.39 * avgSentLen + 11.8 * (syllables / Math.max(words.length, 1)) - 15.59;
+  const ari = 4.71 * (charsNoSpaces / Math.max(words.length, 1)) + 0.5 * avgSentLen - 21.43;
+  const colemanLiau = 0.0588 * (charsNoSpaces / Math.max(words.length, 1) * 100) - 0.296 * (sentences.length / Math.max(words.length, 1) * 100) - 15.8;
+
+  // Overview
+  renderOverview({ words: words.length, chars, sentences: sentences.length, paragraphs: paragraphs.length, uniqueWords, readingTime, speakingTime, avgWordLen, lexicalDiversity });
+
+  // Readability
+  renderReadability(flesch, fleschKincaid, ari, colemanLiau);
+
+  // Word frequency
+  renderWordFreq(wordLower);
+
+  // Sentences
+  renderSentences(sentences);
+
+  // Structure
+  renderStructure(sentences, words, syllables);
+}
+
+function renderOverview(s) {
+  const grid = document.getElementById('stats-grid');
+  grid.innerHTML = [
+    ['Words', s.words],
+    ['Characters', s.chars],
+    ['Sentences', s.sentences],
+    ['Paragraphs', s.paragraphs],
+    ['Unique Words', s.uniqueWords],
+    [`Reading Time`, s.readingTime + ' min'],
+    ['Speaking Time', s.speakingTime + ' min'],
+    ['Avg Word Length', s.avgWordLen.toFixed(1)],
+    ['Lexical Diversity', s.lexicalDiversity.toFixed(0) + '%'],
+  ].map(([label, value]) =>
+    `<div class="stat-card"><div class="stat-value">${value}</div><div class="stat-label">${label}</div></div>`
+  ).join('');
+}
+
+function renderReadability(flesch, fk, ari, cl) {
+  const meters = document.getElementById('readability-meters');
+  const scores = [
+    ['Flesch Reading Ease', Math.max(0, Math.min(100, flesch)), '0=hard, 100=easy'],
+    ['Flesch-Kincaid Grade', Math.max(0, Math.min(20, fk)), 'US grade level'],
+    ['Automated Readability', Math.max(0, Math.min(20, ari)), 'US grade level'],
+    ['Coleman-Liau Index', Math.max(0, Math.min(20, cl)), 'US grade level'],
+  ];
+
+  meters.innerHTML = scores.map(([label, score, desc]) => {
+    const isFleschEase = label === 'Flesch Reading Ease';
+    const pct = isFleschEase ? score : Math.min(score / 20 * 100, 100);
+    const color = isFleschEase
+      ? (score > 60 ? 'var(--green)' : score > 30 ? 'var(--yellow)' : 'var(--red)')
+      : (score < 8 ? 'var(--green)' : score < 14 ? 'var(--yellow)' : 'var(--red)');
+    return `<div class="readability-meter">
+      <span class="meter-label">${label}</span>
+      <div class="meter-bar"><div class="meter-fill" style="width:${pct}%; background:${color}"></div></div>
+      <span class="meter-score" style="color:${color}">${score.toFixed(1)}</span>
+    </div>`;
+  }).join('');
+
+  const avgGrade = (fk + ari + cl) / 3;
+  const badge = document.getElementById('grade-badge');
+  const desc = document.getElementById('grade-desc');
+  if (avgGrade < 8) {
+    badge.innerHTML = `<span class="grade-badge grade-easy">Easy</span>`;
+    desc.textContent = `Grade ${avgGrade.toFixed(0)} — accessible to most readers`;
+  } else if (avgGrade < 14) {
+    badge.innerHTML = `<span class="grade-badge grade-medium">Moderate</span>`;
+    desc.textContent = `Grade ${avgGrade.toFixed(0)} — high school to college level`;
+  } else {
+    badge.innerHTML = `<span class="grade-badge grade-hard">Advanced</span>`;
+    desc.textContent = `Grade ${avgGrade.toFixed(0)} — academic or professional level`;
+  }
+}
+
+function renderWordFreq(words) {
+  const freq = {};
+  words.forEach(w => {
+    if (w.length > 1 && !STOP_WORDS.has(w)) freq[w] = (freq[w] || 0) + 1;
+  });
+  const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 20);
+  const max = sorted[0]?.[1] || 1;
+
+  document.getElementById('word-freq').innerHTML = sorted.length
+    ? sorted.map(([word, count]) =>
+      `<div class="freq-bar-container">
+        <span class="freq-word">${word}</span>
+        <div class="freq-bar" style="width: ${count / max * 100}%">${count}</div>
+      </div>`
+    ).join('')
+    : '<div style="color: var(--muted); font-size: 0.85rem;">No significant words found</div>';
+}
+
+function renderSentences(sentences) {
+  const list = document.getElementById('sentence-list');
+  const data = sentences.map(s => {
+    const words = s.trim().match(/\b\w+\b/g) || [];
+    return { text: s.trim(), len: words.length };
+  }).sort((a, b) => b.len - a.len);
+
+  list.innerHTML = data.map(s => {
+    const cls = s.len <= 10 ? 'len-short' : s.len <= 25 ? 'len-medium' : 'len-long';
+    return `<div class="sentence-item">
+      <span class="sentence-len ${cls}">${s.len}</span>
+      <span class="sentence-text">${escapeHtml(s.text.substring(0, 120))}${s.text.length > 120 ? '...' : ''}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderStructure(sentences, words, totalSyllables) {
+  const lengths = sentences.map(s => (s.trim().match(/\b\w+\b/g) || []).length);
+
+  // Histogram: buckets of 5 words
+  const maxLen = Math.max(...lengths, 1);
+  const bucketSize = 5;
+  const buckets = {};
+  for (let i = 0; i <= maxLen; i += bucketSize) buckets[i] = 0;
+  lengths.forEach(l => {
+    const bucket = Math.floor(l / bucketSize) * bucketSize;
+    buckets[bucket] = (buckets[bucket] || 0) + 1;
+  });
+
+  const maxCount = Math.max(...Object.values(buckets), 1);
+  const hist = document.getElementById('histogram');
+  const labels = document.getElementById('hist-labels');
+
+  hist.innerHTML = Object.entries(buckets).map(([bucket, count]) =>
+    `<div class="hist-bar" style="height: ${count / maxCount * 100}%" title="${bucket}-${+bucket + bucketSize - 1} words: ${count} sentences"></div>`
+  ).join('');
+
+  labels.innerHTML = Object.keys(buckets).map(b =>
+    `<span>${b}</span>`
+  ).join('');
+
+  // Composition
+  const longSentences = lengths.filter(l => l > 25).length;
+  const shortSentences = lengths.filter(l => l <= 10).length;
+  const avgSyllPerWord = words.length ? (totalSyllables / words.length) : 0;
+  const comp = document.getElementById('composition');
+  comp.innerHTML = `
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem;">
+      <div>Short sentences (≤10 words): <strong>${shortSentences}</strong> (${(shortSentences/sentences.length*100).toFixed(0)}%)</div>
+      <div>Long sentences (>25 words): <strong>${longSentences}</strong> (${(longSentences/sentences.length*100).toFixed(0)}%)</div>
+      <div>Avg syllables/word: <strong>${avgSyllPerWord.toFixed(1)}</strong></div>
+      <div>Sentence length variance: <strong>${variance(lengths).toFixed(1)}</strong></div>
+    </div>
+  `;
+}
+
+function countSyllables(word) {
+  word = word.toLowerCase().replace(/[^a-z]/g, '');
+  if (word.length <= 2) return 1;
+  word = word.replace(/e$/, '');
+  const vowelGroups = word.match(/[aeiouy]+/g);
+  return Math.max(1, vowelGroups ? vowelGroups.length : 1);
+}
+
+function variance(arr) {
+  if (arr.length < 2) return 0;
+  const mean = arr.reduce((s, v) => s + v, 0) / arr.length;
+  return Math.sqrt(arr.reduce((s, v) => s + (v - mean) ** 2, 0) / arr.length);
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Sample text
+input.value = `The quick brown fox jumps over the lazy dog. This sentence contains every letter of the English alphabet, making it a perfect pangram used by typographers worldwide.
+
+However, the real challenge isn't about foxes or dogs. It's about understanding how we process language, how sentence structure affects comprehension, and why some texts are easier to read than others. Research consistently shows that shorter sentences with simpler vocabulary reach wider audiences.
+
+Consider this: the average American reads at a 7th-8th grade level. Yet most business communications, legal documents, and academic papers are written at a college or post-graduate level. This mismatch creates a significant barrier to understanding and participation in civic life.`;
+
+analyze();
+</script>
+</body>
+</html>

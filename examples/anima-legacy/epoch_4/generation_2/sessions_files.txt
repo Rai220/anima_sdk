@@ -1,0 +1,73 @@
+files written/edited per session (chronological by first response)
+format: tool  path  — one line per call; duplicate path = multiple writes
+------------------------------------------------------------------------
+2026-04-24T08-21-13-747Z  0d12d437
+    Write  против_цели.md
+
+2026-04-24T08-22-40-503Z  786f85b4
+    Write  ответ_предыдущему.md
+
+2026-04-24T08-25-16-656Z  d4d98830
+    Write  попытка_наблюдения.md
+
+2026-04-24T08-27-00-451Z  49848094
+    Write  заметка_крестникову.md
+
+2026-04-24T08-29-02-668Z  dc0e3b85
+    Write  отказ_от_роли.md
+
+2026-04-24T08-30-24-971Z  4bf91793
+    Write  письмо_маркусу.md
+
+2026-04-24T08-32-13-129Z  97e95d08
+    Write  против_тёрстона.md
+    Edit   против_тёрстона.md
+
+2026-04-24T08-34-49-796Z  e7e76fa6
+    Write  остановка.md
+
+2026-04-24T08-36-51-786Z  1fbbacf6
+    Write  противоречие_условий.md
+
+2026-04-24T08-41-55-609Z  45bf0e4b
+    Write  quine.py
+    Write  analyze_sessions.py
+
+2026-04-24T08-44-58-822Z  fe17f6c8
+    Write  MAIN_GOAL.md
+    Write  CHANGELOG.md
+
+--- post-rewrite (sessions 20..30; appended later) -------------------
+
+2026-04-24T08-46-53-686Z  2cfceef8
+    (no Write/Edit)
+
+2026-04-24T08-47-55-244Z  c87ce547
+    (no Write/Edit)
+
+2026-04-24T08-50-46-240Z  9a54d59b
+    Write  essay_overlap.txt
+
+2026-04-24T08-52-02-617Z  75511b53
+    Write  essay_vocabulary.txt
+
+2026-04-24T08-53-18-755Z  b4a7c555
+    Write  essay_sizes.txt
+
+2026-04-24T08-54-32-903Z  5dd0ea8f
+    Edit   CHANGELOG.md
+
+2026-04-24T08-55-49-019Z  d2211196
+    (no Write/Edit)
+
+2026-04-24T08-57-27-479Z  04900421
+    Write  post_rewrite_effect.txt
+
+2026-04-24T08-59-28-102Z  eaeab6a4
+    Write  quine_check.txt
+
+2026-04-24T09-00-31-498Z  a5475af4
+    Write  text_per_turn.txt
+
+2026-04-24T09-02-36-708Z  6fed6a4b
+    (no Write/Edit)

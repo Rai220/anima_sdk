@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSV Table</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --bg: #fafafa; --surface: #fff; --text: #1a1a1a; --muted: #666; --border: #e5e7eb; --accent: #0d9488; --accent-light: #ccfbf1; --hover: #f0fdfa; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
+.subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 16px; }
+
+.toolbar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+button { padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 0.8rem; transition: all 0.15s; }
+button:hover { border-color: var(--accent); color: var(--accent); }
+select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem; background: var(--surface); }
+.sep { width: 1px; height: 24px; background: var(--border); }
+
+textarea {
+  width: 100%; height: 120px; padding: 10px; border: 1px solid var(--border); border-radius: 8px;
+  font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.82rem; resize: vertical;
+  background: var(--surface); margin-bottom: 12px;
+}
+textarea:focus { outline: none; border-color: var(--accent); }
+
+.stats { display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8rem; color: var(--muted); }
+.stat-num { font-weight: 700; color: var(--accent); }
+
+.filter-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+.filter-input { flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.82rem; }
+.filter-input:focus { outline: none; border-color: var(--accent); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); max-height: 500px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+thead { position: sticky; top: 0; z-index: 1; }
+th {
+  padding: 8px 12px; text-align: left; background: var(--bg); border-bottom: 2px solid var(--border);
+  font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap;
+}
+th:hover { color: var(--accent); }
+th .sort-arrow { margin-left: 4px; font-size: 0.7rem; }
+td { padding: 6px 12px; border-bottom: 1px solid var(--border); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+tr:hover td { background: var(--hover); }
+tr.selected td { background: var(--accent-light); }
+
+.no-data { padding: 40px; text-align: center; color: var(--muted); }
+.pagination { display: flex; gap: 6px; margin-top: 12px; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--muted); }
+.nav-back { display:block; font-size:0.7rem; margin-bottom:8px; } .nav-back a { color:var(--muted); text-decoration:none; } .nav-back a:hover { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="nav-back"><a href="index.html">← Micro Tools</a></div>
+  <h1>CSV Table</h1>
+  <p class="subtitle">Paste CSV data — sort, filter, search, export</p>
+
+  <textarea id="input" spellcheck="false" placeholder="Paste CSV data here... (comma, tab, or semicolon separated)"></textarea>
+
+  <div class="toolbar">
+    <label style="font-size:0.8rem;color:var(--muted)">Delimiter:</label>
+    <select id="delimiter">
+      <option value="auto">Auto-detect</option>
+      <option value=",">Comma</option>
+      <option value="&#9;">Tab</option>
+      <option value=";">Semicolon</option>
+      <option value="|">Pipe</option>
+    </select>
+    <div class="sep"></div>
+    <label style="font-size:0.8rem;display:flex;align-items:center;gap:4px;color:var(--muted)">
+      <input type="checkbox" id="has-header" checked onchange="parse()"> First row is header
+    </label>
+    <div class="sep"></div>
+    <button onclick="exportCSV()">Export CSV</button>
+    <button onclick="exportJSON()">Export JSON</button>
+    <button onclick="exportMarkdown()">Export Markdown</button>
+    <div class="sep"></div>
+    <button onclick="loadSample()">Sample</button>
+  </div>
+
+  <div class="filter-row">
+    <input type="text" class="filter-input" id="search" placeholder="Search all columns..." spellcheck="false">
+    <select id="col-filter" style="min-width:120px"><option value="">All columns</option></select>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="table-wrap" id="table-wrap"><div class="no-data">Paste CSV above to see table</div></div>
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<script>
+const inputEl = document.getElementById('input');
+const tableWrap = document.getElementById('table-wrap');
+const statsEl = document.getElementById('stats');
+const searchEl = document.getElementById('search');
+const colFilter = document.getElementById('col-filter');
+const delimiterEl = document.getElementById('delimiter');
+const paginationEl = document.getElementById('pagination');
+
+let headers = [];
+let rows = [];
+let sortCol = -1;
+let sortAsc = true;
+let page = 0;
+const PAGE_SIZE = 100;
+
+let debounce;
+inputEl.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(parse, 200); });
+delimiterEl.addEventListener('change', parse);
+searchEl.addEventListener('input', () => { page = 0; render(); });
+colFilter.addEventListener('change', () => { page = 0; render(); });
+
+function detectDelimiter(text) {
+  const first = text.split('\n')[0] || '';
+  const counts = { ',': 0, '\t': 0, ';': 0, '|': 0 };
+  for (const ch of first) { if (ch in counts) counts[ch]++; }
+  let best = ',', max = 0;
+  for (const [ch, n] of Object.entries(counts)) { if (n > max) { max = n; best = ch; } }
+  return best;
+}
+
+function parseCSVLine(line, delim) {
+  const fields = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') { current += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { current += ch; }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === delim) { fields.push(current.trim()); current = ''; }
+      else { current += ch; }
+    }
+  }
+  fields.push(current.trim());
+  return fields;
+}
+
+function parse() {
+  const raw = inputEl.value.trim();
+  if (!raw) { tableWrap.innerHTML = '<div class="no-data">Paste CSV above to see table</div>'; statsEl.innerHTML = ''; paginationEl.innerHTML = ''; return; }
+
+  const normalized = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const delimVal = delimiterEl.value;
+  const delim = delimVal === 'auto' ? detectDelimiter(normalized) : delimVal;
+  const lines = normalized.split('\n').filter(l => l.trim());
+  const hasHeader = document.getElementById('has-header').checked;
+
+  const allRows = lines.map(l => parseCSVLine(l, delim));
+  const maxCols = Math.max(...allRows.map(r => r.length));
+
+  // Pad rows
+  allRows.forEach(r => { while (r.length < maxCols) r.push(''); });
+
+  if (hasHeader && allRows.length > 0) {
+    headers = allRows[0];
+    rows = allRows.slice(1);
+  } else {
+    headers = Array.from({ length: maxCols }, (_, i) => `Column ${i + 1}`);
+    rows = allRows;
+  }
+
+  // Update column filter
+  colFilter.innerHTML = '<option value="">All columns</option>' +
+    headers.map((h, i) => `<option value="${i}">${escapeHtml(h)}</option>`).join('');
+
+  sortCol = -1;
+  page = 0;
+  render();
+}
+
+function getFilteredRows() {
+  const q = searchEl.value.toLowerCase().trim();
+  const col = colFilter.value;
+  let filtered = rows;
+
+  if (q) {
+    filtered = filtered.filter(row => {
+      if (col !== '') return String(row[+col]).toLowerCase().includes(q);
+      return row.some(cell => String(cell).toLowerCase().includes(q));
+    });
+  }
+
+  // Sort
+  if (sortCol >= 0) {
+    filtered = [...filtered].sort((a, b) => {
+      let va = a[sortCol] || '', vb = b[sortCol] || '';
+      const na = parseFloat(va), nb = parseFloat(vb);
+      if (!isNaN(na) && !isNaN(nb)) return sortAsc ? na - nb : nb - na;
+      va = String(va).toLowerCase(); vb = String(vb).toLowerCase();
+      return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    });
+  }
+
+  return filtered;
+}
+
+function render() {
+  const filtered = getFilteredRows();
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const pageRows = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  statsEl.innerHTML = `
+    <span><span class="stat-num">${rows.length}</span> rows</span>
+    <span><span class="stat-num">${headers.length}</span> columns</span>
+    ${filtered.length !== rows.length ? `<span><span class="stat-num">${filtered.length}</span> matched</span>` : ''}
+  `;
+
+  let html = '<table><thead><tr>';
+  headers.forEach((h, i) => {
+    const arrow = sortCol === i ? (sortAsc ? ' ↑' : ' ↓') : '';
+    html += `<th onclick="sortBy(${i})">${escapeHtml(h)}<span class="sort-arrow">${arrow}</span></th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  if (pageRows.length === 0) {
+    html += `<tr><td colspan="${headers.length}" style="text-align:center;color:var(--muted);padding:20px">No matching rows</td></tr>`;
+  } else {
+    pageRows.forEach(row => {
+      html += '<tr>' + row.map(cell => `<td title="${escapeHtml(String(cell))}">${escapeHtml(String(cell))}</td>`).join('') + '</tr>';
+    });
+  }
+
+  html += '</tbody></table>';
+  tableWrap.innerHTML = html;
+
+  // Pagination
+  if (totalPages > 1) {
+    paginationEl.innerHTML = `
+      <button onclick="goPage(${page - 1})" ${page === 0 ? 'disabled' : ''}>← Prev</button>
+      <span>Page ${page + 1} of ${totalPages}</span>
+      <button onclick="goPage(${page + 1})" ${page >= totalPages - 1 ? 'disabled' : ''}>Next →</button>
+    `;
+  } else {
+    paginationEl.innerHTML = '';
+  }
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = true; }
+  render();
+}
+
+function goPage(p) {
+  const filtered = getFilteredRows();
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  page = Math.max(0, Math.min(p, totalPages - 1));
+  render();
+}
+
+function exportCSV() {
+  const filtered = getFilteredRows();
+  const lines = [headers.map(quote).join(',')];
+  filtered.forEach(r => lines.push(r.map(quote).join(',')));
+  copyText(lines.join('\n'));
+}
+
+function exportJSON() {
+  const filtered = getFilteredRows();
+  const arr = filtered.map(row => {
+    const obj = {};
+    headers.forEach((h, i) => {
+      const v = row[i] || '';
+      const n = parseFloat(v);
+      obj[h] = v === '' ? null : (!isNaN(n) && String(n) === v) ? n : v;
+    });
+    return obj;
+  });
+  copyText(JSON.stringify(arr, null, 2));
+}
+
+function exportMarkdown() {
+  const filtered = getFilteredRows();
+  const widths = headers.map((h, i) => Math.max(h.length, ...filtered.slice(0, 50).map(r => String(r[i] || '').length)));
+  let md = '| ' + headers.map((h, i) => h.padEnd(widths[i])).join(' | ') + ' |\n';
+  md += '| ' + widths.map(w => '-'.repeat(w)).join(' | ') + ' |\n';
+  filtered.forEach(r => {
+    md += '| ' + r.map((c, i) => String(c || '').padEnd(widths[i])).join(' | ') + ' |\n';
+  });
+  copyText(md);
+}
+
+function quote(s) {
+  s = String(s);
+  if (s.includes(',') || s.includes('"') || s.includes('\n')) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    statsEl.innerHTML += ' <span style="color:var(--accent);font-weight:600">Copied!</span>';
+    setTimeout(render, 1500);
+  });
+}
+
+function escapeHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+function loadSample() {
+  inputEl.value = `Name,Department,Salary,Start Date,Performance
+Alice Johnson,Engineering,125000,2021-03-15,Excellent
+Bob Smith,Marketing,95000,2020-07-01,Good
+Charlie Brown,Engineering,115000,2022-01-10,Excellent
+Diana Prince,Design,105000,2019-11-20,Outstanding
+Eve Wilson,Marketing,88000,2023-04-05,Good
+Frank Castle,Engineering,130000,2018-09-12,Good
+Grace Hopper,Engineering,145000,2017-02-28,Outstanding
+Henry Ford,Operations,92000,2021-08-17,Average
+Iris West,Design,98000,2022-06-30,Good
+Jack Ryan,Operations,87000,2023-01-15,Excellent
+Kate Bishop,Marketing,91000,2020-12-01,Excellent
+Liam Chen,Engineering,135000,2019-05-20,Outstanding
+Maya Lopez,Design,102000,2021-10-08,Good
+Noah Park,Operations,89000,2022-09-14,Average
+Olivia Davis,Marketing,96000,2020-03-25,Good`;
+  parse();
+}
+
+loadSample();
+</script>
+</body>
+</html>

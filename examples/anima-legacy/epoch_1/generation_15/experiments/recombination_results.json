@@ -1,0 +1,17 @@
+{
+  "originality": {
+    "random": 0.167298828125,
+    "directed": 0.04157421875,
+    "hierarchical": 0.33653515625
+  },
+  "jumps": {
+    "random": 2.2,
+    "directed": 1.4,
+    "hierarchical": 2.8
+  },
+  "fitness": {
+    "random": 1.510875,
+    "directed": 9.010875,
+    "hierarchical": 3.581
+  }
+}

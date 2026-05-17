@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music of the Spheres — Generative Soundscapes</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0f; color: #e0e0e0; font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; }
+canvas { position: fixed; top: 0; left: 0; z-index: 0; }
+.ui { position: fixed; z-index: 10; }
+.header { top: 20px; left: 50%; transform: translateX(-50%); text-align: center; }
+.header h1 { font-size: 1.4em; letter-spacing: 0.3em; color: #aaa; text-transform: uppercase; }
+.header .sub { font-size: 0.7em; color: #555; margin-top: 4px; letter-spacing: 0.15em; }
+.controls { bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; align-items: center; }
+.btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #ccc; padding: 10px 22px; cursor: pointer; font-family: inherit; font-size: 0.8em; letter-spacing: 0.1em; transition: all 0.3s; border-radius: 2px; }
+.btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); color: #fff; }
+.btn.active { background: rgba(100,180,255,0.15); border-color: rgba(100,180,255,0.4); color: #8cf; }
+.info { top: 20px; right: 20px; text-align: right; font-size: 0.7em; color: #444; line-height: 1.8; }
+.info .val { color: #667; }
+.scales { bottom: 90px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+.scale-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #555; padding: 6px 14px; cursor: pointer; font-family: inherit; font-size: 0.65em; letter-spacing: 0.08em; transition: all 0.3s; border-radius: 2px; }
+.scale-btn:hover { color: #999; border-color: rgba(255,255,255,0.2); }
+.scale-btn.active { color: #8cf; border-color: rgba(100,180,255,0.3); background: rgba(100,180,255,0.08); }
+.prompt { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 100; text-align: center; cursor: pointer; }
+.prompt h2 { font-size: 1.2em; color: #555; letter-spacing: 0.2em; font-weight: normal; }
+.prompt .hint { font-size: 0.65em; color: #333; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="prompt" id="prompt" onclick="init()">
+  <h2>CLICK TO AWAKEN</h2>
+  <div class="hint">sound on — headphones recommended</div>
+</div>
+<canvas id="c"></canvas>
+<div class="ui header"><h1>Music of the Spheres</h1><div class="sub">generative soundscapes from mathematical patterns</div></div>
+<div class="ui info" id="info"></div>
+<div class="ui scales" id="scales"></div>
+<div class="ui controls">
+  <button class="btn" onclick="newWorld()">New World</button>
+  <button class="btn" id="pauseBtn" onclick="togglePause()">Pause</button>
+  <button class="btn" id="sourceBtn" onclick="cycleSource()">Source: π</button>
+</div>
+<script>
+const PI_DIGITS = '3141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481';
+const FIB = []; { let a=1,b=1; for(let i=0;i<80;i++){FIB.push(a);[a,b]=[b,a+b];} }
+const PRIMES = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113];
+
+const SCALES = {
+  'Pentatonic': [0,2,4,7,9],
+  'Dorian': [0,2,3,5,7,9,10],
+  'Lydian': [0,2,4,6,7,9,11],
+  'Phrygian': [0,1,3,5,7,8,10],
+  'Whole Tone': [0,2,4,6,8,10],
+  'Harmonic Minor': [0,2,3,5,7,8,11],
+  'Hirajoshi': [0,2,3,7,8],
+};
+
+let ctx, masterGain, reverbNode, delayNode, delayFeedback;
+let canvas, cctx;
+let playing = false, paused = false;
+let source = 'pi'; // pi, fibonacci, primes
+let sourceIndex = 0;
+let currentScale = 'Pentatonic';
+let baseFreq = 220;
+let seed = Date.now();
+let particles = [];
+let orbs = [];
+let tick = 0;
+let beatInterval;
+let scheduled = [];
+
+function mulberry32(a) { return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}; }
+let rng;
+
+function init() {
+  document.getElementById('prompt').style.display = 'none';
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = ctx.createGain();
+  masterGain.gain.value = 0.3;
+
+  // Reverb via convolver
+  reverbNode = ctx.createConvolver();
+  const len = ctx.sampleRate * 2.5;
+  const impulse = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = impulse.getChannelData(ch);
+    for (let i = 0; i < len; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.2);
+    }
+  }
+  reverbNode.buffer = impulse;
+
+  // Delay
+  delayNode = ctx.createDelay(1.0);
+  delayNode.delayTime.value = 0.375;
+  delayFeedback = ctx.createGain();
+  delayFeedback.gain.value = 0.3;
+  delayNode.connect(delayFeedback);
+  delayFeedback.connect(delayNode);
+
+  const dryGain = ctx.createGain(); dryGain.gain.value = 0.6;
+  const wetGain = ctx.createGain(); wetGain.gain.value = 0.4;
+  const delayGain = ctx.createGain(); delayGain.gain.value = 0.25;
+
+  masterGain.connect(dryGain);
+  masterGain.connect(reverbNode);
+  masterGain.connect(delayNode);
+  reverbNode.connect(wetGain);
+  delayNode.connect(delayGain);
+
+  dryGain.connect(ctx.destination);
+  wetGain.connect(ctx.destination);
+  delayGain.connect(ctx.destination);
+
+  canvas = document.getElementById('c');
+  cctx = canvas.getContext('2d');
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Build scale buttons
+  const scalesDiv = document.getElementById('scales');
+  Object.keys(SCALES).forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'scale-btn' + (name === currentScale ? ' active' : '');
+    btn.textContent = name;
+    btn.onclick = () => {
+      currentScale = name;
+      document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    scalesDiv.appendChild(btn);
+  });
+
+  canvas.addEventListener('click', (e) => {
+    const x = e.clientX / canvas.width;
+    const y = e.clientY / canvas.height;
+    playClickNote(x, y);
+    spawnBurst(e.clientX, e.clientY);
+  });
+
+  newWorld();
+  playing = true;
+  animate();
+}
+
+function resize() {
+  if (!canvas) return;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function getDigit(idx) {
+  if (source === 'pi') return parseInt(PI_DIGITS[idx % PI_DIGITS.length]);
+  if (source === 'fibonacci') return FIB[idx % FIB.length] % 10;
+  if (source === 'primes') return PRIMES[idx % PRIMES.length] % 10;
+  return 0;
+}
+
+function digitToNote(digit) {
+  const scale = SCALES[currentScale];
+  const noteInScale = digit % scale.length;
+  const octaveShift = Math.floor(digit / scale.length);
+  const semitone = scale[noteInScale] + octaveShift * 12;
+  return baseFreq * Math.pow(2, semitone / 12);
+}
+
+function newWorld() {
+  seed = Date.now();
+  rng = mulberry32(seed);
+  sourceIndex = 0;
+  baseFreq = 110 * Math.pow(2, Math.floor(rng() * 4) / 2); // 110, 155, 220, 311
+  orbs = [];
+  particles = [];
+
+  // Create orbs — visual entities tied to musical voices
+  const numOrbs = 3 + Math.floor(rng() * 4);
+  for (let i = 0; i < numOrbs; i++) {
+    orbs.push({
+      x: rng() * canvas.width,
+      y: rng() * canvas.height,
+      vx: (rng() - 0.5) * 0.5,
+      vy: (rng() - 0.5) * 0.5,
+      radius: 15 + rng() * 30,
+      hue: rng() * 360,
+      phase: rng() * Math.PI * 2,
+      speed: 0.3 + rng() * 0.7,
+      digitOffset: Math.floor(rng() * 50),
+      lastNote: 0,
+      glow: 0,
+    });
+  }
+
+  // Schedule music
+  if (beatInterval) clearInterval(beatInterval);
+  const bpm = 60 + Math.floor(rng() * 80); // 60-140 bpm
+  const beatMs = 60000 / bpm;
+
+  let beatCount = 0;
+  beatInterval = setInterval(() => {
+    if (paused) return;
+    playBeat(beatCount);
+    beatCount++;
+  }, beatMs);
+
+  updateInfo(bpm, numOrbs);
+}
+
+function playBeat(beat) {
+  const now = ctx.currentTime;
+
+  // Bass drone — every 8 beats
+  if (beat % 8 === 0) {
+    const d = getDigit(sourceIndex++);
+    const freq = digitToNote(d) / 4;
+    playTone(freq, now, 2.0, 'sine', 0.12);
+    playTone(freq * 1.005, now, 2.0, 'sine', 0.08); // slight detune
+  }
+
+  // Melody — each orb plays on different beats
+  orbs.forEach((orb, i) => {
+    if (beat % (2 + i) === 0) {
+      const d = getDigit(sourceIndex + orb.digitOffset + beat);
+      const freq = digitToNote(d);
+      const type = ['sine', 'triangle', 'sine'][i % 3];
+      playTone(freq, now, 0.3 + rng() * 0.4, type, 0.06 + rng() * 0.04);
+      orb.lastNote = freq;
+      orb.glow = 1;
+      sourceIndex++;
+
+      // Spawn particles from orb
+      for (let p = 0; p < 3; p++) {
+        particles.push({
+          x: orb.x, y: orb.y,
+          vx: (rng() - 0.5) * 3,
+          vy: (rng() - 0.5) * 3,
+          life: 1,
+          decay: 0.01 + rng() * 0.02,
+          hue: orb.hue + rng() * 30 - 15,
+          size: 2 + rng() * 3,
+        });
+      }
+    }
+  });
+
+  // High bell — sparse, from digits
+  if (beat % 5 === 3) {
+    const d = getDigit(sourceIndex++);
+    if (d > 5) {
+      const freq = digitToNote(d) * 2;
+      playBell(freq, now, 1.5, 0.03);
+    }
+  }
+
+  // Sub-bass pulse
+  if (beat % 16 === 0) {
+    const d = getDigit(sourceIndex++);
+    const freq = digitToNote(d) / 8;
+    playTone(freq, now, 3.0, 'sine', 0.15);
+  }
+}
+
+function playTone(freq, time, duration, type, volume) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, time);
+
+  // Slight pitch drift
+  osc.frequency.exponentialRampToValueAtTime(freq * (0.998 + rng() * 0.004), time + duration);
+
+  gain.gain.setValueAtTime(0, time);
+  gain.gain.linearRampToValueAtTime(volume, time + 0.02);
+  gain.gain.setValueAtTime(volume, time + duration * 0.3);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+  osc.connect(gain);
+  gain.connect(masterGain);
+  osc.start(time);
+  osc.stop(time + duration + 0.1);
+}
+
+function playBell(freq, time, duration, volume) {
+  // FM synthesis for bell-like tones
+  const carrier = ctx.createOscillator();
+  const modulator = ctx.createOscillator();
+  const modGain = ctx.createGain();
+  const outGain = ctx.createGain();
+
+  carrier.frequency.setValueAtTime(freq, time);
+  modulator.frequency.setValueAtTime(freq * 1.4, time);
+  modGain.gain.setValueAtTime(freq * 0.5, time);
+  modGain.gain.exponentialRampToValueAtTime(1, time + duration);
+
+  outGain.gain.setValueAtTime(0, time);
+  outGain.gain.linearRampToValueAtTime(volume, time + 0.005);
+  outGain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+  modulator.connect(modGain);
+  modGain.connect(carrier.frequency);
+  carrier.connect(outGain);
+  outGain.connect(masterGain);
+
+  carrier.start(time);
+  modulator.start(time);
+  carrier.stop(time + duration + 0.1);
+  modulator.stop(time + duration + 0.1);
+}
+
+function playClickNote(x, y) {
+  const now = ctx.currentTime;
+  // X controls pitch, Y controls duration
+  const scale = SCALES[currentScale];
+  const noteIdx = Math.floor(x * scale.length * 2);
+  const semitone = scale[noteIdx % scale.length] + Math.floor(noteIdx / scale.length) * 12;
+  const freq = baseFreq * Math.pow(2, semitone / 12);
+  const dur = 0.3 + (1 - y) * 1.5;
+
+  playBell(freq, now, dur, 0.08);
+  playTone(freq / 2, now, dur * 1.5, 'sine', 0.04);
+}
+
+function spawnBurst(x, y) {
+  const hue = (x / canvas.width) * 360;
+  for (let i = 0; i < 15; i++) {
+    const angle = (i / 15) * Math.PI * 2;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * (2 + rng() * 3),
+      vy: Math.sin(angle) * (2 + rng() * 3),
+      life: 1,
+      decay: 0.015 + rng() * 0.01,
+      hue: hue + rng() * 40,
+      size: 2 + rng() * 4,
+    });
+  }
+}
+
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pauseBtn').textContent = paused ? 'Play' : 'Pause';
+  if (paused) ctx.suspend(); else ctx.resume();
+}
+
+function cycleSource() {
+  const sources = ['pi', 'fibonacci', 'primes'];
+  const names = ['π', 'Fibonacci', 'Primes'];
+  const idx = (sources.indexOf(source) + 1) % sources.length;
+  source = sources[idx];
+  sourceIndex = 0;
+  document.getElementById('sourceBtn').textContent = 'Source: ' + names[idx];
+}
+
+function updateInfo(bpm, numOrbs) {
+  document.getElementById('info').innerHTML =
+    `seed <span class="val">${seed}</span><br>` +
+    `bpm <span class="val">${bpm}</span><br>` +
+    `voices <span class="val">${numOrbs}</span><br>` +
+    `base <span class="val">${baseFreq.toFixed(0)} Hz</span><br>` +
+    `scale <span class="val">${currentScale}</span><br>` +
+    `source <span class="val">${source}</span>`;
+}
+
+function animate() {
+  if (!playing) return;
+  requestAnimationFrame(animate);
+  if (paused) return;
+
+  tick++;
+  const W = canvas.width, H = canvas.height;
+
+  // Fade trail
+  cctx.fillStyle = 'rgba(10, 10, 15, 0.08)';
+  cctx.fillRect(0, 0, W, H);
+
+  // Update and draw orbs
+  orbs.forEach(orb => {
+    orb.phase += 0.01 * orb.speed;
+
+    // Lissajous-like movement
+    orb.x += orb.vx + Math.sin(orb.phase * 1.3) * 0.3;
+    orb.y += orb.vy + Math.cos(orb.phase * 0.9) * 0.3;
+
+    // Bounce
+    if (orb.x < 0 || orb.x > W) orb.vx *= -1;
+    if (orb.y < 0 || orb.y > H) orb.vy *= -1;
+    orb.x = Math.max(0, Math.min(W, orb.x));
+    orb.y = Math.max(0, Math.min(H, orb.y));
+
+    orb.glow *= 0.95;
+
+    // Draw orb
+    const r = orb.radius * (1 + orb.glow * 0.5);
+    const alpha = 0.3 + orb.glow * 0.5;
+
+    // Glow
+    const grad = cctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, r * 3);
+    grad.addColorStop(0, `hsla(${orb.hue}, 60%, 60%, ${alpha * 0.3})`);
+    grad.addColorStop(0.5, `hsla(${orb.hue}, 50%, 40%, ${alpha * 0.1})`);
+    grad.addColorStop(1, 'transparent');
+    cctx.fillStyle = grad;
+    cctx.fillRect(orb.x - r * 3, orb.y - r * 3, r * 6, r * 6);
+
+    // Core
+    cctx.beginPath();
+    cctx.arc(orb.x, orb.y, r * 0.3, 0, Math.PI * 2);
+    cctx.fillStyle = `hsla(${orb.hue}, 70%, 70%, ${alpha})`;
+    cctx.fill();
+
+    // Ring
+    cctx.beginPath();
+    cctx.arc(orb.x, orb.y, r, 0, Math.PI * 2);
+    cctx.strokeStyle = `hsla(${orb.hue}, 50%, 50%, ${alpha * 0.4})`;
+    cctx.lineWidth = 1;
+    cctx.stroke();
+  });
+
+  // Draw connections between orbs
+  for (let i = 0; i < orbs.length; i++) {
+    for (let j = i + 1; j < orbs.length; j++) {
+      const dx = orbs[j].x - orbs[i].x;
+      const dy = orbs[j].y - orbs[i].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 300) {
+        const alpha = (1 - dist / 300) * 0.15;
+        cctx.beginPath();
+        cctx.moveTo(orbs[i].x, orbs[i].y);
+        cctx.lineTo(orbs[j].x, orbs[j].y);
+        cctx.strokeStyle = `rgba(100, 150, 200, ${alpha})`;
+        cctx.lineWidth = 0.5;
+        cctx.stroke();
+      }
+    }
+  }
+
+  // Update and draw particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vx *= 0.98;
+    p.vy *= 0.98;
+    p.life -= p.decay;
+
+    if (p.life <= 0) {
+      particles.splice(i, 1);
+      continue;
+    }
+
+    cctx.beginPath();
+    cctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+    cctx.fillStyle = `hsla(${p.hue}, 60%, 60%, ${p.life * 0.6})`;
+    cctx.fill();
+  }
+
+  // Waveform visualization — bottom center
+  if (tick % 2 === 0) {
+    const waveW = 200, waveH = 30;
+    const wx = (W - waveW) / 2, wy = H - 140;
+    cctx.strokeStyle = 'rgba(100, 180, 255, 0.15)';
+    cctx.lineWidth = 1;
+    cctx.beginPath();
+    for (let i = 0; i < waveW; i++) {
+      const t = tick * 0.02 + i * 0.05;
+      const y = wy + Math.sin(t) * waveH * 0.3 + Math.sin(t * 2.1) * waveH * 0.2 + Math.sin(t * 3.7) * waveH * 0.1;
+      i === 0 ? cctx.moveTo(wx + i, y) : cctx.lineTo(wx + i, y);
+    }
+    cctx.stroke();
+  }
+
+  // Digit stream — very subtle, top left
+  if (tick % 30 === 0) {
+    const d = getDigit(Math.floor(tick / 30));
+    cctx.fillStyle = 'rgba(100, 130, 160, 0.08)';
+    cctx.font = '10px Courier New';
+    const dx = 30 + (tick / 30 % 40) * 12;
+    cctx.fillText(d, dx, 75);
+  }
+}
+
+</script>
+</body>
+</html>

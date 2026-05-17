@@ -1,0 +1,535 @@
+{
+  "theorem": {
+    "statement": "If row k\u2080 has col_0=1, col_j\u2208{0,2} for j\u22651, then ALL subsequent rows have same property",
+    "proof": "Induction: |{0,2}-1|=1, |{0,2}-{0,2}|\u2208{0,2}",
+    "corollary": "{0,2} collapse implies Gilbreath"
+  },
+  "transient": {
+    "k0": 11,
+    "N": 5000,
+    "n_cols": 60,
+    "total_rows": 4941,
+    "violations_after_k0": 0,
+    "transient_details": [
+      {
+        "k": 0,
+        "col0": 2,
+        "extra_in_rest": [
+          3,
+          5,
+          7,
+          11,
+          13,
+          17,
+          19,
+          23,
+          29,
+          31
+        ],
+        "max_rest": 281,
+        "first_few": [
+          2,
+          3,
+          5,
+          7,
+          11,
+          13,
+          17,
+          19,
+          23,
+          29
+        ]
+      },
+      {
+        "k": 1,
+        "col0": 1,
+        "extra_in_rest": [
+          4,
+          6,
+          8,
+          10,
+          12,
+          14
+        ],
+        "max_rest": 14,
+        "first_few": [
+          1,
+          2,
+          2,
+          4,
+          2,
+          4,
+          2,
+          4,
+          6,
+          2
+        ]
+      },
+      {
+        "k": 2,
+        "col0": 1,
+        "extra_in_rest": [
+          4,
+          8,
+          10
+        ],
+        "max_rest": 10,
+        "first_few": [
+          1,
+          0,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          4,
+          4
+        ]
+      },
+      {
+        "k": 3,
+        "col0": 1,
+        "extra_in_rest": [
+          4,
+          6,
+          8,
+          10
+        ],
+        "max_rest": 10,
+        "first_few": [
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          2
+        ]
+      },
+      {
+        "k": 4,
+        "col0": 1,
+        "extra_in_rest": [
+          4,
+          6,
+          8
+        ],
+        "max_rest": 8,
+        "first_few": [
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "k": 5,
+        "col0": 1,
+        "extra_in_rest": [
+          4,
+          6,
+          8
+        ],
+        "max_rest": 8,
+        "first_few": [
+          1,
+          2,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          2
+        ]
+      },
+      {
+        "k": 6,
+        "col0": 1,
+        "extra_in_rest": [
+          4,
+          6,
+          8
+        ],
+        "max_rest": 8,
+        "first_few": [
+          1,
+          2,
+          0,
+          0,
+          2,
+          2,
+          0,
+          0,
+          2,
+          2
+        ]
+      },
+      {
+        "k": 7,
+        "col0": 1,
+        "extra_in_rest": [
+          4,
+          6,
+          8
+        ],
+        "max_rest": 8,
+        "first_few": [
+          1,
+          2,
+          0,
+          2,
+          0,
+          2,
+          0,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "k": 8,
+        "col0": 1,
+        "extra_in_rest": [
+          4,
+          6,
+          8
+        ],
+        "max_rest": 8,
+        "first_few": [
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "k": 9,
+        "col0": 1,
+        "extra_in_rest": [
+          4
+        ],
+        "max_rest": 4,
+        "first_few": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "universality": [
+    {
+      "name": "random_prime_like_gaps",
+      "n": 1000,
+      "total_rows": 970,
+      "k0": null,
+      "gilbreath": false
+    },
+    {
+      "name": "arithmetic_6n+2",
+      "n": 1000,
+      "total_rows": 970,
+      "k0": null,
+      "gilbreath": false
+    },
+    {
+      "name": "random_even_gaps",
+      "n": 1000,
+      "total_rows": 970,
+      "k0": null,
+      "gilbreath": false
+    },
+    {
+      "name": "primes",
+      "n": 1000,
+      "total_rows": 970,
+      "k0": 10,
+      "gilbreath": false
+    },
+    {
+      "name": "powers_of_2",
+      "n": 19,
+      "k0": null,
+      "status": "too_short"
+    },
+    {
+      "name": "random_increasing",
+      "n": 500,
+      "total_rows": 470,
+      "k0": null,
+      "gilbreath": false
+    },
+    {
+      "name": "gap_1_then_3",
+      "n": 1000,
+      "total_rows": 970,
+      "k0": null,
+      "gilbreath": false
+    }
+  ],
+  "first_mechanism": {
+    "first_3_means": "col_1 at violation depth = 4",
+    "first_5_means": "col_1 at violation depth = 6",
+    "first_7_means": "col_1 at violation depth = 8 (never observed)",
+    "trace_anomalies": [
+      {
+        "pos": 35,
+        "first": 5,
+        "col1_trace": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          6,
+          6
+        ],
+        "violation_row": [
+          5,
+          6,
+          6,
+          4,
+          2,
+          2
+        ]
+      },
+      {
+        "pos": 312,
+        "first": 5,
+        "col1_trace": [
+          2,
+          0,
+          0,
+          2,
+          2,
+          0,
+          0,
+          6,
+          0
+        ],
+        "violation_row": [
+          5,
+          0,
+          0,
+          0,
+          4,
+          0
+        ]
+      },
+      {
+        "pos": 419,
+        "first": 5,
+        "col1_trace": [
+          2,
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          6,
+          6
+        ],
+        "violation_row": [
+          5,
+          6,
+          8,
+          6,
+          2,
+          0
+        ]
+      },
+      {
+        "pos": 620,
+        "first": 5,
+        "col1_trace": [
+          2,
+          2,
+          2,
+          0,
+          0,
+          0,
+          0,
+          6,
+          2
+        ],
+        "violation_row": [
+          5,
+          2,
+          4,
+          2,
+          0,
+          2
+        ]
+      },
+      {
+        "pos": 667,
+        "first": 5,
+        "col1_trace": [
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          6,
+          6
+        ],
+        "violation_row": [
+          5,
+          6,
+          4,
+          4,
+          0,
+          2
+        ]
+      }
+    ],
+    "threshold_data": [
+      {
+        "pos": 35,
+        "min_break": 46,
+        "first_at_min_break": 5,
+        "firsts_seen": {
+          "5": 46,
+          "3": 48,
+          "9": 50,
+          "7": 56,
+          "11": 60,
+          "13": 62,
+          "15": 64,
+          "17": 66
+        }
+      },
+      {
+        "pos": 312,
+        "min_break": 360,
+        "first_at_min_break": 5,
+        "firsts_seen": {
+          "5": 360,
+          "3": 366,
+          "7": 370,
+          "9": 372,
+          "11": 374,
+          "13": 376,
+          "15": 378,
+          "17": 380
+        }
+      },
+      {
+        "pos": 419,
+        "min_break": 460,
+        "first_at_min_break": 5,
+        "firsts_seen": {
+          "5": 460,
+          "3": 462,
+          "7": 466,
+          "9": 468,
+          "11": 470,
+          "13": 472,
+          "15": 474,
+          "17": 476,
+          "19": 478,
+          "21": 480
+        }
+      },
+      {
+        "pos": 620,
+        "min_break": 648,
+        "first_at_min_break": 5,
+        "firsts_seen": {
+          "5": 648,
+          "3": 650,
+          "7": 654,
+          "9": 656,
+          "11": 658,
+          "13": 660,
+          "15": 662,
+          "17": 664,
+          "19": 666,
+          "21": 668
+        }
+      },
+      {
+        "pos": 667,
+        "min_break": 730,
+        "first_at_min_break": 5,
+        "firsts_seen": {
+          "5": 730,
+          "3": 732,
+          "7": 738,
+          "9": 740,
+          "11": 742,
+          "13": 744,
+          "15": 746,
+          "17": 748,
+          "19": 750
+        }
+      }
+    ],
+    "never_first_3_count": 0
+  },
+  "perturbation_width": {
+    "3": {
+      "count": 993,
+      "mean_width": 2.48,
+      "min_width": 1,
+      "max_width": 6
+    },
+    "5": {
+      "count": 5,
+      "mean_width": 3.2,
+      "min_width": 2,
+      "max_width": 4
+    }
+  },
+  "first_7_search": {
+    "range_pos": "2..499",
+    "val_tested": [
+      2000,
+      3000,
+      4000,
+      5000
+    ],
+    "found": 0,
+    "examples": []
+  },
+  "first_9_search": {
+    "range_pos": "2..199",
+    "val_tested": [
+      5000,
+      8000,
+      10000
+    ],
+    "found": 0,
+    "examples": []
+  }
+}

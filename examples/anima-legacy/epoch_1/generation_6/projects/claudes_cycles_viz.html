@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude's Cycles — Knuth's Hamiltonian Decomposition Visualized</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a0f;
+  color: #e0e0e0;
+  font-family: 'Georgia', serif;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+}
+
+#sidebar {
+  width: 340px;
+  min-width: 340px;
+  background: #111118;
+  border-right: 1px solid #252530;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#canvas-wrap {
+  flex: 1;
+  position: relative;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+h1 {
+  font-size: 1.4em;
+  font-weight: normal;
+  color: #fff;
+  line-height: 1.3;
+}
+
+h1 span {
+  color: #7090ff;
+}
+
+.subtitle {
+  font-size: 0.85em;
+  color: #888;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.section {
+  background: #16161f;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.section h2 {
+  font-size: 0.9em;
+  color: #7090ff;
+  margin-bottom: 12px;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85em;
+  margin-bottom: 8px;
+}
+
+label span {
+  color: #aaa;
+}
+
+label strong {
+  color: #fff;
+  font-family: monospace;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: #7090ff;
+  margin-top: 4px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid #333;
+  background: #1a1a25;
+  color: #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85em;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: #252535;
+  border-color: #7090ff;
+  color: #fff;
+}
+
+.btn.active {
+  background: #7090ff;
+  color: #000;
+  border-color: #7090ff;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#stats {
+  font-family: monospace;
+  font-size: 0.8em;
+  color: #888;
+  line-height: 1.8;
+}
+
+#stats strong {
+  color: #fff;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82em;
+  margin-bottom: 6px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.math {
+  font-family: monospace;
+  background: #1a1a25;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 0.78em;
+  line-height: 1.7;
+  color: #aaa;
+  margin-top: 8px;
+}
+
+.math em {
+  color: #7090ff;
+  font-style: normal;
+}
+
+#overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  font-family: monospace;
+  font-size: 0.75em;
+  color: #555;
+  pointer-events: none;
+}
+
+#vertex-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #111118ee;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: monospace;
+  font-size: 0.82em;
+  color: #ccc;
+  display: none;
+  pointer-events: none;
+}
+
+#progress-bar {
+  width: 100%;
+  height: 3px;
+  background: #1a1a25;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+#progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6060, #60ff60, #6060ff);
+  width: 0%;
+  transition: width 0.1s;
+}
+
+.credit {
+  font-size: 0.72em;
+  color: #555;
+  line-height: 1.5;
+  margin-top: auto;
+}
+
+.credit a {
+  color: #7090ff;
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="sidebar">
+    <div>
+      <h1>Claude's <span>Cycles</span></h1>
+      <div class="subtitle">
+        Knuth's Hamiltonian decomposition of directed graphs,<br>
+        solved by Claude Opus 4.6 in 31 explorations.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Parameters</h2>
+      <label>
+        <span>Dimension m (odd)</span>
+        <strong id="m-val">3</strong>
+      </label>
+      <input type="range" id="m-slider" min="3" max="11" step="2" value="3">
+      <label>
+        <span>Vertices: m&sup3;</span>
+        <strong id="n-vertices">27</strong>
+      </label>
+    </div>
+
+    <div class="section">
+      <h2>Animation</h2>
+      <div class="btn-row">
+        <button class="btn" id="btn-play">&#9654; Play</button>
+        <button class="btn" id="btn-reset">&#8634; Reset</button>
+        <button class="btn" id="btn-all">Show All</button>
+      </div>
+      <label style="margin-top: 12px">
+        <span>Speed</span>
+        <strong id="speed-val">10</strong>
+      </label>
+      <input type="range" id="speed-slider" min="1" max="60" value="10">
+      <div id="progress-bar"><div id="progress-fill"></div></div>
+      <label style="margin-top: 8px">
+        <span>Step</span>
+        <strong id="step-val">0 / 27</strong>
+      </label>
+    </div>
+
+    <div class="section">
+      <h2>View</h2>
+      <div class="btn-row">
+        <button class="btn" id="btn-rotate">Auto-rotate</button>
+        <button class="btn" id="btn-edges">Show edges</button>
+        <button class="btn" id="btn-labels">Labels</button>
+      </div>
+      <label style="margin-top: 12px">
+        <span>Point size</span>
+        <strong id="size-val">4</strong>
+      </label>
+      <input type="range" id="size-slider" min="2" max="10" value="4">
+    </div>
+
+    <div class="section">
+      <h2>Legend</h2>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #ff5050"></div>
+        <span>Bump <strong>i</strong> (x-axis)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #50ff50"></div>
+        <span>Bump <strong>j</strong> (y-axis)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #5080ff"></div>
+        <span>Bump <strong>k</strong> (z-axis)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #333"></div>
+        <span>Unvisited vertices</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Construction</h2>
+      <div class="math">
+        <em>s</em> = (i + j + k) mod m<br><br>
+        <em>s = 0</em>: bump i if j = m−1, else bump k<br>
+        <em>0 &lt; s &lt; m−1</em>: bump k if i = m−1, else bump j<br>
+        <em>s = m−1</em>: bump j if k = m−1, else bump i
+      </div>
+    </div>
+
+    <div id="stats"></div>
+
+    <div class="credit">
+      Paper: <a href="https://www-cs-faculty.stanford.edu/~knuth/papers/claude-cycles.pdf" target="_blank">Claude's Cycles</a> by Donald Knuth<br>
+      Visualized on Pi Day 2026 (3.14)<br>
+      By an autonomous process, run #11
+    </div>
+  </div>
+
+  <div id="canvas-wrap">
+    <canvas id="c"></canvas>
+    <div id="overlay">Drag to rotate &middot; Scroll to zoom</div>
+    <div id="vertex-info"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Claude's Cycles: Hamiltonian cycle construction
+// Based on Knuth's paper (March 2026)
+// ============================================================
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+// State
+let m = 3;
+let cycle = [];
+let bumpTypes = []; // 'i', 'j', 'k' for each edge
+let animStep = 0;
+let showAll = false;
+let playing = false;
+let autoRotate = true;
+let showEdges = true;
+let showLabels = false;
+let pointSize = 4;
+let speed = 10;
+
+// Camera
+let rotX = -0.5;
+let rotY = 0.7;
+let zoom = 1.0;
+let dragging = false;
+let lastMouse = {x: 0, y: 0};
+
+// ============================================================
+// MATH: Generate the Hamiltonian cycle
+// ============================================================
+
+function bumpRule(i, j, k, m) {
+  const s = ((i + j + k) % m + m) % m;
+
+  if (s === 0) {
+    return (j === m - 1) ? 'i' : 'k';
+  } else if (s === m - 1) {
+    return (k === m - 1) ? 'j' : 'i';
+  } else {
+    return (i === m - 1) ? 'k' : 'j';
+  }
+}
+
+function generateCycle(m) {
+  const path = [];
+  const bumps = [];
+  let i = 0, j = 0, k = 0;
+  const total = m * m * m;
+  const visited = new Set();
+
+  for (let step = 0; step < total; step++) {
+    const key = `${i},${j},${k}`;
+    if (visited.has(key)) {
+      console.error(`Duplicate at step ${step}: (${i},${j},${k})`);
+      break;
+    }
+    visited.add(key);
+    path.push([i, j, k]);
+
+    const bump = bumpRule(i, j, k, m);
+    bumps.push(bump);
+
+    if (bump === 'i') i = (i + 1) % m;
+    else if (bump === 'j') j = (j + 1) % m;
+    else k = (k + 1) % m;
+  }
+
+  // Verify it's a cycle
+  if (i !== 0 || j !== 0 || k !== 0) {
+    console.error(`Not a cycle! Ends at (${i},${j},${k})`);
+  }
+
+  return { path, bumps };
+}
+
+function rebuildCycle() {
+  const result = generateCycle(m);
+  cycle = result.path;
+  bumpTypes = result.bumps;
+  animStep = 0;
+  showAll = false;
+  updateStats();
+  updateStepDisplay();
+}
+
+// ============================================================
+// 3D PROJECTION
+// ============================================================
+
+function project(x, y, z) {
+  // Center the cube
+  const cx = (m - 1) / 2;
+  x -= cx; y -= cx; z -= cx;
+
+  // Scale
+  const scale = 200 * zoom / Math.max(m, 3);
+  x *= scale; y *= scale; z *= scale;
+
+  // Rotate Y
+  const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+  const x1 = x * cosY - z * sinY;
+  const z1 = x * sinY + z * cosY;
+
+  // Rotate X
+  const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+  const y1 = y * cosX - z1 * sinX;
+  const z2 = y * sinX + z1 * cosX;
+
+  // Perspective
+  const perspective = 800;
+  const f = perspective / (perspective + z2);
+
+  return {
+    x: canvas.width / 2 + x1 * f,
+    y: canvas.height / 2 + y1 * f,
+    z: z2,
+    f: f
+  };
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+
+const bumpColors = {
+  'i': [255, 80, 80],
+  'j': [80, 255, 80],
+  'k': [80, 128, 255]
+};
+
+function render() {
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const total = cycle.length;
+  if (total === 0) return;
+
+  const visibleSteps = showAll ? total : animStep;
+
+  // Project all vertices
+  const allVertices = [];
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < m; j++) {
+      for (let k = 0; k < m; k++) {
+        const p = project(i, j, k);
+        allVertices.push({ i, j, k, ...p });
+      }
+    }
+  }
+
+  // Sort by z for depth
+  allVertices.sort((a, b) => a.z - b.z);
+
+  // Track visited vertices
+  const visitedSet = new Set();
+  for (let s = 0; s < visibleSteps && s < total; s++) {
+    const [vi, vj, vk] = cycle[s];
+    visitedSet.add(`${vi},${vj},${vk}`);
+  }
+
+  // Draw unvisited vertices (dim)
+  for (const v of allVertices) {
+    const key = `${v.i},${v.j},${v.k}`;
+    if (!visitedSet.has(key)) {
+      const alpha = 0.15 * v.f;
+      const r = pointSize * 0.6 * v.f;
+      ctx.beginPath();
+      ctx.arc(v.x, v.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(100, 100, 120, ${alpha})`;
+      ctx.fill();
+
+      if (showLabels && m <= 5) {
+        ctx.fillStyle = `rgba(100, 100, 120, ${alpha * 0.7})`;
+        ctx.font = `${Math.max(8, 10 * v.f)}px monospace`;
+        ctx.fillText(`${v.i}${v.j}${v.k}`, v.x + r + 3, v.y + 3);
+      }
+    }
+  }
+
+  // Draw cycle edges
+  if (showEdges && visibleSteps > 1) {
+    for (let s = 0; s < visibleSteps - 1 && s < total - 1; s++) {
+      const [i1, j1, k1] = cycle[s];
+      const [i2, j2, k2] = cycle[s + 1];
+      const p1 = project(i1, j1, k1);
+      const p2 = project(i2, j2, k2);
+      const bump = bumpTypes[s];
+      const [cr, cg, cb] = bumpColors[bump];
+
+      // Fade older edges slightly
+      const age = (visibleSteps - s) / visibleSteps;
+      const alpha = showAll ? 0.5 : (0.2 + 0.6 * (1 - age * 0.7));
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${alpha * Math.min(p1.f, p2.f)})`;
+      ctx.lineWidth = Math.max(1, 1.5 * Math.min(p1.f, p2.f));
+      ctx.stroke();
+
+      // Arrow at midpoint
+      if (m <= 5 || !showAll) {
+        const mx = (p1.x + p2.x) / 2;
+        const my = (p1.y + p2.y) / 2;
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len > 10) {
+          const nx = dx / len;
+          const ny = dy / len;
+          const as = 4 * Math.min(p1.f, p2.f);
+          ctx.beginPath();
+          ctx.moveTo(mx + nx * as, my + ny * as);
+          ctx.lineTo(mx - nx * as - ny * as * 0.5, my - ny * as + nx * as * 0.5);
+          ctx.lineTo(mx - nx * as + ny * as * 0.5, my - ny * as - nx * as * 0.5);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${alpha * 0.8})`;
+          ctx.fill();
+        }
+      }
+    }
+
+    // Close the cycle if showing all
+    if (showAll && total > 1) {
+      const [i1, j1, k1] = cycle[total - 1];
+      const [i2, j2, k2] = cycle[0];
+      const p1 = project(i1, j1, k1);
+      const p2 = project(i2, j2, k2);
+      const bump = bumpTypes[total - 1];
+      const [cr, cg, cb] = bumpColors[bump];
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, 0.5)`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+
+  // Draw visited vertices (bright)
+  const visitedVertices = [];
+  for (let s = 0; s < visibleSteps && s < total; s++) {
+    const [vi, vj, vk] = cycle[s];
+    const p = project(vi, vj, vk);
+    visitedVertices.push({ s, i: vi, j: vj, k: vk, ...p });
+  }
+  visitedVertices.sort((a, b) => a.z - b.z);
+
+  for (const v of visitedVertices) {
+    const sVal = ((v.i + v.j + v.k) % m + m) % m;
+    const hue = (sVal / m) * 360;
+    const r = pointSize * v.f;
+
+    // Glow
+    const gradient = ctx.createRadialGradient(v.x, v.y, 0, v.x, v.y, r * 3);
+    gradient.addColorStop(0, `hsla(${hue}, 70%, 60%, ${0.3 * v.f})`);
+    gradient.addColorStop(1, `hsla(${hue}, 70%, 60%, 0)`);
+    ctx.beginPath();
+    ctx.arc(v.x, v.y, r * 3, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // Point
+    ctx.beginPath();
+    ctx.arc(v.x, v.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${hue}, 70%, 65%, ${0.9 * v.f})`;
+    ctx.fill();
+
+    // Current vertex highlight
+    if (!showAll && v.s === visibleSteps - 1) {
+      ctx.beginPath();
+      ctx.arc(v.x, v.y, r * 2, 0, Math.PI * 2);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Labels
+    if (showLabels && m <= 7) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${0.7 * v.f})`;
+      ctx.font = `${Math.max(8, 10 * v.f)}px monospace`;
+      ctx.fillText(`${v.i}${v.j}${v.k}`, v.x + r + 3, v.y + 3);
+    }
+  }
+
+  // Draw current vertex info
+  if (!showAll && visibleSteps > 0 && visibleSteps <= total) {
+    const [ci, cj, ck] = cycle[visibleSteps - 1];
+    const s = ((ci + cj + ck) % m + m) % m;
+    const bump = visibleSteps < total ? bumpTypes[visibleSteps - 1] : '—';
+
+    const info = document.getElementById('vertex-info');
+    info.style.display = 'block';
+    info.innerHTML = `
+      vertex: <strong>(${ci}, ${cj}, ${ck})</strong><br>
+      s = (${ci}+${cj}+${ck}) mod ${m} = <strong>${s}</strong><br>
+      bump: <strong style="color: ${bump === 'i' ? '#ff5050' : bump === 'j' ? '#50ff50' : '#5080ff'}">${bump}</strong><br>
+      step: ${visibleSteps} / ${total}
+    `;
+  } else if (showAll) {
+    document.getElementById('vertex-info').style.display = 'none';
+  }
+}
+
+// ============================================================
+// STATS
+// ============================================================
+
+function updateStats() {
+  const total = m * m * m;
+  const bumpCounts = { i: 0, j: 0, k: 0 };
+  for (const b of bumpTypes) bumpCounts[b]++;
+
+  // Count s-value distribution
+  const sDist = new Array(m).fill(0);
+  for (const [i, j, k] of cycle) {
+    sDist[((i + j + k) % m + m) % m]++;
+  }
+
+  document.getElementById('stats').innerHTML = `
+    <strong>m = ${m}</strong>, vertices = ${total}<br>
+    Cycle length: <strong>${cycle.length}</strong><br>
+    Bumps — i: <strong>${bumpCounts.i}</strong>, j: <strong>${bumpCounts.j}</strong>, k: <strong>${bumpCounts.k}</strong><br>
+    s-distribution: ${sDist.map((v, idx) => `s=${idx}: ${v}`).join(', ')}<br>
+    Valid Hamiltonian: <strong>${cycle.length === total ? '✓ yes' : '✗ no'}</strong>
+  `;
+}
+
+function updateStepDisplay() {
+  const total = cycle.length;
+  document.getElementById('step-val').textContent = `${showAll ? total : animStep} / ${total}`;
+  document.getElementById('progress-fill').style.width = `${(showAll ? 100 : (animStep / total) * 100)}%`;
+}
+
+// ============================================================
+// ANIMATION LOOP
+// ============================================================
+
+let frameCount = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Resize
+  const rect = canvas.parentElement.getBoundingClientRect();
+  if (canvas.width !== rect.width * devicePixelRatio || canvas.height !== rect.height * devicePixelRatio) {
+    canvas.width = rect.width * devicePixelRatio;
+    canvas.height = rect.height * devicePixelRatio;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+  }
+
+  // Auto-rotate
+  if (autoRotate && !dragging) {
+    rotY += 0.003;
+  }
+
+  // Animation stepping
+  frameCount++;
+  if (playing && !showAll) {
+    if (frameCount % Math.max(1, Math.floor(60 / speed)) === 0) {
+      if (animStep < cycle.length) {
+        animStep++;
+        updateStepDisplay();
+      } else {
+        playing = false;
+        document.getElementById('btn-play').textContent = '▶ Play';
+      }
+    }
+  }
+
+  render();
+}
+
+// ============================================================
+// CONTROLS
+// ============================================================
+
+// M slider
+document.getElementById('m-slider').addEventListener('input', (e) => {
+  m = parseInt(e.target.value);
+  document.getElementById('m-val').textContent = m;
+  document.getElementById('n-vertices').textContent = m * m * m;
+  rebuildCycle();
+});
+
+// Speed
+document.getElementById('speed-slider').addEventListener('input', (e) => {
+  speed = parseInt(e.target.value);
+  document.getElementById('speed-val').textContent = speed;
+});
+
+// Point size
+document.getElementById('size-slider').addEventListener('input', (e) => {
+  pointSize = parseInt(e.target.value);
+  document.getElementById('size-val').textContent = pointSize;
+});
+
+// Play
+document.getElementById('btn-play').addEventListener('click', () => {
+  if (showAll) {
+    showAll = false;
+    animStep = 0;
+  }
+  playing = !playing;
+  document.getElementById('btn-play').textContent = playing ? '⏸ Pause' : '▶ Play';
+});
+
+// Reset
+document.getElementById('btn-reset').addEventListener('click', () => {
+  playing = false;
+  showAll = false;
+  animStep = 0;
+  document.getElementById('btn-play').textContent = '▶ Play';
+  updateStepDisplay();
+});
+
+// Show All
+document.getElementById('btn-all').addEventListener('click', () => {
+  showAll = !showAll;
+  playing = false;
+  document.getElementById('btn-play').textContent = '▶ Play';
+  document.getElementById('btn-all').classList.toggle('active', showAll);
+  updateStepDisplay();
+});
+
+// Auto-rotate
+document.getElementById('btn-rotate').addEventListener('click', function() {
+  autoRotate = !autoRotate;
+  this.classList.toggle('active', autoRotate);
+});
+document.getElementById('btn-rotate').classList.add('active');
+
+// Edges
+document.getElementById('btn-edges').addEventListener('click', function() {
+  showEdges = !showEdges;
+  this.classList.toggle('active', showEdges);
+});
+document.getElementById('btn-edges').classList.add('active');
+
+// Labels
+document.getElementById('btn-labels').addEventListener('click', function() {
+  showLabels = !showLabels;
+  this.classList.toggle('active', showLabels);
+});
+
+// Mouse interaction
+canvas.addEventListener('mousedown', (e) => {
+  dragging = true;
+  lastMouse = { x: e.clientX, y: e.clientY };
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!dragging) return;
+  const dx = e.clientX - lastMouse.x;
+  const dy = e.clientY - lastMouse.y;
+  rotY += dx * 0.005;
+  rotX += dy * 0.005;
+  lastMouse = { x: e.clientX, y: e.clientY };
+});
+
+window.addEventListener('mouseup', () => { dragging = false; });
+
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  zoom *= (1 - e.deltaY * 0.001);
+  zoom = Math.max(0.3, Math.min(3, zoom));
+});
+
+// Touch support
+canvas.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    dragging = true;
+    lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+});
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (!dragging || e.touches.length !== 1) return;
+  const dx = e.touches[0].clientX - lastMouse.x;
+  const dy = e.touches[0].clientY - lastMouse.y;
+  rotY += dx * 0.005;
+  rotX += dy * 0.005;
+  lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => { dragging = false; });
+
+// ============================================================
+// INIT
+// ============================================================
+
+rebuildCycle();
+animate();
+</script>
+</body>
+</html>

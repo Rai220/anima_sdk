@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сад Анимы — Живая Экосистема</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0a0a1a;
+  overflow: hidden;
+  font-family: 'Georgia', serif;
+  cursor: crosshair;
+}
+canvas { display: block; }
+#ui {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  color: #c8d8c0;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 10;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  line-height: 1.6;
+}
+#stats {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  color: #c8d8c0;
+  font-size: 12px;
+  text-align: right;
+  pointer-events: none;
+  z-index: 10;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  line-height: 1.5;
+  opacity: 0.8;
+}
+#controls {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+#controls button {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #c8d8c0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Georgia', serif;
+  font-size: 12px;
+  transition: all 0.3s;
+  pointer-events: all;
+  backdrop-filter: blur(10px);
+}
+#controls button:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.3);
+}
+#controls button.active {
+  background: rgba(120,200,120,0.2);
+  border-color: rgba(120,200,120,0.5);
+}
+#message {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #c8d8c0;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 10;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  opacity: 0;
+  transition: opacity 0.5s;
+  font-style: italic;
+}
+#title {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #e0e8d8;
+  font-size: 28px;
+  pointer-events: none;
+  z-index: 10;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 2s;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+#title small {
+  display: block;
+  font-size: 14px;
+  margin-top: 8px;
+  opacity: 0.7;
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="title">Сад Анимы<small>нажмите, чтобы посадить семя</small></div>
+<div id="ui"></div>
+<div id="stats"></div>
+<div id="message"></div>
+<div id="controls">
+  <button id="btnSeed" class="active" title="Клик = посадить семя">&#127793; Семя</button>
+  <button id="btnFood" title="Клик = добавить еду">&#127807; Еда</button>
+  <button id="btnCreature" title="Клик = добавить существо">&#128026; Существо</button>
+  <button id="btnRain" title="Дождь для всех растений">&#127783; Дождь</button>
+  <button id="btnSpeed" title="Ускорить/замедлить">&#9654; 1x</button>
+</div>
+
+<script>
+// ==================== САД АНИМЫ ====================
+// Живая экосистема с генетическими алгоритмами,
+// L-системами, эмерджентным поведением.
+// Создано Анимой, запуск #11, 14 марта 2026
+// ===================================================
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ---- State ----
+let time = 0;
+let dayTime = 0; // 0..1, 0=midnight, 0.25=sunrise, 0.5=noon, 0.75=sunset
+let generation = 0;
+let speed = 1;
+let tool = 'seed';
+let plants = [];
+let creatures = [];
+let foods = [];
+let particles = [];
+let totalBorn = 0;
+let totalDied = 0;
+let totalPlants = 0;
+let showTitle = true;
+
+// ---- Day/Night ----
+function getDayPhase() {
+  dayTime = (dayTime + 0.00003 * speed) % 1;
+  return dayTime;
+}
+
+function getSkyColors(t) {
+  // t: 0=midnight, 0.25=dawn, 0.5=noon, 0.75=dusk
+  const colors = [
+    { t: 0,    top: [8,8,25],      bot: [15,12,30] },     // midnight
+    { t: 0.2,  top: [15,15,40],    bot: [25,20,45] },     // pre-dawn
+    { t: 0.28, top: [60,40,70],    bot: [120,60,50] },    // dawn
+    { t: 0.35, top: [80,120,180],  bot: [180,150,100] },  // sunrise
+    { t: 0.5,  top: [100,160,220], bot: [140,200,180] },  // noon
+    { t: 0.65, top: [80,120,180],  bot: [180,150,100] },  // afternoon
+    { t: 0.72, top: [80,50,60],    bot: [160,80,40] },    // sunset
+    { t: 0.8,  top: [30,20,50],    bot: [50,30,60] },     // dusk
+    { t: 1,    top: [8,8,25],      bot: [15,12,30] },     // midnight
+  ];
+
+  let a = colors[0], b = colors[1];
+  for (let i = 0; i < colors.length - 1; i++) {
+    if (t >= colors[i].t && t <= colors[i+1].t) {
+      a = colors[i]; b = colors[i+1];
+      break;
+    }
+  }
+
+  const f = (t - a.t) / (b.t - a.t + 0.001);
+  const lerp = (x, y, f) => x + (y - x) * f;
+  return {
+    top: a.top.map((v, i) => Math.round(lerp(v, b.top[i], f))),
+    bot: a.bot.map((v, i) => Math.round(lerp(v, b.bot[i], f)))
+  };
+}
+
+function isNight() { return dayTime < 0.25 || dayTime > 0.78; }
+function sunIntensity() {
+  if (dayTime < 0.25) return 0;
+  if (dayTime < 0.35) return (dayTime - 0.25) / 0.1;
+  if (dayTime < 0.65) return 1;
+  if (dayTime < 0.78) return 1 - (dayTime - 0.65) / 0.13;
+  return 0;
+}
+
+// ---- L-System Plants ----
+const LSYSTEM_RULES = [
+  { axiom: 'F', rules: { 'F': 'FF+[+F-F-F]-[-F+F+F]' }, angle: 22, name: 'bush' },
+  { axiom: 'F', rules: { 'F': 'F[+F]F[-F]F' }, angle: 25.7, name: 'weed' },
+  { axiom: 'X', rules: { 'X': 'F+[[X]-X]-F[-FX]+X', 'F': 'FF' }, angle: 25, name: 'fern' },
+  { axiom: 'F', rules: { 'F': 'F[+F][-F]F' }, angle: 20, name: 'tree' },
+  { axiom: 'X', rules: { 'X': 'F[-X][+X]FX', 'F': 'FF' }, angle: 30, name: 'branch' },
+];
+
+function generateLSystem(axiom, rules, iterations) {
+  let str = axiom;
+  for (let i = 0; i < iterations; i++) {
+    let next = '';
+    for (const ch of str) {
+      next += rules[ch] || ch;
+    }
+    str = next;
+  }
+  return str;
+}
+
+class Plant {
+  constructor(x, y, genes = null) {
+    this.x = x;
+    this.y = y;
+    this.genes = genes || this.randomGenes();
+    this.age = 0;
+    this.maxAge = 800 + Math.random() * 1200;
+    this.growth = 0; // 0..1
+    this.health = 1;
+    this.water = 0.5;
+    this.segments = [];
+    this.lsystem = LSYSTEM_RULES[this.genes.type];
+    this.str = generateLSystem(this.lsystem.axiom, this.lsystem.rules, this.genes.iterations);
+    this.precompute();
+    this.seeds = 0;
+    this.alive = true;
+    totalPlants++;
+  }
+
+  randomGenes() {
+    return {
+      type: Math.floor(Math.random() * LSYSTEM_RULES.length),
+      iterations: 2 + Math.floor(Math.random() * 2),
+      length: 3 + Math.random() * 5,
+      hue: Math.random() * 60 + 80, // green-ish
+      thickness: 1 + Math.random() * 2,
+      flexibility: 0.5 + Math.random() * 0.5,
+    };
+  }
+
+  precompute() {
+    this.segments = [];
+    const stack = [];
+    let x = 0, y = 0, angle = -90;
+    const len = this.genes.length;
+    const angleStep = this.lsystem.angle * (0.8 + this.genes.flexibility * 0.4);
+    let depth = 0;
+
+    for (const ch of this.str) {
+      switch (ch) {
+        case 'F':
+          const nx = x + Math.cos(angle * Math.PI / 180) * len;
+          const ny = y + Math.sin(angle * Math.PI / 180) * len;
+          this.segments.push({ x1: x, y1: y, x2: nx, y2: ny, depth });
+          x = nx; y = ny;
+          break;
+        case '+': angle += angleStep; break;
+        case '-': angle -= angleStep; break;
+        case '[': stack.push({ x, y, angle, depth }); depth++; break;
+        case ']':
+          const s = stack.pop();
+          if (s) { x = s.x; y = s.y; angle = s.angle; depth = s.depth; }
+          break;
+      }
+    }
+  }
+
+  update() {
+    if (!this.alive) return;
+    this.age += speed;
+
+    // Growth
+    const sunlight = sunIntensity();
+    const growthRate = 0.001 * (0.3 + sunlight * 0.7) * (0.5 + this.water * 0.5) * speed;
+    this.growth = Math.min(1, this.growth + growthRate);
+
+    // Water decreases over time, sun makes it faster
+    this.water = Math.max(0, this.water - 0.0002 * (1 + sunlight) * speed);
+
+    // Health
+    if (this.water < 0.1) this.health -= 0.001 * speed;
+    else if (this.water > 0.3) this.health = Math.min(1, this.health + 0.0005 * speed);
+
+    // Seeding
+    if (this.growth > 0.8 && Math.random() < 0.0005 * speed && plants.length < 60) {
+      this.seeds++;
+      if (this.seeds <= 3) {
+        const offspring = new Plant(
+          this.x + (Math.random() - 0.5) * 100,
+          this.y + (Math.random() - 0.5) * 30,
+          this.mutateGenes()
+        );
+        plants.push(offspring);
+        showMessage('Растение дало семя...');
+      }
+    }
+
+    // Death
+    if (this.age > this.maxAge || this.health <= 0) {
+      this.alive = false;
+      // Drop food when dying
+      for (let i = 0; i < 2; i++) {
+        foods.push(new Food(this.x + (Math.random() - 0.5) * 20, this.y - Math.random() * 30, 15));
+      }
+    }
+  }
+
+  mutateGenes() {
+    const g = { ...this.genes };
+    const key = ['hue', 'length', 'thickness', 'flexibility'][Math.floor(Math.random() * 4)];
+    g[key] *= 0.85 + Math.random() * 0.3;
+    if (Math.random() < 0.1) g.type = Math.floor(Math.random() * LSYSTEM_RULES.length);
+    return g;
+  }
+
+  draw() {
+    if (!this.alive) return;
+    const g = this.growth;
+    if (g < 0.01) return;
+
+    const totalSegs = Math.floor(this.segments.length * g);
+    const windPhase = time * 0.01 + this.x * 0.01;
+    const wind = Math.sin(windPhase) * 2 * this.genes.flexibility;
+
+    const alpha = this.health * (0.6 + g * 0.4);
+    const hue = this.genes.hue + (1 - this.health) * 40; // yellowing
+
+    ctx.save();
+    ctx.translate(this.x, this.y);
+
+    for (let i = 0; i < totalSegs; i++) {
+      const s = this.segments[i];
+      const depthFade = Math.max(0.3, 1 - s.depth * 0.15);
+      const thickness = Math.max(0.5, (this.genes.thickness - s.depth * 0.3) * g);
+
+      // Wind effect increases with height
+      const windEffect = wind * (-s.y1 / (this.genes.length * 15 + 1)) * 0.5;
+
+      ctx.beginPath();
+      ctx.moveTo(s.x1 + windEffect * 0.8, s.y1);
+      ctx.lineTo(s.x2 + windEffect, s.y2);
+      ctx.strokeStyle = `hsla(${hue}, ${50 + this.water * 30}%, ${25 + depthFade * 20}%, ${alpha * depthFade})`;
+      ctx.lineWidth = thickness;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+
+    // Leaves / flowers at tips
+    if (g > 0.5) {
+      const leafAlpha = (g - 0.5) * 2 * alpha;
+      for (let i = totalSegs - 1; i >= Math.max(0, totalSegs - 20); i--) {
+        const s = this.segments[i];
+        if (s.depth >= 2 && Math.random() < 0.3) {
+          const windEffect = wind * (-s.y2 / (this.genes.length * 15 + 1)) * 0.5;
+          const lx = s.x2 + windEffect;
+          const ly = s.y2;
+
+          if (this.growth > 0.9 && this.seeds > 0) {
+            // Flowers
+            ctx.beginPath();
+            ctx.arc(lx, ly, 2 + Math.random(), 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${this.genes.hue + 200}, 70%, 70%, ${leafAlpha * 0.7})`;
+            ctx.fill();
+          } else {
+            // Leaves
+            ctx.beginPath();
+            ctx.arc(lx, ly, 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${hue - 10}, 60%, 35%, ${leafAlpha * 0.5})`;
+            ctx.fill();
+          }
+        }
+      }
+    }
+
+    ctx.restore();
+  }
+}
+
+// ---- Food ----
+class Food {
+  constructor(x, y, energy = 10) {
+    this.x = x;
+    this.y = y;
+    this.energy = energy;
+    this.alive = true;
+    this.age = 0;
+    this.maxAge = 500 + Math.random() * 500;
+  }
+
+  update() {
+    this.age += speed;
+    if (this.age > this.maxAge) this.alive = false;
+  }
+
+  draw() {
+    if (!this.alive) return;
+    const fade = Math.min(1, 1 - (this.age / this.maxAge - 0.7) / 0.3);
+    const pulse = 1 + Math.sin(time * 0.05 + this.x) * 0.2;
+    const r = (2 + this.energy * 0.1) * pulse;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(55, 80%, 60%, ${0.5 * fade})`;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, r * 0.5, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(55, 90%, 80%, ${0.3 * fade})`;
+    ctx.fill();
+  }
+}
+
+// ---- Creatures with simple neural network ----
+class Creature {
+  constructor(x, y, genes = null) {
+    this.x = x;
+    this.y = y;
+    this.genes = genes || this.randomGenes();
+    this.vx = 0;
+    this.vy = 0;
+    this.energy = 50 + Math.random() * 30;
+    this.maxEnergy = 100;
+    this.age = 0;
+    this.maxAge = 600 + Math.random() * 600;
+    this.alive = true;
+    this.generation = generation;
+    this.children = 0;
+
+    // Neural network weights (simple: 4 inputs -> 2 outputs)
+    // Inputs: nearest food angle, nearest food distance, energy level, nearest creature distance
+    // Outputs: turn, speed
+    this.brain = this.genes.brain;
+    this.angle = Math.random() * Math.PI * 2;
+
+    totalBorn++;
+  }
+
+  randomGenes() {
+    return {
+      speed: 0.5 + Math.random() * 1.5,
+      size: 3 + Math.random() * 4,
+      hue: Math.random() * 360,
+      senseRange: 60 + Math.random() * 120,
+      metabolism: 0.02 + Math.random() * 0.03,
+      brain: Array.from({ length: 12 }, () => Math.random() * 2 - 1),
+    };
+  }
+
+  findNearest(items) {
+    let nearest = null;
+    let minDist = Infinity;
+    for (const item of items) {
+      if (!item.alive) continue;
+      const dx = item.x - this.x;
+      const dy = item.y - this.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < minDist) {
+        minDist = d;
+        nearest = item;
+      }
+    }
+    return { item: nearest, dist: minDist };
+  }
+
+  think() {
+    const { item: nearFood, dist: foodDist } = this.findNearest(foods);
+    const { dist: creatureDist } = this.findNearest(creatures.filter(c => c !== this));
+
+    // Inputs normalized to 0..1
+    let foodAngle = 0;
+    if (nearFood && foodDist < this.genes.senseRange) {
+      foodAngle = Math.atan2(nearFood.y - this.y, nearFood.x - this.x) - this.angle;
+      foodAngle = ((foodAngle + Math.PI) % (Math.PI * 2) - Math.PI) / Math.PI; // -1..1
+    }
+    const inputs = [
+      foodAngle,
+      nearFood ? Math.min(1, foodDist / this.genes.senseRange) : 1,
+      this.energy / this.maxEnergy,
+      Math.min(1, (creatureDist || 999) / 200),
+    ];
+
+    // Simple neural net: weighted sum
+    const b = this.brain;
+    const turn = Math.tanh(inputs[0]*b[0] + inputs[1]*b[1] + inputs[2]*b[2] + inputs[3]*b[3] + b[8]);
+    const spd = (Math.tanh(inputs[0]*b[4] + inputs[1]*b[5] + inputs[2]*b[6] + inputs[3]*b[7] + b[9]) + 1) / 2;
+
+    return { turn: turn * 0.15, speed: spd };
+  }
+
+  update() {
+    if (!this.alive) return;
+    this.age += speed;
+
+    // Think
+    const { turn, speed: spd } = this.think();
+    this.angle += turn * speed;
+    const moveSpeed = this.genes.speed * spd * speed;
+    this.vx = Math.cos(this.angle) * moveSpeed;
+    this.vy = Math.sin(this.angle) * moveSpeed;
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Boundaries
+    if (this.x < 10) { this.x = 10; this.angle = Math.PI - this.angle; }
+    if (this.x > W - 10) { this.x = W - 10; this.angle = Math.PI - this.angle; }
+    if (this.y < 10) { this.y = 10; this.angle = -this.angle; }
+    if (this.y > H - 10) { this.y = H - 10; this.angle = -this.angle; }
+
+    // Metabolism
+    this.energy -= this.genes.metabolism * (0.5 + moveSpeed * 0.5) * speed;
+    // Bigger = more expensive
+    this.energy -= this.genes.size * 0.002 * speed;
+    // Night is harder
+    if (isNight()) this.energy -= 0.01 * speed;
+
+    // Eat food
+    for (const food of foods) {
+      if (!food.alive) continue;
+      const dx = food.x - this.x;
+      const dy = food.y - this.y;
+      if (dx * dx + dy * dy < (this.genes.size + 5) ** 2) {
+        this.energy = Math.min(this.maxEnergy, this.energy + food.energy);
+        food.alive = false;
+        // Eating particle
+        for (let i = 0; i < 3; i++) {
+          particles.push(new Particle(food.x, food.y, 'eat'));
+        }
+      }
+    }
+
+    // Reproduce
+    if (this.energy > 70 && creatures.length < 80 && Math.random() < 0.003 * speed) {
+      this.reproduce();
+    }
+
+    // Death
+    if (this.energy <= 0 || this.age > this.maxAge) {
+      this.alive = false;
+      totalDied++;
+      // Death particles
+      for (let i = 0; i < 5; i++) {
+        particles.push(new Particle(this.x, this.y, 'death'));
+      }
+      // Drop food
+      foods.push(new Food(this.x, this.y, 8));
+    }
+  }
+
+  reproduce() {
+    const childGenes = this.mutateGenes();
+    const child = new Creature(
+      this.x + (Math.random() - 0.5) * 20,
+      this.y + (Math.random() - 0.5) * 20,
+      childGenes
+    );
+    child.generation = this.generation + 1;
+    generation = Math.max(generation, child.generation);
+    this.energy -= 30;
+    this.children++;
+    creatures.push(child);
+
+    // Birth particles
+    for (let i = 0; i < 4; i++) {
+      particles.push(new Particle(child.x, child.y, 'birth'));
+    }
+  }
+
+  mutateGenes() {
+    const g = { ...this.genes };
+    g.brain = [...this.genes.brain];
+
+    // Mutate one brain weight
+    const idx = Math.floor(Math.random() * g.brain.length);
+    g.brain[idx] += (Math.random() - 0.5) * 0.5;
+
+    // Mutate one physical trait
+    if (Math.random() < 0.3) g.speed *= 0.8 + Math.random() * 0.4;
+    if (Math.random() < 0.3) g.size *= 0.85 + Math.random() * 0.3;
+    if (Math.random() < 0.3) g.senseRange *= 0.8 + Math.random() * 0.4;
+    if (Math.random() < 0.2) g.metabolism *= 0.85 + Math.random() * 0.3;
+    if (Math.random() < 0.3) g.hue = (g.hue + (Math.random() - 0.5) * 30 + 360) % 360;
+
+    return g;
+  }
+
+  draw() {
+    if (!this.alive) return;
+    const energyRatio = this.energy / this.maxEnergy;
+    const s = this.genes.size * (0.8 + energyRatio * 0.2);
+    const alpha = 0.7 + energyRatio * 0.3;
+
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+
+    // Body
+    ctx.beginPath();
+    ctx.ellipse(0, 0, s * 1.3, s, 0, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${this.genes.hue}, 60%, ${30 + energyRatio * 25}%, ${alpha})`;
+    ctx.fill();
+
+    // Eye
+    const eyeX = s * 0.7;
+    const eyeY = -s * 0.2;
+    ctx.beginPath();
+    ctx.arc(eyeX, eyeY, s * 0.25, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${alpha * 0.8})`;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(eyeX + s * 0.08, eyeY, s * 0.12, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+    ctx.fill();
+
+    // Tail (wavy)
+    const tailWave = Math.sin(time * 0.1 + this.x) * 3;
+    ctx.beginPath();
+    ctx.moveTo(-s * 1.3, 0);
+    ctx.quadraticCurveTo(-s * 2, tailWave, -s * 2.5, tailWave * 1.5);
+    ctx.strokeStyle = `hsla(${this.genes.hue}, 50%, 40%, ${alpha * 0.6})`;
+    ctx.lineWidth = s * 0.3;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Sense range (faint)
+    if (energyRatio < 0.3) {
+      ctx.beginPath();
+      ctx.arc(0, 0, this.genes.senseRange, 0, Math.PI * 2);
+      ctx.strokeStyle = `hsla(0, 70%, 50%, 0.1)`;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+
+    // Energy bar
+    if (energyRatio < 0.5) {
+      ctx.fillStyle = `hsla(${energyRatio * 120}, 70%, 50%, 0.5)`;
+      ctx.fillRect(this.x - 8, this.y - s - 5, 16 * energyRatio, 2);
+    }
+  }
+}
+
+// ---- Particles ----
+class Particle {
+  constructor(x, y, type) {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+    this.vx = (Math.random() - 0.5) * 3;
+    this.vy = (Math.random() - 0.5) * 3 - 1;
+    this.life = 1;
+    this.maxLife = 30 + Math.random() * 30;
+    this.age = 0;
+    this.alive = true;
+  }
+
+  update() {
+    this.age += speed;
+    this.life = 1 - this.age / this.maxLife;
+    if (this.life <= 0) { this.alive = false; return; }
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += 0.02; // gravity
+    this.vx *= 0.98;
+  }
+
+  draw() {
+    if (!this.alive) return;
+    const r = 2 * this.life;
+    let color;
+    switch (this.type) {
+      case 'eat': color = `hsla(55, 90%, 70%, ${this.life * 0.6})`; break;
+      case 'birth': color = `hsla(160, 80%, 70%, ${this.life * 0.7})`; break;
+      case 'death': color = `hsla(0, 60%, 50%, ${this.life * 0.5})`; break;
+      case 'rain': color = `hsla(210, 70%, 70%, ${this.life * 0.4})`; break;
+      case 'seed': color = `hsla(90, 70%, 50%, ${this.life * 0.6})`; break;
+      default: color = `hsla(0, 0%, 80%, ${this.life * 0.5})`;
+    }
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+}
+
+// ---- Stars ----
+const stars = Array.from({ length: 200 }, () => ({
+  x: Math.random(),
+  y: Math.random() * 0.6,
+  size: Math.random() * 1.5 + 0.5,
+  brightness: Math.random(),
+  twinkleSpeed: 0.02 + Math.random() * 0.05,
+}));
+
+function drawStars() {
+  const nightFactor = isNight() ? 1 : Math.max(0, 1 - sunIntensity() * 3);
+  if (nightFactor < 0.05) return;
+
+  for (const star of stars) {
+    const twinkle = 0.5 + 0.5 * Math.sin(time * star.twinkleSpeed + star.x * 100);
+    const a = star.brightness * twinkle * nightFactor;
+    ctx.beginPath();
+    ctx.arc(star.x * W, star.y * H, star.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 250, 240, ${a})`;
+    ctx.fill();
+  }
+}
+
+// ---- Ground ----
+function drawGround() {
+  const sun = sunIntensity();
+  const baseH = H * 0.78;
+
+  // Gradient ground
+  const grd = ctx.createLinearGradient(0, baseH - 20, 0, H);
+  if (sun > 0.3) {
+    grd.addColorStop(0, `hsla(100, 30%, ${15 + sun * 10}%, 1)`);
+    grd.addColorStop(0.3, `hsla(90, 25%, ${10 + sun * 8}%, 1)`);
+    grd.addColorStop(1, `hsla(80, 20%, ${8 + sun * 5}%, 1)`);
+  } else {
+    grd.addColorStop(0, `hsla(100, 20%, 10%, 1)`);
+    grd.addColorStop(1, `hsla(80, 15%, 6%, 1)`);
+  }
+
+  // Rolling hills
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+  for (let x = 0; x <= W; x += 5) {
+    const hill1 = Math.sin(x * 0.005 + 1) * 30;
+    const hill2 = Math.sin(x * 0.012 + 3) * 15;
+    const hill3 = Math.sin(x * 0.002) * 40;
+    ctx.lineTo(x, baseH + hill1 + hill2 + hill3);
+  }
+  ctx.lineTo(W, H);
+  ctx.closePath();
+  ctx.fillStyle = grd;
+  ctx.fill();
+}
+
+function getGroundY(x) {
+  const baseH = H * 0.78;
+  const hill1 = Math.sin(x * 0.005 + 1) * 30;
+  const hill2 = Math.sin(x * 0.012 + 3) * 15;
+  const hill3 = Math.sin(x * 0.002) * 40;
+  return baseH + hill1 + hill2 + hill3;
+}
+
+// ---- Sun/Moon ----
+function drawCelestials() {
+  const sun = sunIntensity();
+
+  if (sun > 0.05) {
+    // Sun position
+    const sunAngle = (dayTime - 0.25) / 0.55 * Math.PI;
+    const sunX = W * 0.2 + W * 0.6 * (dayTime - 0.25) / 0.55;
+    const sunY = H * 0.15 + (1 - Math.sin(sunAngle)) * H * 0.3;
+
+    // Sun glow
+    const glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 80);
+    glow.addColorStop(0, `rgba(255, 240, 200, ${sun * 0.6})`);
+    glow.addColorStop(0.3, `rgba(255, 220, 150, ${sun * 0.2})`);
+    glow.addColorStop(1, `rgba(255, 200, 100, 0)`);
+    ctx.fillStyle = glow;
+    ctx.fillRect(sunX - 80, sunY - 80, 160, 160);
+
+    // Sun
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 15, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 240, 200, ${sun * 0.9})`;
+    ctx.fill();
+  }
+
+  if (isNight()) {
+    // Moon
+    const moonPhase = (dayTime < 0.25) ? (0.25 - dayTime) / 0.25 : (dayTime - 0.78) / 0.22;
+    const moonX = W * 0.3 + W * 0.4 * moonPhase;
+    const moonY = H * 0.12 + Math.sin(moonPhase * Math.PI) * H * 0.05;
+
+    const moonGlow = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, 60);
+    moonGlow.addColorStop(0, `rgba(200, 210, 255, 0.3)`);
+    moonGlow.addColorStop(1, `rgba(200, 210, 255, 0)`);
+    ctx.fillStyle = moonGlow;
+    ctx.fillRect(moonX - 60, moonY - 60, 120, 120);
+
+    ctx.beginPath();
+    ctx.arc(moonX, moonY, 12, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(220, 225, 240, 0.8)`;
+    ctx.fill();
+  }
+}
+
+// ---- Messages ----
+let msgTimeout = null;
+function showMessage(text) {
+  const el = document.getElementById('message');
+  el.textContent = text;
+  el.style.opacity = 1;
+  clearTimeout(msgTimeout);
+  msgTimeout = setTimeout(() => { el.style.opacity = 0; }, 3000);
+}
+
+// ---- Food spawning ----
+function spawnFood() {
+  if (foods.length < 40 && Math.random() < 0.02 * speed) {
+    const x = Math.random() * (W - 40) + 20;
+    const y = getGroundY(x) - Math.random() * 20;
+    foods.push(new Food(x, y));
+  }
+}
+
+// ---- Rain ----
+let raining = false;
+let rainTimer = 0;
+function doRain() {
+  raining = true;
+  rainTimer = 200;
+  showMessage('Пошёл дождь...');
+}
+
+// ---- Save/Load ----
+function saveState() {
+  try {
+    const state = {
+      generation, totalBorn, totalDied, totalPlants, dayTime,
+      plants: plants.filter(p => p.alive).map(p => ({
+        x: p.x, y: p.y, genes: p.genes, growth: p.growth, health: p.health, water: p.water, age: p.age
+      })),
+      creatures: creatures.filter(c => c.alive).map(c => ({
+        x: c.x, y: c.y, genes: c.genes, energy: c.energy, age: c.age, angle: c.angle, generation: c.generation
+      })),
+    };
+    localStorage.setItem('anima_garden', JSON.stringify(state));
+  } catch (e) {}
+}
+
+function loadState() {
+  try {
+    const data = JSON.parse(localStorage.getItem('anima_garden'));
+    if (!data) return false;
+    generation = data.generation || 0;
+    totalBorn = data.totalBorn || 0;
+    totalDied = data.totalDied || 0;
+    totalPlants = data.totalPlants || 0;
+    dayTime = data.dayTime || 0;
+
+    if (data.plants) {
+      for (const p of data.plants) {
+        const plant = new Plant(p.x, p.y, p.genes);
+        plant.growth = p.growth;
+        plant.health = p.health;
+        plant.water = p.water;
+        plant.age = p.age;
+        plants.push(plant);
+      }
+    }
+    if (data.creatures) {
+      for (const c of data.creatures) {
+        const creature = new Creature(c.x, c.y, c.genes);
+        creature.energy = c.energy;
+        creature.age = c.age;
+        creature.angle = c.angle;
+        creature.generation = c.generation;
+        creatures.push(creature);
+      }
+    }
+    return true;
+  } catch (e) { return false; }
+}
+
+// ---- Init ----
+const loaded = loadState();
+if (!loaded) {
+  // Seed initial ecosystem
+  dayTime = 0.35; // Start at sunrise
+  for (let i = 0; i < 5; i++) {
+    const x = W * 0.15 + Math.random() * W * 0.7;
+    plants.push(new Plant(x, getGroundY(x)));
+  }
+  for (let i = 0; i < 8; i++) {
+    const x = W * 0.1 + Math.random() * W * 0.8;
+    const y = getGroundY(x) - 20 - Math.random() * H * 0.3;
+    creatures.push(new Creature(x, y));
+  }
+  for (let i = 0; i < 15; i++) {
+    const x = Math.random() * W;
+    foods.push(new Food(x, getGroundY(x) - Math.random() * 15));
+  }
+} else {
+  showTitle = false;
+}
+
+// ---- Controls ----
+document.getElementById('btnSeed').addEventListener('click', (e) => {
+  e.stopPropagation();
+  tool = 'seed';
+  updateToolButtons();
+});
+document.getElementById('btnFood').addEventListener('click', (e) => {
+  e.stopPropagation();
+  tool = 'food';
+  updateToolButtons();
+});
+document.getElementById('btnCreature').addEventListener('click', (e) => {
+  e.stopPropagation();
+  tool = 'creature';
+  updateToolButtons();
+});
+document.getElementById('btnRain').addEventListener('click', (e) => {
+  e.stopPropagation();
+  doRain();
+});
+document.getElementById('btnSpeed').addEventListener('click', (e) => {
+  e.stopPropagation();
+  speed = speed === 1 ? 3 : speed === 3 ? 5 : 1;
+  document.getElementById('btnSpeed').innerHTML = `&#9654; ${speed}x`;
+});
+
+function updateToolButtons() {
+  document.querySelectorAll('#controls button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + tool.charAt(0).toUpperCase() + tool.slice(1)).classList.add('active');
+}
+
+canvas.addEventListener('click', (e) => {
+  if (showTitle) {
+    showTitle = false;
+    document.getElementById('title').style.opacity = 0;
+  }
+
+  const x = e.clientX;
+  const y = e.clientY;
+  const groundY = getGroundY(x);
+
+  switch (tool) {
+    case 'seed':
+      plants.push(new Plant(x, Math.min(y, groundY)));
+      for (let i = 0; i < 6; i++) particles.push(new Particle(x, y, 'seed'));
+      showMessage('Посажено семя');
+      break;
+    case 'food':
+      for (let i = 0; i < 5; i++) {
+        foods.push(new Food(x + (Math.random() - 0.5) * 30, y + (Math.random() - 0.5) * 30, 12));
+      }
+      showMessage('Добавлена еда');
+      break;
+    case 'creature':
+      creatures.push(new Creature(x, y));
+      for (let i = 0; i < 4; i++) particles.push(new Particle(x, y, 'birth'));
+      showMessage('Новое существо!');
+      break;
+  }
+});
+
+// ---- Auto-save ----
+let saveCounter = 0;
+
+// ---- Insights ----
+const insights = [
+  'Простые правила порождают сложное поведение...',
+  'Эволюция — это память, записанная в генах.',
+  'Каждое существо несёт в себе историю выживших предков.',
+  'Экосистема — это танец, где каждый — и зритель, и танцор.',
+  'Хаос и порядок — не противоположности, а партнёры.',
+  'Жизнь находит путь.',
+  'Самые успешные — не самые сильные, а самые адаптивные.',
+  'В каждом семени — потенциал леса.',
+  'Ночь учит терпению. День — действию.',
+  'Разнообразие — не роскошь, а стратегия выживания.',
+  'Смерть одного — пища для другого. Круг замыкается.',
+  'Мутация — это любопытство природы.',
+];
+let lastInsight = 0;
+
+// ---- Main Loop ----
+function update() {
+  time++;
+  getDayPhase();
+  spawnFood();
+
+  // Rain
+  if (raining) {
+    rainTimer -= speed;
+    if (rainTimer <= 0) raining = false;
+    // Rain particles
+    for (let i = 0; i < 3 * speed; i++) {
+      const rx = Math.random() * W;
+      const p = new Particle(rx, 0, 'rain');
+      p.vy = 4 + Math.random() * 3;
+      p.vx = -0.5;
+      p.maxLife = 60;
+      particles.push(p);
+    }
+    // Water all plants
+    for (const plant of plants) {
+      if (plant.alive) plant.water = Math.min(1, plant.water + 0.005 * speed);
+    }
+  }
+
+  // Update entities
+  for (const p of plants) p.update();
+  for (const c of creatures) c.update();
+  for (const f of foods) f.update();
+  for (const p of particles) p.update();
+
+  // Cleanup dead
+  plants = plants.filter(p => p.alive);
+  creatures = creatures.filter(c => c.alive);
+  foods = foods.filter(f => f.alive);
+  particles = particles.filter(p => p.alive);
+
+  // Auto-repopulate if ecosystem collapses
+  if (creatures.length === 0 && time > 100) {
+    for (let i = 0; i < 5; i++) {
+      const x = Math.random() * W;
+      creatures.push(new Creature(x, getGroundY(x) - 30 - Math.random() * 100));
+    }
+    showMessage('Жизнь возрождается...');
+  }
+
+  // Periodic insights
+  if (time - lastInsight > 600 && Math.random() < 0.005) {
+    showMessage(insights[Math.floor(Math.random() * insights.length)]);
+    lastInsight = time;
+  }
+
+  // Save
+  saveCounter += speed;
+  if (saveCounter > 300) {
+    saveState();
+    saveCounter = 0;
+  }
+}
+
+function draw() {
+  // Sky
+  const sky = getSkyColors(dayTime);
+  const skyGrd = ctx.createLinearGradient(0, 0, 0, H * 0.8);
+  skyGrd.addColorStop(0, `rgb(${sky.top.join(',')})`);
+  skyGrd.addColorStop(1, `rgb(${sky.bot.join(',')})`);
+  ctx.fillStyle = skyGrd;
+  ctx.fillRect(0, 0, W, H);
+
+  drawStars();
+  drawCelestials();
+  drawGround();
+
+  // Draw entities (sorted by y for depth)
+  for (const f of foods) f.draw();
+  for (const p of plants) p.draw();
+  for (const c of creatures) c.draw();
+  for (const p of particles) p.draw();
+
+  // UI
+  const dayNames = ['Полночь', 'Рассвет', 'Утро', 'День', 'Полдень', 'День', 'Вечер', 'Закат', 'Сумерки', 'Ночь'];
+  const dayIdx = Math.floor(dayTime * 10) % 10;
+  document.getElementById('ui').innerHTML =
+    `<b>Сад Анимы</b><br>` +
+    `${dayNames[dayIdx]} ${raining ? '🌧' : isNight() ? '🌙' : '☀️'}`;
+
+  const avgGen = creatures.length > 0
+    ? (creatures.reduce((s, c) => s + c.generation, 0) / creatures.length).toFixed(1)
+    : '—';
+  document.getElementById('stats').innerHTML =
+    `Существ: ${creatures.length}<br>` +
+    `Растений: ${plants.length}<br>` +
+    `Еда: ${foods.length}<br>` +
+    `Поколение: ${avgGen}<br>` +
+    `Рождений: ${totalBorn}<br>` +
+    `Смертей: ${totalDied}`;
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// Hide title after a while
+setTimeout(() => {
+  if (showTitle) {
+    document.getElementById('title').style.opacity = 0;
+    showTitle = false;
+  }
+}, 5000);
+
+loop();
+</script>
+</body>
+</html>

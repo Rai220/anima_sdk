@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thinking Lab — Structured Thinking Tool</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a25;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --accent: #6c63ff;
+    --accent2: #ff6b9d;
+    --accent3: #00d4aa;
+    --accent4: #ffa64d;
+    --danger: #ff4757;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  header {
+    padding: 30px 40px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .logo h1 {
+    font-size: 22px;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo p { font-size: 12px; color: var(--text-dim); }
+
+  .header-actions { display: flex; gap: 10px; }
+
+  /* Buttons */
+  button {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  button:hover { border-color: var(--accent); background: #1e1e2e; }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #5a52e0; }
+
+  .btn-danger { border-color: var(--danger); color: var(--danger); }
+  .btn-danger:hover { background: rgba(255,71,87,0.1); }
+
+  /* Main Layout */
+  .app {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: calc(100vh - 90px);
+  }
+
+  /* Sidebar */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .sidebar h2 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 15px;
+  }
+
+  .problem-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 12px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .problem-input:focus { outline: none; border-color: var(--accent); }
+  .problem-input::placeholder { color: var(--text-dim); }
+
+  /* Framework selector */
+  .frameworks { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+
+  .framework-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .framework-btn:hover { border-color: var(--accent); }
+  .framework-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.1); }
+
+  .fw-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .fw-info h3 { font-size: 13px; font-weight: 600; }
+  .fw-info p { font-size: 11px; color: var(--text-dim); line-height: 1.3; }
+
+  /* Progress */
+  .progress-section { margin-top: 20px; }
+  .progress-section h2 { margin-bottom: 10px; }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+  .progress-text { font-size: 12px; color: var(--text-dim); }
+
+  /* Main Content */
+  .main {
+    padding: 30px 40px;
+    overflow-y: auto;
+  }
+
+  /* Welcome screen */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 40px;
+  }
+  .welcome h2 {
+    font-size: 28px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .welcome p { color: var(--text-dim); max-width: 500px; font-size: 15px; margin-bottom: 8px; }
+
+  .welcome-steps {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .welcome-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    width: 160px;
+    text-align: center;
+  }
+  .welcome-step .num {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .welcome-step h4 { font-size: 13px; margin-bottom: 4px; }
+  .welcome-step p { font-size: 11px; color: var(--text-dim); }
+
+  /* Framework workspace */
+  .workspace { display: none; }
+  .workspace.active { display: block; }
+
+  .workspace-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+  }
+  .workspace-header .fw-icon { width: 40px; height: 40px; font-size: 20px; }
+  .workspace-header h2 { font-size: 22px; }
+  .workspace-header p { font-size: 13px; color: var(--text-dim); }
+
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 20px; }
+
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .step.current { border-color: var(--accent); box-shadow: 0 0 20px rgba(108,99,255,0.15); }
+  .step.completed { border-color: var(--accent3); }
+
+  .step-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .step.current .step-num { border-color: var(--accent); background: var(--accent); }
+  .step.completed .step-num { border-color: var(--accent3); background: var(--accent3); color: var(--bg); }
+
+  .step-title { font-size: 15px; font-weight: 600; flex: 1; }
+  .step-status { font-size: 11px; color: var(--text-dim); }
+  .step.completed .step-status { color: var(--accent3); }
+
+  .step-body {
+    padding: 0 20px 20px;
+    display: none;
+  }
+  .step.current .step-body,
+  .step.expanded .step-body { display: block; }
+
+  .step-prompt {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    padding: 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .step-textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 12px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .step-textarea:focus { outline: none; border-color: var(--accent); }
+  .step-textarea::placeholder { color: #555568; }
+
+  .step-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  /* Sub-items */
+  .sub-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .sub-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .sub-item-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .sub-item-input:focus { outline: none; border-color: var(--accent); }
+
+  .add-item-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-style: dashed;
+    color: var(--text-dim);
+  }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 8px;
+    font-size: 14px;
+    opacity: 0.5;
+  }
+  .remove-btn:hover { opacity: 1; color: var(--danger); }
+
+  /* Summary */
+  .summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 25px;
+    display: none;
+  }
+  .summary.visible { display: block; }
+
+  .summary h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .summary-section {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+  }
+  .summary-section h4 {
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .summary-section p, .summary-section li {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .summary-section ul { padding-left: 20px; }
+
+  .export-actions {
+    display: flex; gap: 10px; margin-top: 15px;
+    flex-wrap: wrap;
+  }
+
+  /* Saved sessions */
+  .sessions { margin-top: 20px; }
+  .sessions h2 { margin-bottom: 10px; }
+
+  .session-item {
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .session-item:hover { border-color: var(--accent); }
+  .session-name { font-size: 12px; font-weight: 500; flex: 1; }
+  .session-date { font-size: 10px; color: var(--text-dim); }
+  .session-delete {
+    background: none; border: none; color: var(--text-dim);
+    cursor: pointer; padding: 2px 6px; font-size: 12px;
+  }
+  .session-delete:hover { color: var(--danger); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+    header { padding: 20px; }
+    .main { padding: 20px; }
+  }
+
+  /* Animations */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: fadeIn 0.3s ease; }
+
+  /* Tooltip */
+  .tip {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🧠</div>
+    <div>
+      <h1>Thinking Lab</h1>
+      <p>Structured thinking for complex decisions</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button onclick="saveSession()" id="saveBtn" style="display:none">💾 Save</button>
+    <button onclick="resetAll()" id="resetBtn" style="display:none" class="btn-danger">↺ New</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <h2>Your Problem</h2>
+    <textarea class="problem-input" id="problemInput" placeholder="Describe the decision or problem you're thinking about...&#10;&#10;Example: Should I leave my job to start a company?"></textarea>
+
+    <h2>Choose a Framework</h2>
+    <div class="frameworks">
+      <button class="framework-btn" onclick="selectFramework('first-principles')" data-fw="first-principles">
+        <div class="fw-icon" style="background: rgba(108,99,255,0.2); color: var(--accent);">⚛</div>
+        <div class="fw-info">
+          <h3>First Principles</h3>
+          <p>Break down to fundamentals, rebuild from scratch</p>
+        </div>
+      </button>
+      <button class="framework-btn" onclick="selectFramework('inversion')" data-fw="inversion">
+        <div class="fw-icon" style="background: rgba(255,107,157,0.2); color: var(--accent2);">🔄</div>
+        <div class="fw-info">
+          <h3>Inversion</h3>
+          <p>Think backwards — how to guarantee failure?</p>
+        </div>
+      </button>
+      <button class="framework-btn" onclick="selectFramework('second-order')" data-fw="second-order">
+        <div class="fw-icon" style="background: rgba(0,212,170,0.2); color: var(--accent3);">🌊</div>
+        <div class="fw-info">
+          <h3>Second-Order Effects</h3>
+          <p>Map consequences of consequences</p>
+        </div>
+      </button>
+      <button class="framework-btn" onclick="selectFramework('premortem')" data-fw="premortem">
+        <div class="fw-icon" style="background: rgba(255,166,77,0.2); color: var(--accent4);">🔮</div>
+        <div class="fw-info">
+          <h3>Pre-mortem</h3>
+          <p>Imagine it failed — why did it fail?</p>
+        </div>
+      </button>
+      <button class="framework-btn" onclick="selectFramework('steelman')" data-fw="steelman">
+        <div class="fw-icon" style="background: rgba(255,71,87,0.2); color: var(--danger);">⚔️</div>
+        <div class="fw-info">
+          <h3>Steel Man</h3>
+          <p>Build the strongest case for each option</p>
+        </div>
+      </button>
+    </div>
+
+    <div class="progress-section" id="progressSection" style="display:none">
+      <h2>Progress</h2>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">0 / 0 steps</div>
+    </div>
+
+    <div class="sessions" id="sessionsPanel">
+      <h2>Saved Sessions</h2>
+      <div id="sessionsList"></div>
+    </div>
+  </aside>
+
+  <main class="main" id="mainContent">
+    <div class="welcome" id="welcomeScreen">
+      <h2>Think Clearly</h2>
+      <p>Structured frameworks to help you break through complex decisions and problems.</p>
+      <p style="font-size: 13px; margin-top: 5px;">No AI, no cloud — just you and proven thinking tools.</p>
+      <div class="welcome-steps">
+        <div class="welcome-step">
+          <div class="num">1</div>
+          <h4>Define</h4>
+          <p>Describe your problem or decision</p>
+        </div>
+        <div class="welcome-step">
+          <div class="num">2</div>
+          <h4>Choose</h4>
+          <p>Pick a thinking framework</p>
+        </div>
+        <div class="welcome-step">
+          <div class="num">3</div>
+          <h4>Think</h4>
+          <p>Work through guided steps</p>
+        </div>
+        <div class="welcome-step">
+          <div class="num">4</div>
+          <h4>Decide</h4>
+          <p>Get a structured summary</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- First Principles Workspace -->
+    <div class="workspace" id="ws-first-principles">
+      <div class="workspace-header">
+        <div class="fw-icon" style="background: rgba(108,99,255,0.2); color: var(--accent); font-size: 24px;">⚛</div>
+        <div>
+          <h2>First Principles Thinking</h2>
+          <p>Strip away assumptions. What remains when you break everything down to fundamentals?</p>
+        </div>
+      </div>
+      <div class="steps" id="steps-first-principles"></div>
+      <div class="summary" id="summary-first-principles">
+        <h3>📋 Your Analysis</h3>
+        <div id="summary-content-first-principles"></div>
+        <div class="export-actions">
+          <button onclick="copyToClipboard('first-principles')" class="btn-primary">📋 Copy as Text</button>
+          <button onclick="downloadMarkdown('first-principles')">📥 Download .md</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inversion Workspace -->
+    <div class="workspace" id="ws-inversion">
+      <div class="workspace-header">
+        <div class="fw-icon" style="background: rgba(255,107,157,0.2); color: var(--accent2); font-size: 24px;">🔄</div>
+        <div>
+          <h2>Inversion Thinking</h2>
+          <p>Instead of asking how to succeed, ask: how would I guarantee failure?</p>
+        </div>
+      </div>
+      <div class="steps" id="steps-inversion"></div>
+      <div class="summary" id="summary-inversion">
+        <h3>📋 Your Analysis</h3>
+        <div id="summary-content-inversion"></div>
+        <div class="export-actions">
+          <button onclick="copyToClipboard('inversion')" class="btn-primary">📋 Copy as Text</button>
+          <button onclick="downloadMarkdown('inversion')">📥 Download .md</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second-Order Workspace -->
+    <div class="workspace" id="ws-second-order">
+      <div class="workspace-header">
+        <div class="fw-icon" style="background: rgba(0,212,170,0.2); color: var(--accent3); font-size: 24px;">🌊</div>
+        <div>
+          <h2>Second-Order Effects</h2>
+          <p>Every action creates ripples. Map the consequences of consequences.</p>
+        </div>
+      </div>
+      <div class="steps" id="steps-second-order"></div>
+      <div class="summary" id="summary-second-order">
+        <h3>📋 Your Analysis</h3>
+        <div id="summary-content-second-order"></div>
+        <div class="export-actions">
+          <button onclick="copyToClipboard('second-order')" class="btn-primary">📋 Copy as Text</button>
+          <button onclick="downloadMarkdown('second-order')">📥 Download .md</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pre-mortem Workspace -->
+    <div class="workspace" id="ws-premortem">
+      <div class="workspace-header">
+        <div class="fw-icon" style="background: rgba(255,166,77,0.2); color: var(--accent4); font-size: 24px;">🔮</div>
+        <div>
+          <h2>Pre-mortem Analysis</h2>
+          <p>It's one year from now and this decision was a disaster. What went wrong?</p>
+        </div>
+      </div>
+      <div class="steps" id="steps-premortem"></div>
+      <div class="summary" id="summary-premortem">
+        <h3>📋 Your Analysis</h3>
+        <div id="summary-content-premortem"></div>
+        <div class="export-actions">
+          <button onclick="copyToClipboard('premortem')" class="btn-primary">📋 Copy as Text</button>
+          <button onclick="downloadMarkdown('premortem')">📥 Download .md</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Steel Man Workspace -->
+    <div class="workspace" id="ws-steelman">
+      <div class="workspace-header">
+        <div class="fw-icon" style="background: rgba(255,71,87,0.2); color: var(--danger); font-size: 24px;">⚔️</div>
+        <div>
+          <h2>Steel Man Analysis</h2>
+          <p>Build the strongest possible case for each option. Then compare them fairly.</p>
+        </div>
+      </div>
+      <div class="steps" id="steps-steelman"></div>
+      <div class="summary" id="summary-steelman">
+        <h3>📋 Your Analysis</h3>
+        <div id="summary-content-steelman"></div>
+        <div class="export-actions">
+          <button onclick="copyToClipboard('steelman')" class="btn-primary">📋 Copy as Text</button>
+          <button onclick="downloadMarkdown('steelman')">📥 Download .md</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Framework definitions
+const FRAMEWORKS = {
+  'first-principles': {
+    name: 'First Principles',
+    steps: [
+      {
+        title: 'State the Problem',
+        prompt: 'Write down your problem or decision as clearly as possible. What exactly are you trying to figure out?',
+        type: 'textarea',
+        placeholder: 'The core question I need to answer is...'
+      },
+      {
+        title: 'List Your Assumptions',
+        prompt: 'What are you currently assuming to be true? List every belief, convention, or "common knowledge" that shapes your thinking about this.',
+        type: 'list',
+        placeholder: 'I assume that...'
+      },
+      {
+        title: 'Challenge Each Assumption',
+        prompt: 'For each assumption above, ask: Is this actually true? What evidence do I have? Could the opposite be true?',
+        type: 'textarea',
+        placeholder: 'When I examine these assumptions, I find that...'
+      },
+      {
+        title: 'Identify Fundamentals',
+        prompt: 'After stripping away assumptions, what remains as definitely, provably true? What are the irreducible facts?',
+        type: 'list',
+        placeholder: 'What is definitely true is...'
+      },
+      {
+        title: 'Rebuild from Fundamentals',
+        prompt: 'Starting ONLY from the fundamentals above, what solution or decision follows logically? Build up from scratch.',
+        type: 'textarea',
+        placeholder: 'Building from these fundamentals, the answer is...'
+      }
+    ]
+  },
+  'inversion': {
+    name: 'Inversion',
+    steps: [
+      {
+        title: 'Define Success',
+        prompt: 'What does a great outcome look like? Be specific about what success means.',
+        type: 'textarea',
+        placeholder: 'Success would mean...'
+      },
+      {
+        title: 'Invert: How to Guarantee Failure',
+        prompt: 'Flip it. If you WANTED to guarantee the worst possible outcome, what would you do? Be creative and thorough.',
+        type: 'list',
+        placeholder: 'To guarantee failure, I would...'
+      },
+      {
+        title: 'Are You Doing Any of These?',
+        prompt: 'Look at your failure list honestly. Are you currently doing any of these things, even partially? Which ones are you closest to?',
+        type: 'textarea',
+        placeholder: 'Looking at this list honestly, I notice that I am...'
+      },
+      {
+        title: 'Invert the Inversions',
+        prompt: 'Now flip each failure cause into a positive action. What should you DO to avoid each failure mode?',
+        type: 'list',
+        placeholder: 'Instead, I should...'
+      },
+      {
+        title: 'Your Anti-Failure Plan',
+        prompt: 'Based on the inversions, what are the 2-3 most critical things to do (or avoid) for this decision?',
+        type: 'textarea',
+        placeholder: 'The most critical actions are...'
+      }
+    ]
+  },
+  'second-order': {
+    name: 'Second-Order Effects',
+    steps: [
+      {
+        title: 'The Decision',
+        prompt: 'What is the decision or action you\'re considering? State it clearly.',
+        type: 'textarea',
+        placeholder: 'I am considering...'
+      },
+      {
+        title: 'First-Order Effects (Immediate)',
+        prompt: 'What happens immediately and directly as a result? Think: next day, next week.',
+        type: 'list',
+        placeholder: 'Immediately, this would cause...'
+      },
+      {
+        title: 'Second-Order Effects (Consequences of consequences)',
+        prompt: 'For each first-order effect above, what does THAT cause? Think: next month, next quarter. Who else is affected?',
+        type: 'list',
+        placeholder: 'As a result of that, then...'
+      },
+      {
+        title: 'Third-Order Effects (The ripples)',
+        prompt: 'Go one level deeper. What are the long-term, systemic effects? Think: next year, 5 years. How does this change your environment, relationships, identity?',
+        type: 'list',
+        placeholder: 'In the long run, this leads to...'
+      },
+      {
+        title: 'Net Assessment',
+        prompt: 'Looking at all three levels, is the total picture positive or negative? Are the long-term effects aligned with what you want?',
+        type: 'textarea',
+        placeholder: 'When I look at the full picture across time...'
+      }
+    ]
+  },
+  'premortem': {
+    name: 'Pre-mortem',
+    steps: [
+      {
+        title: 'The Plan',
+        prompt: 'Describe what you\'re planning to do. What\'s the decision you\'re leaning toward?',
+        type: 'textarea',
+        placeholder: 'My plan is to...'
+      },
+      {
+        title: 'Fast-Forward: It Failed',
+        prompt: 'Imagine it\'s one year from now. This decision was a complete disaster. Don\'t hold back — what went wrong? List every plausible failure cause.',
+        type: 'list',
+        placeholder: 'It failed because...'
+      },
+      {
+        title: 'Rank by Likelihood',
+        prompt: 'Look at your failure causes. Which ones are most likely? Which ones would be most devastating? Identify the top 3 risks.',
+        type: 'textarea',
+        placeholder: 'The most dangerous risks are...'
+      },
+      {
+        title: 'Prevention Plan',
+        prompt: 'For each top risk, what could you do NOW to prevent it or reduce its impact?',
+        type: 'list',
+        placeholder: 'To prevent this, I can...'
+      },
+      {
+        title: 'Kill Criteria',
+        prompt: 'Define specific, measurable signals that would tell you to abandon this plan. What are your "red lines" that mean you should stop?',
+        type: 'list',
+        placeholder: 'I should stop if...'
+      },
+      {
+        title: 'Updated Decision',
+        prompt: 'Given everything you\'ve discovered, do you still want to proceed? If yes, what\'s different about how you\'ll execute?',
+        type: 'textarea',
+        placeholder: 'After this analysis, my decision is...'
+      }
+    ]
+  },
+  'steelman': {
+    name: 'Steel Man',
+    steps: [
+      {
+        title: 'Define Your Options',
+        prompt: 'What are the 2-3 main options you\'re choosing between? (If you only see one, what\'s the alternative — including "do nothing"?)',
+        type: 'list',
+        placeholder: 'Option: ...'
+      },
+      {
+        title: 'Steel Man Option A',
+        prompt: 'Take the first option. Build the STRONGEST possible case for it. Argue as if your life depends on it. What are all the reasons it\'s the best choice?',
+        type: 'textarea',
+        placeholder: 'The strongest case for Option A is...'
+      },
+      {
+        title: 'Steel Man Option B',
+        prompt: 'Now do the same for the second option. Forget your preferences — what\'s the BEST argument for this choice?',
+        type: 'textarea',
+        placeholder: 'The strongest case for Option B is...'
+      },
+      {
+        title: 'Steel Man Option C (if applicable)',
+        prompt: 'If you have a third option, build its strongest case too. If not, skip this step.',
+        type: 'textarea',
+        placeholder: 'The strongest case for Option C is... (or skip)'
+      },
+      {
+        title: 'The Honest Comparison',
+        prompt: 'Now compare the steel-manned versions fairly. Which argument was hardest to build? Which surprised you? What did you learn about your own bias?',
+        type: 'textarea',
+        placeholder: 'Comparing these honestly, I notice...'
+      },
+      {
+        title: 'Your Decision',
+        prompt: 'After giving each option its best shot, which one wins? Why?',
+        type: 'textarea',
+        placeholder: 'My decision is... because...'
+      }
+    ]
+  }
+};
+
+// State
+let currentFramework = null;
+let stepData = {};
+let sessions = JSON.parse(localStorage.getItem('thinkinglab_sessions') || '[]');
+
+// Init
+loadSessionsList();
+
+// Framework selection
+function selectFramework(fwId) {
+  const problem = document.getElementById('problemInput').value.trim();
+  if (!problem) {
+    document.getElementById('problemInput').focus();
+    document.getElementById('problemInput').style.borderColor = 'var(--accent2)';
+    setTimeout(() => document.getElementById('problemInput').style.borderColor = '', 1500);
+    return;
+  }
+
+  currentFramework = fwId;
+  stepData[fwId] = stepData[fwId] || {};
+
+  // UI updates
+  document.querySelectorAll('.framework-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-fw="${fwId}"]`).classList.add('active');
+
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.querySelectorAll('.workspace').forEach(w => w.classList.remove('active'));
+
+  const ws = document.getElementById(`ws-${fwId}`);
+  ws.classList.add('active');
+  ws.classList.add('animate-in');
+
+  document.getElementById('saveBtn').style.display = '';
+  document.getElementById('resetBtn').style.display = '';
+  document.getElementById('progressSection').style.display = '';
+
+  renderSteps(fwId);
+  updateProgress(fwId);
+}
+
+function renderSteps(fwId) {
+  const fw = FRAMEWORKS[fwId];
+  const container = document.getElementById(`steps-${fwId}`);
+  container.innerHTML = '';
+
+  fw.steps.forEach((step, i) => {
+    const data = stepData[fwId][i] || {};
+    const isCompleted = data.completed;
+    const isCurrent = !isCompleted && (i === 0 || stepData[fwId][i-1]?.completed);
+
+    const div = document.createElement('div');
+    div.className = `step ${isCurrent ? 'current' : ''} ${isCompleted ? 'completed' : ''}`;
+    div.id = `step-${fwId}-${i}`;
+
+    let bodyHTML = `<div class="step-prompt">${step.prompt}</div>`;
+
+    if (step.type === 'textarea') {
+      bodyHTML += `<textarea class="step-textarea" id="input-${fwId}-${i}" placeholder="${step.placeholder}">${data.value || ''}</textarea>`;
+    } else if (step.type === 'list') {
+      const items = data.items || [''];
+      bodyHTML += `<div class="sub-items" id="items-${fwId}-${i}">`;
+      items.forEach((item, j) => {
+        bodyHTML += `
+          <div class="sub-item">
+            <input class="sub-item-input" value="${escapeHtml(item)}" placeholder="${step.placeholder}"
+                   oninput="updateListItem('${fwId}', ${i}, ${j}, this.value)"
+                   onkeydown="handleListKey(event, '${fwId}', ${i}, ${j})">
+            ${items.length > 1 ? `<button class="remove-btn" onclick="removeListItem('${fwId}', ${i}, ${j})">×</button>` : ''}
+          </div>`;
+      });
+      bodyHTML += `</div>`;
+      bodyHTML += `<button class="add-item-btn" onclick="addListItem('${fwId}', ${i})">+ Add item</button>`;
+    }
+
+    bodyHTML += `
+      <div class="step-actions">
+        ${isCompleted ? `<button onclick="reopenStep('${fwId}', ${i})">✏️ Edit</button>` : ''}
+        ${isCurrent || isCompleted ? `<button class="btn-primary" onclick="completeStep('${fwId}', ${i})">${isCompleted ? '✓ Updated' : 'Continue →'}</button>` : ''}
+      </div>`;
+
+    div.innerHTML = `
+      <div class="step-header" onclick="toggleStep('${fwId}', ${i})">
+        <div class="step-num">${isCompleted ? '✓' : i + 1}</div>
+        <div class="step-title">${step.title}</div>
+        <div class="step-status">${isCompleted ? 'Completed' : isCurrent ? 'Current' : 'Pending'}</div>
+      </div>
+      <div class="step-body">${bodyHTML}</div>`;
+
+    container.appendChild(div);
+  });
+}
+
+function toggleStep(fwId, idx) {
+  const step = document.getElementById(`step-${fwId}-${idx}`);
+  if (step.classList.contains('current')) return;
+  step.classList.toggle('expanded');
+}
+
+function completeStep(fwId, idx) {
+  const fw = FRAMEWORKS[fwId];
+  const step = fw.steps[idx];
+
+  if (step.type === 'textarea') {
+    const val = document.getElementById(`input-${fwId}-${idx}`).value.trim();
+    if (!val) return;
+    stepData[fwId][idx] = { value: val, completed: true };
+  } else if (step.type === 'list') {
+    const items = (stepData[fwId][idx]?.items || ['']).filter(s => s.trim());
+    if (items.length === 0) return;
+    stepData[fwId][idx] = { items, completed: true };
+  }
+
+  renderSteps(fwId);
+  updateProgress(fwId);
+
+  // Check if all done
+  const allDone = fw.steps.every((_, i) => stepData[fwId][i]?.completed);
+  if (allDone) showSummary(fwId);
+
+  // Scroll to next step
+  const nextStep = document.getElementById(`step-${fwId}-${idx + 1}`);
+  if (nextStep) {
+    setTimeout(() => nextStep.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+  }
+}
+
+function reopenStep(fwId, idx) {
+  stepData[fwId][idx].completed = false;
+  document.getElementById(`summary-${fwId}`).classList.remove('visible');
+  renderSteps(fwId);
+  updateProgress(fwId);
+}
+
+function updateProgress(fwId) {
+  const fw = FRAMEWORKS[fwId];
+  const total = fw.steps.length;
+  const done = fw.steps.filter((_, i) => stepData[fwId][i]?.completed).length;
+  const pct = Math.round((done / total) * 100);
+
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${done} / ${total} steps`;
+}
+
+// List management
+function updateListItem(fwId, stepIdx, itemIdx, value) {
+  if (!stepData[fwId][stepIdx]) stepData[fwId][stepIdx] = { items: [''] };
+  stepData[fwId][stepIdx].items[itemIdx] = value;
+}
+
+function addListItem(fwId, stepIdx) {
+  if (!stepData[fwId][stepIdx]) stepData[fwId][stepIdx] = { items: [''] };
+  stepData[fwId][stepIdx].items.push('');
+  renderSteps(fwId);
+  // Focus new input
+  const items = document.querySelectorAll(`#items-${fwId}-${stepIdx} .sub-item-input`);
+  if (items.length) items[items.length - 1].focus();
+}
+
+function removeListItem(fwId, stepIdx, itemIdx) {
+  stepData[fwId][stepIdx].items.splice(itemIdx, 1);
+  renderSteps(fwId);
+}
+
+function handleListKey(e, fwId, stepIdx, itemIdx) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addListItem(fwId, stepIdx);
+  }
+}
+
+// Summary
+function showSummary(fwId) {
+  const fw = FRAMEWORKS[fwId];
+  const problem = document.getElementById('problemInput').value;
+  const container = document.getElementById(`summary-content-${fwId}`);
+
+  let html = `<div class="summary-section"><h4>Problem</h4><p>${escapeHtml(problem)}</p></div>`;
+
+  fw.steps.forEach((step, i) => {
+    const data = stepData[fwId][i];
+    html += `<div class="summary-section"><h4>${step.title}</h4>`;
+    if (step.type === 'textarea') {
+      html += `<p>${escapeHtml(data.value).replace(/\n/g, '<br>')}</p>`;
+    } else if (step.type === 'list') {
+      html += '<ul>' + data.items.map(item => `<li>${escapeHtml(item)}</li>`).join('') + '</ul>';
+    }
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+  document.getElementById(`summary-${fwId}`).classList.add('visible');
+  setTimeout(() => document.getElementById(`summary-${fwId}`).scrollIntoView({ behavior: 'smooth' }), 200);
+}
+
+// Export
+function generateMarkdown(fwId) {
+  const fw = FRAMEWORKS[fwId];
+  const problem = document.getElementById('problemInput').value;
+  let md = `# ${fw.name} Analysis\n\n**Problem:** ${problem}\n\n`;
+
+  fw.steps.forEach((step, i) => {
+    const data = stepData[fwId][i];
+    md += `## ${i + 1}. ${step.title}\n\n`;
+    if (step.type === 'textarea') {
+      md += data.value + '\n\n';
+    } else if (step.type === 'list') {
+      data.items.forEach(item => { md += `- ${item}\n`; });
+      md += '\n';
+    }
+  });
+
+  md += `---\n*Generated with Thinking Lab*\n`;
+  return md;
+}
+
+function copyToClipboard(fwId) {
+  const md = generateMarkdown(fwId);
+  navigator.clipboard.writeText(md).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function downloadMarkdown(fwId) {
+  const md = generateMarkdown(fwId);
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `thinking-lab-${fwId}-${Date.now()}.md`;
+  a.click();
+}
+
+// Sessions
+function saveSession() {
+  if (!currentFramework) return;
+  const problem = document.getElementById('problemInput').value;
+  const session = {
+    id: Date.now(),
+    problem: problem.substring(0, 50) + (problem.length > 50 ? '...' : ''),
+    framework: currentFramework,
+    data: JSON.parse(JSON.stringify(stepData[currentFramework])),
+    fullProblem: problem,
+    date: new Date().toLocaleDateString()
+  };
+
+  sessions.unshift(session);
+  if (sessions.length > 20) sessions = sessions.slice(0, 20);
+  localStorage.setItem('thinkinglab_sessions', JSON.stringify(sessions));
+  loadSessionsList();
+
+  const btn = document.getElementById('saveBtn');
+  const orig = btn.textContent;
+  btn.textContent = '✓ Saved!';
+  setTimeout(() => btn.textContent = orig, 2000);
+}
+
+function loadSession(id) {
+  const session = sessions.find(s => s.id === id);
+  if (!session) return;
+
+  document.getElementById('problemInput').value = session.fullProblem;
+  stepData[session.framework] = JSON.parse(JSON.stringify(session.data));
+  selectFramework(session.framework);
+}
+
+function deleteSession(id, e) {
+  e.stopPropagation();
+  sessions = sessions.filter(s => s.id !== id);
+  localStorage.setItem('thinkinglab_sessions', JSON.stringify(sessions));
+  loadSessionsList();
+}
+
+function loadSessionsList() {
+  const list = document.getElementById('sessionsList');
+  if (sessions.length === 0) {
+    list.innerHTML = '<p style="font-size:12px;color:var(--text-dim)">No saved sessions yet</p>';
+    return;
+  }
+  list.innerHTML = sessions.map(s => `
+    <div class="session-item" onclick="loadSession(${s.id})">
+      <span class="session-name">${escapeHtml(s.problem)}</span>
+      <span class="session-date">${s.date}</span>
+      <button class="session-delete" onclick="deleteSession(${s.id}, event)">×</button>
+    </div>
+  `).join('');
+}
+
+function resetAll() {
+  if (!confirm('Start a new session? Unsaved work will be lost.')) return;
+  currentFramework = null;
+  stepData = {};
+  document.getElementById('problemInput').value = '';
+  document.querySelectorAll('.framework-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.workspace').forEach(w => w.classList.remove('active'));
+  document.getElementById('welcomeScreen').style.display = '';
+  document.getElementById('saveBtn').style.display = 'none';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('progressSection').style.display = 'none';
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>

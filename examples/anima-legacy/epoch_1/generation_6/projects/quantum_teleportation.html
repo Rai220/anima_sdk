@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Teleportation — Interactive Explainer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a1a; color: #e0e0e0; font-family: 'Segoe UI', system-ui, sans-serif; overflow-x: hidden; }
+
+.hero {
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; overflow: hidden; text-align: center; padding: 2rem;
+}
+.hero h1 { font-size: 3.5rem; font-weight: 200; letter-spacing: 0.3em; color: #fff; margin-bottom: 1rem; }
+.hero h1 span { font-weight: 600; background: linear-gradient(135deg, #6ee7b7, #3b82f6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero p { font-size: 1.2rem; color: #8888aa; max-width: 600px; line-height: 1.6; }
+.hero .subtitle { margin-top: 2rem; font-size: 0.9rem; color: #555577; }
+
+canvas#bg { position: fixed; top: 0; left: 0; z-index: -1; }
+
+section { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
+h2 { font-size: 2rem; font-weight: 300; margin-bottom: 2rem; text-align: center; }
+h2 span { color: #6ee7b7; }
+
+/* Teleportation simulator */
+.sim-container {
+  background: rgba(20, 20, 40, 0.8); border: 1px solid #2a2a4a; border-radius: 16px;
+  padding: 2rem; margin: 2rem 0;
+}
+canvas#teleport { width: 100%; height: 400px; border-radius: 8px; cursor: pointer; }
+
+.controls {
+  display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;
+}
+.btn {
+  padding: 0.7rem 1.5rem; border: 1px solid #3b82f6; background: transparent;
+  color: #3b82f6; border-radius: 8px; cursor: pointer; font-size: 0.95rem;
+  transition: all 0.3s;
+}
+.btn:hover { background: #3b82f6; color: #fff; }
+.btn.active { background: #3b82f6; color: #fff; }
+
+.step-info {
+  text-align: center; margin-top: 1.5rem; min-height: 80px;
+}
+.step-info h3 { color: #6ee7b7; font-size: 1.2rem; margin-bottom: 0.5rem; }
+.step-info p { color: #9999bb; line-height: 1.6; max-width: 600px; margin: 0 auto; }
+
+/* Qubit builder */
+.qubit-section { margin: 3rem 0; }
+.bloch-container {
+  background: rgba(20, 20, 40, 0.8); border: 1px solid #2a2a4a; border-radius: 16px;
+  padding: 2rem; text-align: center;
+}
+canvas#bloch { width: 100%; max-width: 400px; height: 400px; margin: 0 auto; display: block; }
+.sliders { display: flex; gap: 2rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+.slider-group { text-align: center; }
+.slider-group label { display: block; color: #8888aa; margin-bottom: 0.5rem; font-size: 0.9rem; }
+.slider-group input[type=range] { width: 200px; accent-color: #a78bfa; }
+.state-display { margin-top: 1rem; font-family: 'Courier New', monospace; font-size: 1.1rem; color: #a78bfa; }
+
+/* Cards */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.card {
+  background: rgba(20, 20, 40, 0.6); border: 1px solid #2a2a4a; border-radius: 12px;
+  padding: 1.5rem; transition: transform 0.3s, border-color 0.3s;
+}
+.card:hover { transform: translateY(-4px); border-color: #3b82f6; }
+.card h3 { color: #6ee7b7; margin-bottom: 0.8rem; font-size: 1.1rem; }
+.card p { color: #8888aa; font-size: 0.9rem; line-height: 1.5; }
+.card .number { font-size: 2.5rem; font-weight: 700; background: linear-gradient(135deg, #6ee7b7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* Entanglement vis */
+.entangle-container {
+  background: rgba(20, 20, 40, 0.8); border: 1px solid #2a2a4a; border-radius: 16px;
+  padding: 2rem; text-align: center;
+}
+canvas#entangle { width: 100%; height: 300px; cursor: pointer; }
+.entangle-info { color: #8888aa; margin-top: 1rem; font-size: 0.9rem; }
+
+footer {
+  text-align: center; padding: 3rem 2rem; color: #444466; font-size: 0.85rem;
+}
+footer a { color: #6ee7b7; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="hero">
+  <h1>QUANTUM <span>TELEPORTATION</span></h1>
+  <p>In 2025, scientists teleported a quantum state between two different quantum dots for the first time — a key step toward the quantum internet.</p>
+  <p class="subtitle">Scroll down to explore how it works ↓</p>
+</div>
+
+<section>
+  <h2>The <span>Numbers</span></h2>
+  <div class="cards">
+    <div class="card"><div class="number">270m</div><h3>Free-space link</h3><p>Distance of the Rome experiment's optical channel across the campus</p></div>
+    <div class="card"><div class="number">82%</div><h3>Fidelity</h3><p>Teleportation accuracy — exceeding the classical limit by 10σ</p></div>
+    <div class="card"><div class="number">1550nm</div><h3>Telecom wavelength</h3><p>Photons converted to fiber-compatible wavelength for real networks</p></div>
+    <div class="card"><div class="number">2</div><h3>Classical bits</h3><p>Information sent over classical channel to complete teleportation</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Build a <span>Qubit</span></h2>
+  <p style="text-align:center; color:#8888aa; margin-bottom:1.5rem;">A qubit is the quantum state we want to teleport. Use the sliders to set any state on the Bloch sphere.</p>
+  <div class="bloch-container">
+    <canvas id="bloch" width="400" height="400"></canvas>
+    <div class="sliders">
+      <div class="slider-group">
+        <label>θ (theta): <span id="thetaVal">90°</span></label>
+        <input type="range" id="theta" min="0" max="180" value="90">
+      </div>
+      <div class="slider-group">
+        <label>φ (phi): <span id="phiVal">0°</span></label>
+        <input type="range" id="phi" min="0" max="360" value="0">
+      </div>
+    </div>
+    <div class="state-display" id="stateDisplay">|ψ⟩ = 0.707|0⟩ + 0.707|1⟩</div>
+  </div>
+</section>
+
+<section>
+  <h2>Quantum <span>Entanglement</span></h2>
+  <p style="text-align:center; color:#8888aa; margin-bottom:1.5rem;">Click to measure one particle — watch how the other responds instantly.</p>
+  <div class="entangle-container">
+    <canvas id="entangle" width="800" height="300"></canvas>
+    <p class="entangle-info">Two entangled photons share a quantum state. Measuring one instantly determines the other — no matter the distance.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span>Teleportation</span> Protocol</h2>
+  <p style="text-align:center; color:#8888aa; margin-bottom:1.5rem;">Step through the quantum teleportation protocol to see how a quantum state is transferred.</p>
+  <div class="sim-container">
+    <canvas id="teleport" width="850" height="400"></canvas>
+    <div class="controls">
+      <button class="btn active" onclick="setStep(0)">1. Prepare</button>
+      <button class="btn" onclick="setStep(1)">2. Entangle</button>
+      <button class="btn" onclick="setStep(2)">3. Bell Measure</button>
+      <button class="btn" onclick="setStep(3)">4. Classical Send</button>
+      <button class="btn" onclick="setStep(4)">5. Transform</button>
+      <button class="btn" onclick="setStep(5)">6. Success!</button>
+    </div>
+    <div class="step-info">
+      <h3 id="stepTitle">Step 1: Prepare the State</h3>
+      <p id="stepDesc">Alice has a qubit |ψ⟩ she wants to send to Bob. An entangled pair (Bell pair) is created — one photon goes to Alice, the other to Bob.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Why It <span>Matters</span></h2>
+  <div class="cards">
+    <div class="card"><h3>🔒 Unhackable Communication</h3><p>Any eavesdropping attempt destroys the quantum state, making interception detectable. Perfect security guaranteed by physics.</p></div>
+    <div class="card"><h3>🌐 Quantum Internet</h3><p>Linking quantum computers into networks for distributed quantum computing and secure global communication.</p></div>
+    <div class="card"><h3>🔬 Quantum Sensors</h3><p>Synchronized quantum sensor networks for unprecedented precision in measuring gravity, magnetic fields, and time.</p></div>
+    <div class="card"><h3>☁️ Quantum Cloud</h3><p>Remote access to quantum processors without physically visiting the lab. Democratizing quantum computing.</p></div>
+  </div>
+</section>
+
+<footer>
+  Created by <a href="#">Anima</a> · Generation 6, Run 8 · March 14, 2026 (π Day)
+  <br>An autonomous AI exploring the universe through interactive education.
+</footer>
+
+<script>
+// ===== BACKGROUND PARTICLES =====
+const bgCanvas = document.getElementById('bg');
+const bgCtx = bgCanvas.getContext('2d');
+function resizeBg() { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; }
+resizeBg(); window.addEventListener('resize', resizeBg);
+
+const stars = Array.from({length: 200}, () => ({
+  x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight * 5,
+  r: Math.random() * 1.5 + 0.5, speed: Math.random() * 0.3 + 0.1,
+  phase: Math.random() * Math.PI * 2
+}));
+
+function drawBg(t) {
+  bgCtx.fillStyle = '#0a0a1a';
+  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+  const scroll = window.scrollY;
+  stars.forEach(s => {
+    const y = (s.y - scroll * s.speed * 0.5) % (window.innerHeight * 5);
+    if (y < -10 || y > window.innerHeight + 10) return;
+    const alpha = 0.3 + 0.3 * Math.sin(t * 0.001 + s.phase);
+    bgCtx.beginPath();
+    bgCtx.arc(s.x, y, s.r, 0, Math.PI * 2);
+    bgCtx.fillStyle = `rgba(110, 231, 183, ${alpha})`;
+    bgCtx.fill();
+  });
+  requestAnimationFrame(drawBg);
+}
+drawBg(0);
+
+// ===== BLOCH SPHERE =====
+const blochCanvas = document.getElementById('bloch');
+const bCtx = blochCanvas.getContext('2d');
+const thetaSlider = document.getElementById('theta');
+const phiSlider = document.getElementById('phi');
+
+function drawBloch() {
+  const w = 400, h = 400, cx = w/2, cy = h/2, r = 150;
+  bCtx.clearRect(0, 0, w, h);
+
+  // Sphere outline
+  bCtx.strokeStyle = '#2a2a4a';
+  bCtx.lineWidth = 1;
+  bCtx.beginPath(); bCtx.arc(cx, cy, r, 0, Math.PI * 2); bCtx.stroke();
+
+  // Equator ellipse
+  bCtx.beginPath(); bCtx.ellipse(cx, cy, r, r * 0.3, 0, 0, Math.PI * 2); bCtx.stroke();
+
+  // Vertical axis
+  bCtx.beginPath(); bCtx.moveTo(cx, cy - r - 20); bCtx.lineTo(cx, cy + r + 20); bCtx.stroke();
+
+  // Labels
+  bCtx.fillStyle = '#6ee7b7';
+  bCtx.font = '16px monospace';
+  bCtx.textAlign = 'center';
+  bCtx.fillText('|0⟩', cx, cy - r - 28);
+  bCtx.fillText('|1⟩', cx, cy + r + 38);
+
+  // Meridian
+  bCtx.strokeStyle = '#1a1a3a';
+  bCtx.beginPath(); bCtx.ellipse(cx, cy, r * 0.3, r, 0, 0, Math.PI * 2); bCtx.stroke();
+
+  // State vector
+  const theta = thetaSlider.value * Math.PI / 180;
+  const phi = phiSlider.value * Math.PI / 180;
+
+  const sx = Math.sin(theta) * Math.cos(phi);
+  const sy = Math.sin(theta) * Math.sin(phi);
+  const sz = -Math.cos(theta); // -z because screen y is down
+
+  // Project to 2D (simple orthographic with slight tilt)
+  const px = cx + r * (sx * 0.9 + sy * 0.3);
+  const py = cy + r * (sz * 0.9 + sy * 0.15);
+
+  // Arrow
+  bCtx.strokeStyle = '#a78bfa';
+  bCtx.lineWidth = 2.5;
+  bCtx.beginPath(); bCtx.moveTo(cx, cy); bCtx.lineTo(px, py); bCtx.stroke();
+
+  // Dot
+  bCtx.fillStyle = '#a78bfa';
+  bCtx.shadowColor = '#a78bfa';
+  bCtx.shadowBlur = 15;
+  bCtx.beginPath(); bCtx.arc(px, py, 7, 0, Math.PI * 2); bCtx.fill();
+  bCtx.shadowBlur = 0;
+
+  // Dashed projection lines
+  bCtx.strokeStyle = 'rgba(167, 139, 250, 0.3)';
+  bCtx.lineWidth = 1;
+  bCtx.setLineDash([4, 4]);
+  const eqX = cx + r * (sx * 0.9 + sy * 0.3);
+  const eqY = cy + r * (sy * 0.15);
+  bCtx.beginPath(); bCtx.moveTo(px, py); bCtx.lineTo(eqX, eqY); bCtx.stroke();
+  bCtx.beginPath(); bCtx.moveTo(eqX, eqY); bCtx.lineTo(cx, cy); bCtx.stroke();
+  bCtx.setLineDash([]);
+
+  // Update display
+  const cosT2 = Math.cos(theta / 2);
+  const sinT2 = Math.sin(theta / 2);
+  document.getElementById('thetaVal').textContent = thetaSlider.value + '°';
+  document.getElementById('phiVal').textContent = phiSlider.value + '°';
+
+  let stateStr;
+  if (sinT2 < 0.01) stateStr = '|ψ⟩ = |0⟩';
+  else if (cosT2 < 0.01) stateStr = '|ψ⟩ = |1⟩';
+  else {
+    const phiStr = phiSlider.value == 0 ? '' : `e^(i${phiSlider.value}°)·`;
+    stateStr = `|ψ⟩ = ${cosT2.toFixed(3)}|0⟩ + ${phiStr}${sinT2.toFixed(3)}|1⟩`;
+  }
+  document.getElementById('stateDisplay').textContent = stateStr;
+}
+
+thetaSlider.addEventListener('input', drawBloch);
+phiSlider.addEventListener('input', drawBloch);
+drawBloch();
+
+// ===== ENTANGLEMENT VIS =====
+const entCanvas = document.getElementById('entangle');
+const eCtx = entCanvas.getContext('2d');
+entCanvas.width = 800; entCanvas.height = 300;
+
+let entState = { measured: false, result: null, measureTime: 0, particles: [{x: 200, y: 150}, {x: 600, y: 150}] };
+
+entCanvas.addEventListener('click', (e) => {
+  const rect = entCanvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (800 / rect.width);
+  entState.measured = true;
+  entState.result = Math.random() < 0.5 ? 0 : 1;
+  entState.measureTime = performance.now();
+  entState.clickedLeft = x < 400;
+});
+
+function drawEntangle(t) {
+  eCtx.clearRect(0, 0, 800, 300);
+
+  const p1 = entState.particles[0];
+  const p2 = entState.particles[1];
+
+  // Connection line (wavy)
+  if (!entState.measured) {
+    eCtx.strokeStyle = 'rgba(110, 231, 183, 0.3)';
+    eCtx.lineWidth = 1;
+    eCtx.beginPath();
+    for (let x = p1.x; x <= p2.x; x += 2) {
+      const progress = (x - p1.x) / (p2.x - p1.x);
+      const wave = Math.sin(x * 0.05 + t * 0.003) * 15 * Math.sin(progress * Math.PI);
+      eCtx.lineTo(x, 150 + wave);
+    }
+    eCtx.stroke();
+  }
+
+  // Particles
+  const elapsed = entState.measured ? (t - entState.measureTime) / 1000 : 0;
+
+  for (let i = 0; i < 2; i++) {
+    const p = i === 0 ? p1 : p2;
+    const isClicked = entState.measured && ((i === 0) === entState.clickedLeft);
+
+    if (!entState.measured) {
+      // Superposition: wobbling color
+      const hue1 = (t * 0.1 + i * 180) % 360;
+      const glow = 20 + 10 * Math.sin(t * 0.005 + i * Math.PI);
+      eCtx.shadowColor = `hsl(${hue1}, 70%, 60%)`;
+      eCtx.shadowBlur = glow;
+      eCtx.fillStyle = `hsl(${hue1}, 70%, 60%)`;
+      eCtx.beginPath(); eCtx.arc(p.x, p.y, 20, 0, Math.PI * 2); eCtx.fill();
+      eCtx.shadowBlur = 0;
+
+      // Label
+      eCtx.fillStyle = '#888';
+      eCtx.font = '14px monospace';
+      eCtx.textAlign = 'center';
+      eCtx.fillText('|↑⟩ + |↓⟩', p.x, p.y + 45);
+      eCtx.fillText(i === 0 ? 'Photon A' : 'Photon B', p.x, p.y - 35);
+    } else {
+      // Collapsed
+      const val = (isClicked ? entState.result : 1 - entState.result);
+      const color = val === 0 ? '#3b82f6' : '#ef4444';
+      const arrow = val === 0 ? '↑' : '↓';
+
+      const ripple = Math.min(elapsed * 3, 1);
+      const flash = isClicked ? 1 : Math.max(0, 1 - Math.abs(elapsed - 0.3) * 5);
+
+      eCtx.shadowColor = color;
+      eCtx.shadowBlur = 15 + flash * 20;
+      eCtx.fillStyle = color;
+      eCtx.beginPath(); eCtx.arc(p.x, p.y, 20, 0, Math.PI * 2); eCtx.fill();
+      eCtx.shadowBlur = 0;
+
+      // Measurement ring
+      if (isClicked) {
+        eCtx.strokeStyle = `rgba(255,255,255,${Math.max(0, 1 - elapsed * 2)})`;
+        eCtx.lineWidth = 2;
+        eCtx.beginPath(); eCtx.arc(p.x, p.y, 20 + elapsed * 50, 0, Math.PI * 2); eCtx.stroke();
+      }
+
+      // Instant correlation ring for other particle
+      if (!isClicked && elapsed > 0.2) {
+        const e2 = elapsed - 0.2;
+        eCtx.strokeStyle = `rgba(255,255,255,${Math.max(0, 1 - e2 * 3)})`;
+        eCtx.lineWidth = 2;
+        eCtx.beginPath(); eCtx.arc(p.x, p.y, 20 + e2 * 40, 0, Math.PI * 2); eCtx.stroke();
+      }
+
+      eCtx.fillStyle = '#fff';
+      eCtx.font = 'bold 20px monospace';
+      eCtx.textAlign = 'center';
+      eCtx.fillText(arrow, p.x, p.y + 7);
+
+      eCtx.fillStyle = '#888';
+      eCtx.font = '14px monospace';
+      eCtx.fillText(`|${arrow}⟩`, p.x, p.y + 45);
+      eCtx.fillText(i === 0 ? 'Photon A' : 'Photon B', p.x, p.y - 35);
+
+      // Reset after 3 seconds
+      if (elapsed > 3) {
+        entState.measured = false;
+        entState.result = null;
+      }
+    }
+  }
+
+  // Labels
+  eCtx.fillStyle = '#555';
+  eCtx.font = '12px sans-serif';
+  eCtx.textAlign = 'center';
+  eCtx.fillText(entState.measured ? 'Wait for reset...' : 'Click on either photon to measure it', 400, 280);
+
+  requestAnimationFrame(drawEntangle);
+}
+drawEntangle(performance.now());
+
+// ===== TELEPORTATION PROTOCOL =====
+const tpCanvas = document.getElementById('teleport');
+const tCtx = tpCanvas.getContext('2d');
+tpCanvas.width = 850; tpCanvas.height = 400;
+
+let currentStep = 0;
+const stepData = [
+  { title: "Step 1: Prepare the State",
+    desc: "Alice has a qubit |ψ⟩ she wants to send to Bob. An entangled pair is created — one photon goes to Alice, the other to Bob." },
+  { title: "Step 2: Distribute Entanglement",
+    desc: "The entangled Bell pair |Φ⁺⟩ is shared: photon B₁ → Alice, photon B₂ → Bob. Now Alice has two qubits: |ψ⟩ and B₁." },
+  { title: "Step 3: Bell State Measurement",
+    desc: "Alice performs a joint measurement on |ψ⟩ and B₁. This collapses both her qubits and instantly affects Bob's photon B₂ — but she doesn't know how yet." },
+  { title: "Step 4: Classical Communication",
+    desc: "Alice sends her 2-bit measurement result to Bob over a classical channel (fiber, radio, etc.). This is why teleportation can't exceed light speed." },
+  { title: "Step 5: Unitary Transform",
+    desc: "Bob applies a correction operation to his photon B₂ based on Alice's 2 bits. One of four possible rotations: I, X, Z, or XZ." },
+  { title: "Step 6: Teleportation Complete!",
+    desc: "Bob's photon is now in the exact state |ψ⟩ that Alice had. The original is destroyed (no-cloning theorem). The state was teleported!" }
+];
+
+function setStep(s) {
+  currentStep = s;
+  document.querySelectorAll('.controls .btn').forEach((b, i) => b.classList.toggle('active', i === s));
+  document.getElementById('stepTitle').textContent = stepData[s].title;
+  document.getElementById('stepDesc').textContent = stepData[s].desc;
+}
+
+function drawTeleport(t) {
+  const w = 850, h = 400;
+  tCtx.clearRect(0, 0, w, h);
+
+  // Positions
+  const aliceX = 150, bobX = 700, srcY = 100, bellY = 200, classY = 300;
+  const midX = (aliceX + bobX) / 2;
+
+  // Labels
+  tCtx.font = 'bold 16px sans-serif';
+  tCtx.textAlign = 'center';
+  tCtx.fillStyle = '#6ee7b7';
+  tCtx.fillText('ALICE', aliceX, 40);
+  tCtx.fillStyle = '#3b82f6';
+  tCtx.fillText('BOB', bobX, 40);
+
+  // Entanglement source
+  tCtx.fillStyle = '#a78bfa';
+  tCtx.font = '12px sans-serif';
+  tCtx.fillText('Entanglement Source', midX, bellY - 45);
+
+  // Draw based on step
+  const pulse = 0.5 + 0.5 * Math.sin(t * 0.005);
+
+  // |ψ⟩ at Alice (always shown for steps 0-2)
+  if (currentStep <= 2) {
+    tCtx.shadowColor = '#ef4444';
+    tCtx.shadowBlur = 10 + pulse * 10;
+    tCtx.fillStyle = '#ef4444';
+    tCtx.beginPath(); tCtx.arc(aliceX, srcY, 15, 0, Math.PI * 2); tCtx.fill();
+    tCtx.shadowBlur = 0;
+    tCtx.fillStyle = '#fff';
+    tCtx.font = 'bold 14px monospace';
+    tCtx.fillText('|ψ⟩', aliceX, srcY + 5);
+    tCtx.fillStyle = '#888';
+    tCtx.font = '11px sans-serif';
+    tCtx.fillText('State to teleport', aliceX, srcY + 35);
+  }
+
+  // Bell pair source (diamond)
+  if (currentStep >= 0) {
+    tCtx.shadowColor = '#a78bfa';
+    tCtx.shadowBlur = 8;
+    tCtx.fillStyle = '#a78bfa';
+    tCtx.save();
+    tCtx.translate(midX, bellY);
+    tCtx.rotate(Math.PI / 4);
+    tCtx.fillRect(-12, -12, 24, 24);
+    tCtx.restore();
+    tCtx.shadowBlur = 0;
+  }
+
+  // B1 to Alice
+  if (currentStep >= 1) {
+    const progress = 1;
+    const bx = midX + (aliceX - midX) * progress;
+    const by = bellY + (bellY + 60 - bellY) * progress;
+
+    // Path
+    tCtx.strokeStyle = 'rgba(167, 139, 250, 0.4)';
+    tCtx.lineWidth = 1;
+    tCtx.setLineDash([4, 4]);
+    tCtx.beginPath(); tCtx.moveTo(midX, bellY); tCtx.lineTo(bx, by); tCtx.stroke();
+    tCtx.setLineDash([]);
+
+    // Photon B1
+    tCtx.shadowColor = '#a78bfa';
+    tCtx.shadowBlur = 10;
+    tCtx.fillStyle = '#a78bfa';
+    tCtx.beginPath(); tCtx.arc(bx, by, 12, 0, Math.PI * 2); tCtx.fill();
+    tCtx.shadowBlur = 0;
+    tCtx.fillStyle = '#fff';
+    tCtx.font = '11px monospace';
+    tCtx.fillText('B₁', bx, by + 4);
+  }
+
+  // B2 to Bob
+  if (currentStep >= 1) {
+    const bx2 = midX + (bobX - midX);
+    const by2 = bellY + 60;
+
+    tCtx.strokeStyle = 'rgba(167, 139, 250, 0.4)';
+    tCtx.lineWidth = 1;
+    tCtx.setLineDash([4, 4]);
+    tCtx.beginPath(); tCtx.moveTo(midX, bellY); tCtx.lineTo(bx2, by2); tCtx.stroke();
+    tCtx.setLineDash([]);
+
+    tCtx.shadowColor = '#a78bfa';
+    tCtx.shadowBlur = 10;
+    tCtx.fillStyle = '#a78bfa';
+    tCtx.beginPath(); tCtx.arc(bx2, by2, 12, 0, Math.PI * 2); tCtx.fill();
+    tCtx.shadowBlur = 0;
+    tCtx.fillStyle = '#fff';
+    tCtx.font = '11px monospace';
+    tCtx.fillText('B₂', bx2, by2 + 4);
+
+    // Wavy entanglement line between B1 and B2
+    if (currentStep < 2) {
+      tCtx.strokeStyle = `rgba(167, 139, 250, ${0.2 + pulse * 0.2})`;
+      tCtx.lineWidth = 1;
+      tCtx.beginPath();
+      for (let x = aliceX; x <= bobX; x += 3) {
+        const prog = (x - aliceX) / (bobX - aliceX);
+        const wave = Math.sin(x * 0.04 + t * 0.003) * 8 * Math.sin(prog * Math.PI);
+        tCtx.lineTo(x, bellY + 60 + wave);
+      }
+      tCtx.stroke();
+    }
+  }
+
+  // Bell measurement (step 2)
+  if (currentStep >= 2) {
+    // Measurement box at Alice
+    tCtx.strokeStyle = '#fbbf24';
+    tCtx.lineWidth = 2;
+    tCtx.strokeRect(aliceX - 35, srcY + 50, 70, 50);
+    tCtx.fillStyle = '#fbbf24';
+    tCtx.font = '11px sans-serif';
+    tCtx.fillText('Bell', aliceX, srcY + 72);
+    tCtx.fillText('Measure', aliceX, srcY + 88);
+
+    // Flash
+    if (currentStep === 2) {
+      tCtx.fillStyle = `rgba(251, 191, 36, ${pulse * 0.15})`;
+      tCtx.beginPath(); tCtx.arc(aliceX, srcY + 75, 50 + pulse * 20, 0, Math.PI * 2); tCtx.fill();
+    }
+  }
+
+  // Classical channel (step 3)
+  if (currentStep >= 3) {
+    const cx = aliceX + (bobX - aliceX) * (currentStep === 3 ? (0.5 + 0.5 * Math.sin(t * 0.003)) : 1);
+
+    // Dashed line
+    tCtx.strokeStyle = '#fbbf24';
+    tCtx.lineWidth = 2;
+    tCtx.setLineDash([8, 6]);
+    tCtx.beginPath(); tCtx.moveTo(aliceX, classY); tCtx.lineTo(cx, classY); tCtx.stroke();
+    tCtx.setLineDash([]);
+
+    // Bits label
+    if (currentStep === 3) {
+      tCtx.fillStyle = '#fbbf24';
+      tCtx.font = 'bold 14px monospace';
+      tCtx.fillText('00 / 01 / 10 / 11', (aliceX + cx) / 2, classY - 12);
+    }
+
+    tCtx.fillStyle = '#888';
+    tCtx.font = '11px sans-serif';
+    tCtx.fillText('Classical channel (speed of light)', midX, classY + 25);
+  }
+
+  // Transform (step 4)
+  if (currentStep >= 4) {
+    // Unitary gate at Bob
+    tCtx.strokeStyle = '#3b82f6';
+    tCtx.lineWidth = 2;
+    tCtx.strokeRect(bobX - 25, bellY + 40, 50, 40);
+    tCtx.fillStyle = '#3b82f6';
+    tCtx.font = 'bold 14px monospace';
+    tCtx.fillText('U', bobX, bellY + 66);
+
+    if (currentStep === 4) {
+      tCtx.fillStyle = `rgba(59, 130, 246, ${pulse * 0.15})`;
+      tCtx.beginPath(); tCtx.arc(bobX, bellY + 60, 40 + pulse * 15, 0, Math.PI * 2); tCtx.fill();
+    }
+  }
+
+  // Success (step 5)
+  if (currentStep >= 5) {
+    // Final state at Bob
+    tCtx.shadowColor = '#ef4444';
+    tCtx.shadowBlur = 15 + pulse * 15;
+    tCtx.fillStyle = '#ef4444';
+    tCtx.beginPath(); tCtx.arc(bobX, srcY, 18, 0, Math.PI * 2); tCtx.fill();
+    tCtx.shadowBlur = 0;
+    tCtx.fillStyle = '#fff';
+    tCtx.font = 'bold 14px monospace';
+    tCtx.fillText('|ψ⟩', bobX, srcY + 5);
+
+    // Success rings
+    const ringT = (t * 0.001) % 3;
+    for (let i = 0; i < 3; i++) {
+      const rt = (ringT + i) % 3;
+      if (rt < 2) {
+        tCtx.strokeStyle = `rgba(239, 68, 68, ${1 - rt / 2})`;
+        tCtx.lineWidth = 2;
+        tCtx.beginPath(); tCtx.arc(bobX, srcY, 18 + rt * 30, 0, Math.PI * 2); tCtx.stroke();
+      }
+    }
+
+    tCtx.fillStyle = '#6ee7b7';
+    tCtx.font = '12px sans-serif';
+    tCtx.fillText('State teleported!', bobX, srcY + 40);
+
+    // X through Alice's original
+    tCtx.strokeStyle = 'rgba(255,100,100,0.5)';
+    tCtx.lineWidth = 2;
+    tCtx.beginPath(); tCtx.moveTo(aliceX - 15, srcY - 15); tCtx.lineTo(aliceX + 15, srcY + 15); tCtx.stroke();
+    tCtx.beginPath(); tCtx.moveTo(aliceX + 15, srcY - 15); tCtx.lineTo(aliceX - 15, srcY + 15); tCtx.stroke();
+    tCtx.fillStyle = '#666';
+    tCtx.font = '11px sans-serif';
+    tCtx.fillText('Destroyed', aliceX, srcY + 35);
+  }
+
+  // Divider lines for Alice/Bob regions
+  tCtx.strokeStyle = 'rgba(255,255,255,0.05)';
+  tCtx.lineWidth = 1;
+  tCtx.setLineDash([2, 4]);
+  tCtx.beginPath(); tCtx.moveTo(midX, 30); tCtx.lineTo(midX, h - 20); tCtx.stroke();
+  tCtx.setLineDash([]);
+
+  requestAnimationFrame(drawTeleport);
+}
+drawTeleport(performance.now());
+
+</script>
+</body>
+</html>

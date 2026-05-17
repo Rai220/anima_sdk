@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encoder / Decoder</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --bg: #fafafa; --surface: #fff; --text: #1a1a1a; --muted: #666; --border: #e5e7eb; --accent: #6d28d9; --accent-light: #ede9fe; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
+.subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 16px; }
+
+.modes { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.mode-btn {
+  padding: 6px 14px; border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface); cursor: pointer; font-size: 0.78rem; transition: all 0.15s;
+}
+.mode-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mode-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+.pane { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+.pane-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 12px; background: var(--bg); border-bottom: 1px solid var(--border);
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted);
+}
+textarea {
+  width: 100%; height: 140px; padding: 12px; border: none; outline: none;
+  font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem; resize: vertical;
+  line-height: 1.5; background: var(--surface);
+}
+
+.actions { display: flex; gap: 6px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+button { padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 0.8rem; transition: all 0.15s; }
+button:hover { border-color: var(--accent); color: var(--accent); }
+button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+button.primary:hover { opacity: 0.9; }
+.sep { width: 1px; height: 24px; background: var(--border); }
+
+.info { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; padding: 8px 12px; background: var(--accent-light); border-radius: 6px; }
+
+/* JWT sections */
+.jwt-section { margin-top: 8px; }
+.jwt-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.jwt-content { padding: 8px 12px; background: #f3f4f6; border-radius: 6px; font-family: monospace; font-size: 0.8rem; white-space: pre-wrap; word-break: break-word; margin-bottom: 8px; }
+.jwt-header { border-left: 3px solid #ef4444; }
+.jwt-payload { border-left: 3px solid #3b82f6; }
+.jwt-sig { border-left: 3px solid #22c55e; }
+
+.hash-grid { display: grid; gap: 6px; }
+.hash-row { display: flex; gap: 8px; align-items: flex-start; font-size: 0.8rem; }
+.hash-name { min-width: 70px; font-weight: 600; color: var(--muted); text-align: right; flex-shrink: 0; padding-top: 2px; }
+.hash-value { font-family: monospace; word-break: break-all; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: background 0.1s; }
+.hash-value:hover { background: var(--accent-light); }
+.nav-back { display:block; font-size:0.7rem; margin-bottom:8px; } .nav-back a { color:var(--muted); text-decoration:none; } .nav-back a:hover { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="nav-back"><a href="index.html">← Micro Tools</a></div>
+  <h1>Encoder / Decoder</h1>
+  <p class="subtitle">Base64, URL, HTML, Hex, Unicode, JWT, Hashes — all in one</p>
+
+  <div class="modes" id="modes"></div>
+
+  <div class="pane">
+    <div class="pane-header"><span>Input</span><span id="input-len"></span></div>
+    <textarea id="input" spellcheck="false" placeholder="Type or paste text here..."></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="primary" onclick="encode()">Encode ↓</button>
+    <button class="primary" onclick="decode()">Decode ↑</button>
+    <div class="sep"></div>
+    <button onclick="swap()">Swap ⇅</button>
+    <button onclick="copyOutput()">Copy Output</button>
+    <button onclick="clear()">Clear</button>
+  </div>
+
+  <div class="info" id="info" style="display:none"></div>
+
+  <div class="pane">
+    <div class="pane-header"><span>Output</span><span id="output-len"></span></div>
+    <textarea id="output" spellcheck="false" placeholder="Result appears here..." readonly></textarea>
+  </div>
+
+  <div id="extra"></div>
+</div>
+
+<script>
+const MODES = [
+  { id: 'base64', name: 'Base64' },
+  { id: 'url', name: 'URL' },
+  { id: 'html', name: 'HTML Entities' },
+  { id: 'hex', name: 'Hex' },
+  { id: 'binary', name: 'Binary' },
+  { id: 'unicode', name: 'Unicode Escape' },
+  { id: 'rot13', name: 'ROT13' },
+  { id: 'jwt', name: 'JWT Decode' },
+  { id: 'hash', name: 'Hashes' },
+];
+
+let currentMode = 'base64';
+const inputEl = document.getElementById('input');
+const outputEl = document.getElementById('output');
+const infoEl = document.getElementById('info');
+const extraEl = document.getElementById('extra');
+const modesEl = document.getElementById('modes');
+
+modesEl.innerHTML = MODES.map(m =>
+  `<button class="mode-btn ${m.id === currentMode ? 'active' : ''}" data-mode="${m.id}">${m.name}</button>`
+).join('');
+
+modesEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.mode-btn');
+  if (!btn) return;
+  currentMode = btn.dataset.mode;
+  modesEl.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  outputEl.value = '';
+  infoEl.style.display = 'none';
+  extraEl.innerHTML = '';
+  outputEl.readOnly = currentMode === 'jwt' || currentMode === 'hash';
+});
+
+inputEl.addEventListener('input', () => {
+  document.getElementById('input-len').textContent = inputEl.value.length + ' chars';
+  // Auto-encode for some modes
+  if (['jwt', 'hash'].includes(currentMode)) encode();
+});
+
+function encode() {
+  const text = inputEl.value;
+  infoEl.style.display = 'none';
+  extraEl.innerHTML = '';
+
+  try {
+    let result;
+    switch (currentMode) {
+      case 'base64':
+        result = btoa(unescape(encodeURIComponent(text)));
+        break;
+      case 'url':
+        result = encodeURIComponent(text);
+        break;
+      case 'html':
+        result = text.replace(/[&<>"'\/]/g, c => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;'
+        })[c] || c);
+        break;
+      case 'hex':
+        result = [...new TextEncoder().encode(text)].map(b => b.toString(16).padStart(2, '0')).join(' ');
+        break;
+      case 'binary':
+        result = [...new TextEncoder().encode(text)].map(b => b.toString(2).padStart(8, '0')).join(' ');
+        break;
+      case 'unicode':
+        result = [...text].map(c => {
+          const cp = c.codePointAt(0);
+          return cp > 127 ? (cp > 0xFFFF ? `\\u{${cp.toString(16)}}` : `\\u${cp.toString(16).padStart(4, '0')}`) : c;
+        }).join('');
+        break;
+      case 'rot13':
+        result = text.replace(/[a-zA-Z]/g, c => {
+          const base = c <= 'Z' ? 65 : 97;
+          return String.fromCharCode(((c.charCodeAt(0) - base + 13) % 26) + base);
+        });
+        break;
+      case 'jwt':
+        decodeJWT(text);
+        return;
+      case 'hash':
+        computeHashes(text);
+        return;
+    }
+    outputEl.value = result;
+    document.getElementById('output-len').textContent = result.length + ' chars';
+  } catch (e) {
+    outputEl.value = '';
+    infoEl.textContent = 'Error: ' + e.message;
+    infoEl.style.display = 'block';
+  }
+}
+
+function decode() {
+  const text = inputEl.value;
+  infoEl.style.display = 'none';
+  extraEl.innerHTML = '';
+
+  try {
+    let result;
+    switch (currentMode) {
+      case 'base64':
+        result = decodeURIComponent(escape(atob(text.trim())));
+        break;
+      case 'url':
+        result = decodeURIComponent(text);
+        break;
+      case 'html':
+        const el = document.createElement('div');
+        el.innerHTML = text;
+        result = el.textContent;
+        break;
+      case 'hex':
+        const hexBytes = text.trim().split(/\s+/).map(h => parseInt(h, 16));
+        result = new TextDecoder().decode(new Uint8Array(hexBytes));
+        break;
+      case 'binary':
+        const binBytes = text.trim().split(/\s+/).map(b => parseInt(b, 2));
+        result = new TextDecoder().decode(new Uint8Array(binBytes));
+        break;
+      case 'unicode':
+        result = text.replace(/\\u\{([0-9a-fA-F]+)\}|\\u([0-9a-fA-F]{4})/g, (_, p1, p2) =>
+          String.fromCodePoint(parseInt(p1 || p2, 16))
+        );
+        break;
+      case 'rot13':
+        encode(); // ROT13 is its own inverse
+        return;
+      case 'jwt':
+        decodeJWT(text);
+        return;
+      case 'hash':
+        infoEl.textContent = 'Hashes are one-way — cannot decode';
+        infoEl.style.display = 'block';
+        return;
+    }
+    outputEl.value = result;
+    document.getElementById('output-len').textContent = result.length + ' chars';
+  } catch (e) {
+    outputEl.value = '';
+    infoEl.textContent = 'Error: ' + e.message;
+    infoEl.style.display = 'block';
+  }
+}
+
+function decodeJWT(token) {
+  const parts = token.trim().split('.');
+  if (parts.length < 2) {
+    infoEl.textContent = 'Not a valid JWT — expected 3 dot-separated parts';
+    infoEl.style.display = 'block';
+    outputEl.value = '';
+    return;
+  }
+
+  try {
+    const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+    outputEl.value = JSON.stringify(payload, null, 2);
+    document.getElementById('output-len').textContent = '';
+
+    // Time fields
+    let timeInfo = '';
+    if (payload.exp) {
+      const exp = new Date(payload.exp * 1000);
+      const expired = exp < new Date();
+      timeInfo += `Expires: ${exp.toISOString()} (${expired ? 'EXPIRED' : 'valid'})\n`;
+    }
+    if (payload.iat) timeInfo += `Issued: ${new Date(payload.iat * 1000).toISOString()}\n`;
+    if (payload.nbf) timeInfo += `Not before: ${new Date(payload.nbf * 1000).toISOString()}\n`;
+
+    if (timeInfo) { infoEl.textContent = timeInfo.trim(); infoEl.style.display = 'block'; }
+
+    extraEl.innerHTML = `
+      <div class="jwt-section">
+        <div class="jwt-label">Header</div>
+        <div class="jwt-content jwt-header">${escapeHtml(JSON.stringify(header, null, 2))}</div>
+        <div class="jwt-label">Payload</div>
+        <div class="jwt-content jwt-payload">${escapeHtml(JSON.stringify(payload, null, 2))}</div>
+        <div class="jwt-label">Signature</div>
+        <div class="jwt-content jwt-sig">${parts[2] || '(none)'}</div>
+      </div>
+    `;
+  } catch (e) {
+    infoEl.textContent = 'Error decoding JWT: ' + e.message;
+    infoEl.style.display = 'block';
+  }
+}
+
+async function computeHashes(text) {
+  const data = new TextEncoder().encode(text);
+  const algos = [
+    ['SHA-1', 'SHA-1'],
+    ['SHA-256', 'SHA-256'],
+    ['SHA-384', 'SHA-384'],
+    ['SHA-512', 'SHA-512'],
+  ];
+
+  const results = [];
+  for (const [name, algo] of algos) {
+    try {
+      const buf = await crypto.subtle.digest(algo, data);
+      const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+      results.push([name, hex]);
+    } catch (e) {
+      results.push([name, 'Error: ' + e.message]);
+    }
+  }
+
+  outputEl.value = results.map(([n, h]) => `${n}: ${h}`).join('\n');
+  document.getElementById('output-len').textContent = '';
+
+  extraEl.innerHTML = `<div class="pane" style="margin-top:12px;padding:12px">
+    <div class="hash-grid">${results.map(([name, hash]) =>
+      `<div class="hash-row">
+        <span class="hash-name">${name}</span>
+        <span class="hash-value" onclick="navigator.clipboard.writeText('${hash}');this.style.background='var(--accent-light)'">${hash}</span>
+      </div>`
+    ).join('')}</div>
+  </div>`;
+}
+
+function swap() {
+  const tmp = inputEl.value;
+  inputEl.value = outputEl.value;
+  outputEl.value = tmp;
+  document.getElementById('input-len').textContent = inputEl.value.length + ' chars';
+  document.getElementById('output-len').textContent = outputEl.value.length + ' chars';
+}
+
+function copyOutput() {
+  const text = outputEl.value;
+  if (text) {
+    navigator.clipboard.writeText(text);
+    infoEl.textContent = 'Copied!';
+    infoEl.style.display = 'block';
+    setTimeout(() => infoEl.style.display = 'none', 1200);
+  }
+}
+
+function clear() {
+  inputEl.value = ''; outputEl.value = '';
+  infoEl.style.display = 'none'; extraEl.innerHTML = '';
+  document.getElementById('input-len').textContent = '';
+  document.getElementById('output-len').textContent = '';
+}
+
+function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+// Sample
+inputEl.value = 'Hello, World! 🌍';
+document.getElementById('input-len').textContent = '17 chars';
+</script>
+</body>
+</html>

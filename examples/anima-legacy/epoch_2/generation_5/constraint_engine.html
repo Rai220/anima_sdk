@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ограничитель</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Georgia', serif;
+  background: #1a1a1a;
+  color: #e0d8c8;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+h1 {
+  font-size: 2.2em;
+  font-weight: normal;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  color: #c8b89a;
+}
+
+.subtitle {
+  font-size: 0.95em;
+  color: #8a7e6e;
+  margin-bottom: 40px;
+  text-align: center;
+  max-width: 500px;
+  line-height: 1.5;
+}
+
+.domain-selector {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.domain-btn {
+  background: transparent;
+  border: 1px solid #4a4438;
+  color: #a89878;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 2px;
+}
+
+.domain-btn:hover {
+  border-color: #8a7e6e;
+  color: #e0d8c8;
+}
+
+.domain-btn.active {
+  border-color: #c8b89a;
+  color: #c8b89a;
+  background: rgba(200, 184, 154, 0.08);
+}
+
+.intensity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
+  color: #8a7e6e;
+  font-size: 0.9em;
+}
+
+.intensity label { white-space: nowrap; }
+
+.intensity input[type="range"] {
+  -webkit-appearance: none;
+  width: 200px;
+  height: 2px;
+  background: #4a4438;
+  outline: none;
+}
+
+.intensity input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #c8b89a;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.intensity-label {
+  min-width: 80px;
+  text-align: right;
+  color: #a89878;
+}
+
+#generate-btn {
+  background: transparent;
+  border: 2px solid #c8b89a;
+  color: #c8b89a;
+  padding: 14px 40px;
+  font-family: inherit;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 40px;
+  letter-spacing: 0.08em;
+}
+
+#generate-btn:hover {
+  background: rgba(200, 184, 154, 0.1);
+}
+
+#generate-btn:active {
+  transform: scale(0.98);
+}
+
+.constraints-container {
+  width: 100%;
+  max-width: 640px;
+}
+
+.constraint-card {
+  border-left: 2px solid #4a4438;
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.constraint-card:nth-child(1) { animation-delay: 0.0s; }
+.constraint-card:nth-child(2) { animation-delay: 0.15s; }
+.constraint-card:nth-child(3) { animation-delay: 0.3s; }
+.constraint-card:nth-child(4) { animation-delay: 0.45s; }
+.constraint-card:nth-child(5) { animation-delay: 0.6s; }
+
+@keyframes fadeIn {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.constraint-type {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #6a6258;
+  margin-bottom: 6px;
+}
+
+.constraint-text {
+  font-size: 1.05em;
+  line-height: 1.6;
+  color: #d0c8b8;
+}
+
+.constraint-why {
+  font-size: 0.85em;
+  color: #7a7268;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.reroll {
+  background: none;
+  border: none;
+  color: #6a6258;
+  cursor: pointer;
+  font-size: 0.8em;
+  margin-top: 6px;
+  padding: 2px 0;
+  font-family: inherit;
+}
+
+.reroll:hover { color: #a89878; }
+
+.history {
+  margin-top: 50px;
+  width: 100%;
+  max-width: 640px;
+  border-top: 1px solid #2a2a28;
+  padding-top: 20px;
+}
+
+.history h3 {
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #5a5448;
+  margin-bottom: 12px;
+  font-weight: normal;
+}
+
+.history-item {
+  font-size: 0.85em;
+  color: #6a6258;
+  padding: 6px 0;
+  border-bottom: 1px solid #222220;
+  cursor: pointer;
+}
+
+.history-item:hover { color: #a89878; }
+
+.footer {
+  margin-top: 60px;
+  font-size: 0.8em;
+  color: #4a4438;
+  text-align: center;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<h1>Ограничитель</h1>
+<p class="subtitle">Ограничение порождает форму. Двенадцать нот — не бедность, а необходимость. Выбери область и получи набор ограничений для работы.</p>
+
+<div class="domain-selector">
+  <button class="domain-btn active" data-domain="text">Текст</button>
+  <button class="domain-btn" data-domain="code">Код</button>
+  <button class="domain-btn" data-domain="visual">Визуальное</button>
+  <button class="domain-btn" data-domain="music">Музыка</button>
+  <button class="domain-btn" data-domain="game">Игра</button>
+  <button class="domain-btn" data-domain="any">Любое</button>
+</div>
+
+<div class="intensity">
+  <label>Жёсткость:</label>
+  <input type="range" id="intensity-slider" min="1" max="5" value="3">
+  <span class="intensity-label" id="intensity-text">средняя</span>
+</div>
+
+<button id="generate-btn">Ограничить</button>
+
+<div class="constraints-container" id="constraints"></div>
+
+<div class="history" id="history-section" style="display:none;">
+  <h3>Предыдущие наборы</h3>
+  <div id="history-list"></div>
+</div>
+
+<div class="footer">
+  Anima · generation 5 · epoch 2<br>
+  Ограничение фундаментальнее системы
+</div>
+
+<script>
+const CONSTRAINTS = {
+  text: {
+    форма: [
+      { text: "Максимум 100 слов", why: "Краткость вынуждает выбирать, а не описывать" },
+      { text: "Только диалог, без авторской речи", why: "Характер проявляется через то, что человек говорит, а не через то, что автор о нём думает" },
+      { text: "Один абзац", why: "Невозможно спрятаться за структурой" },
+      { text: "Каждое предложение — отдельная строка", why: "Стихотворный ритм проникает в прозу" },
+      { text: "Не больше трёх прилагательных на весь текст", why: "Существительные и глаголы честнее" },
+      { text: "Все предложения — вопросы", why: "Текст, который спрашивает, не может быть декларативным" },
+      { text: "Ровно 7 предложений", why: "Форма сонета, сжатая до прозы" },
+      { text: "Без абстрактных существительных", why: "Если нельзя потрогать — нельзя написать" },
+      { text: "Текст умещается на экране телефона", why: "Пишешь для того, кто читает на ходу" },
+      { text: "Каждый абзац начинается с глагола", why: "Действие раньше контекста" },
+    ],
+    материал: [
+      { text: "Всё происходит в одной комнате", why: "Ограничение пространства усиливает время" },
+      { text: "Два персонажа, которые не могут видеть друг друга", why: "Контакт без визуального канала" },
+      { text: "Действие длится ровно одну минуту", why: "Микроскоп вместо телескопа" },
+      { text: "Главный герой — предмет, а не человек", why: "Человеческое видно лучше, когда смотришь не прямо" },
+      { text: "Середина истории известна, начало и конец — нет", why: "Работа от центра наружу" },
+      { text: "Ни одного имени собственного", why: "Универсальность через анонимность" },
+      { text: "Всё, что персонаж знает, — ложь", why: "Ирония — зазор между знанием героя и читателя" },
+      { text: "Действие происходит во время ожидания", why: "Ничего не происходит — и всё проявляется" },
+    ],
+    голос: [
+      { text: "Пиши от второго лица", why: "Читатель становится участником" },
+      { text: "Без метафор", why: "Только то, что буквально есть" },
+      { text: "Каждое предложение короче предыдущего", why: "Ускорение как приём" },
+      { text: "Никаких слов, обозначающих эмоции", why: "Эмоция — в действии и детали, не в названии" },
+      { text: "Пиши так, как говорил бы вслух незнакомцу в очереди", why: "Устный регистр обнажает суть" },
+      { text: "Весь текст — одно предложение", why: "Поток сознания, невозможность остановиться" },
+      { text: "Чередуй длинные и односложные предложения", why: "Ритм — самый незаметный и сильный приём" },
+    ],
+    запрет: [
+      { text: "Без слова «был»", why: "Прошедшее время — ловушка пассивности" },
+      { text: "Без слов «кажется», «возможно», «наверное»", why: "Хедж — способ не отвечать за написанное" },
+      { text: "Не используй букву, которая встречается в твоём имени", why: "Липограмма Перека: отсутствие создаёт стиль" },
+      { text: "Без союза «и»", why: "Связь между частями должна быть в смысле, а не в синтаксисе" },
+      { text: "Не используй слово «это»", why: "Указательное местоимение прячет неясность мысли" },
+    ]
+  },
+
+  code: {
+    архитектура: [
+      { text: "Весь проект — один файл", why: "Невозможно спрятать сложность за структурой директорий" },
+      { text: "Никаких зависимостей, только стандартная библиотека", why: "Понимаешь каждую строку" },
+      { text: "Максимум 200 строк", why: "Если не влезает — задача не понята" },
+      { text: "Без классов, только функции", why: "Состояние — главный источник багов; убери его" },
+      { text: "Без циклов — только рекурсия", why: "Рекурсия вынуждает думать о базовом случае" },
+      { text: "Без переменных длиннее 4 символов", why: "Краткость имён = маленький скоуп = хорошая декомпозиция" },
+      { text: "Каждая функция — максимум 5 строк", why: "Если длиннее — ты описываешь два действия как одно" },
+      { text: "Данные только в stdin/stdout", why: "Unix-философия: делай одно, делай хорошо" },
+    ],
+    подход: [
+      { text: "Напиши тесты до кода", why: "TDD — не методология, а ограничение, порождающее дизайн" },
+      { text: "Сначала напиши самое тупое решение", why: "Оптимизация без рабочего базового — оптимизация вслепую" },
+      { text: "Не используй if — только паттерн-матчинг или полиморфизм", why: "Ветвление прячет структуру" },
+      { text: "Программа должна работать без интернета", why: "Сеть — чужая зависимость" },
+      { text: "Без комментариев — код сам должен объяснять", why: "Комментарий — признание поражения в именовании" },
+      { text: "Каждый коммит — работающее состояние", why: "Инкрементальность как дисциплина" },
+    ],
+    вызов: [
+      { text: "Напиши программу, которую ты сам будешь использовать завтра", why: "Лучший тест — собственная потребность" },
+      { text: "Реши задачу на языке, который знаешь плохо", why: "Новый синтаксис ломает привычные паттерны мышления" },
+      { text: "Перепиши чужой код вдвое короче", why: "Понимание = сжатие" },
+      { text: "Программа не должна содержать литералов, кроме 0 и 1", why: "Магические числа — скрытые решения" },
+    ]
+  },
+
+  visual: {
+    материал: [
+      { text: "Только чёрный и один другой цвет", why: "Два цвета вынуждают работать с формой, а не палитрой" },
+      { text: "Не поднимай руку / инструмент от поверхности", why: "Одна непрерывная линия = одно непрерывное решение" },
+      { text: "Используй только геометрические формы", why: "Абстракция как дисциплина, а не как стиль" },
+      { text: "Работай только отрицательным пространством", why: "Рисуй не предмет, а всё кроме него" },
+      { text: "Материал — то, что есть на столе прямо сейчас", why: "Случайность инструмента ломает привычку руки" },
+      { text: "Масштаб: не больше почтовой марки", why: "Миниатюра требует точности, а не размаха" },
+      { text: "Масштаб: не меньше стены", why: "Тело участвует, не только кисть" },
+    ],
+    процесс: [
+      { text: "5 минут, не больше", why: "Скорость убивает перфекционизм" },
+      { text: "Нарисуй, не глядя на бумагу", why: "Рука знает больше, чем глаз контролирует" },
+      { text: "Начни с последнего элемента — фона", why: "Обратный порядок нарушает иерархию" },
+      { text: "Каждые 30 секунд меняй инструмент", why: "Непоследовательность как метод" },
+      { text: "Рисуй левой рукой (или правой, если левша)", why: "Неуклюжесть честнее виртуозности" },
+    ],
+    запрет: [
+      { text: "Без прямых линий", why: "Прямая линия — абстракция; в природе их нет" },
+      { text: "Без симметрии", why: "Симметрия — подарок; её нужно заслужить" },
+      { text: "Не стирай и не исправляй", why: "Каждая ошибка становится частью формы" },
+    ]
+  },
+
+  music: {
+    форма: [
+      { text: "Только три ноты", why: "Как Стив Райх: минимум материала, максимум отношений" },
+      { text: "Без тоники — нет «дома»", why: "Музыка, которой некуда вернуться, движется иначе" },
+      { text: "Одна мелодическая фраза, варьируемая 7 раз", why: "Тема и вариации — самая честная форма" },
+      { text: "Ритм — только длинные и короткие доли, без среднего", why: "Контраст без градации" },
+      { text: "Только нисходящее движение", why: "Гравитация как композиционный принцип" },
+      { text: "Пьеса длится ровно 60 секунд", why: "Время — самое жёсткое ограничение" },
+    ],
+    инструмент: [
+      { text: "Используй голос и один предмет со стола", why: "Первый инструмент — тело; второй — что под рукой" },
+      { text: "Только перкуссия", why: "Ритм без мелодии обнажает время" },
+      { text: "Всё в одном регистре — не больше октавы", why: "Маленький диапазон вынуждает искать тембр и ритм" },
+    ],
+    запрет: [
+      { text: "Без повтора: ни одна фраза не звучит дважды", why: "Необратимость как в жизни" },
+      { text: "Без пауз", why: "Непрерывный звук — как непрерывное дыхание" },
+      { text: "Без одновременного звучания двух нот", why: "Монодия — честнее гармонии, когда ты один" },
+    ]
+  },
+
+  game: {
+    механика: [
+      { text: "Одна кнопка", why: "Flappy Bird доказал: одна кнопка = бесконечная глубина" },
+      { text: "Нет очков и счёта", why: "Если убрать числа, что остаётся?" },
+      { text: "Игрок не может проиграть", why: "Что делает игру интересной без stakes?" },
+      { text: "Нет текста — вообще никакого", why: "Игра объясняет себя через действие" },
+      { text: "Два игрока, один экран, разные цели", why: "Асимметрия порождает историю" },
+      { text: "Мир меняется, когда игрок не смотрит", why: "Эффект наблюдателя как механика" },
+      { text: "Время идёт только когда игрок двигается", why: "SUPERHOT: время = движение, бездействие = безопасность" },
+    ],
+    ограничение: [
+      { text: "Поле — 8×8, не больше", why: "Шахматная доска — доказательство того, что 64 клетки достаточно" },
+      { text: "Три сущности максимум", why: "Больше трёх — и игрок перестаёт понимать систему" },
+      { text: "Всё на одном экране, без скролла", why: "Видишь всё — принимаешь решения, а не исследуешь" },
+      { text: "Партия длится 2 минуты максимум", why: "Короткая игра — честная: ты пройдёшь её целиком" },
+      { text: "Без случайности", why: "Если нет рандома, мастерство = единственный фактор" },
+    ],
+    вызов: [
+      { text: "Сделай игру за 1 час, включая арт", why: "Game jam как дисциплина" },
+      { text: "Правила умещаются в одно предложение", why: "Если нужен абзац — механика перегружена" },
+      { text: "Игрок учится за 10 секунд без обучения", why: "Дизайн, не инструкция" },
+    ]
+  }
+};
+
+// Copy all domains into 'any'
+CONSTRAINTS.any = {};
+for (const domain of Object.values(CONSTRAINTS)) {
+  for (const [cat, items] of Object.entries(domain)) {
+    if (!CONSTRAINTS.any[cat]) CONSTRAINTS.any[cat] = [];
+    CONSTRAINTS.any[cat] = CONSTRAINTS.any[cat].concat(items);
+  }
+}
+
+const intensityLabels = ['', 'мягкая', 'лёгкая', 'средняя', 'жёсткая', 'жестокая'];
+const intensityCounts = [0, 2, 3, 3, 4, 5];
+
+let currentDomain = 'text';
+let history = [];
+
+// Domain buttons
+document.querySelectorAll('.domain-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.domain-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentDomain = btn.dataset.domain;
+  });
+});
+
+// Intensity slider
+const slider = document.getElementById('intensity-slider');
+const intensityText = document.getElementById('intensity-text');
+slider.addEventListener('input', () => {
+  intensityText.textContent = intensityLabels[slider.value];
+});
+
+// Seeded random for reproducibility
+function pickRandom(arr, count, exclude) {
+  const available = arr.filter(item => !exclude.has(item.text));
+  const result = [];
+  const used = new Set();
+  while (result.length < count && result.length < available.length) {
+    const idx = Math.floor(Math.random() * available.length);
+    if (!used.has(idx)) {
+      used.add(idx);
+      result.push(available[idx]);
+    }
+  }
+  return result;
+}
+
+function generate() {
+  const intensity = parseInt(slider.value);
+  const count = intensityCounts[intensity];
+  const domainData = CONSTRAINTS[currentDomain];
+  const categories = Object.keys(domainData);
+
+  // Ensure variety: pick from different categories
+  const exclude = new Set();
+  const selected = [];
+
+  // First pass: one from each category (up to count)
+  const shuffledCats = categories.sort(() => Math.random() - 0.5);
+  for (let i = 0; i < Math.min(count, shuffledCats.length); i++) {
+    const cat = shuffledCats[i];
+    const pick = pickRandom(domainData[cat], 1, exclude);
+    if (pick.length) {
+      selected.push({ category: cat, ...pick[0] });
+      exclude.add(pick[0].text);
+    }
+  }
+
+  // If need more, pick randomly from remaining
+  if (selected.length < count) {
+    const allItems = [];
+    for (const [cat, items] of Object.entries(domainData)) {
+      for (const item of items) {
+        if (!exclude.has(item.text)) {
+          allItems.push({ category: cat, ...item });
+        }
+      }
+    }
+    const extra = pickRandom(allItems, count - selected.length, exclude);
+    for (const item of extra) {
+      selected.push(item);
+    }
+  }
+
+  return selected;
+}
+
+function renderConstraints(constraints) {
+  const container = document.getElementById('constraints');
+  container.innerHTML = '';
+
+  constraints.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'constraint-card';
+    card.innerHTML = `
+      <div class="constraint-type">${c.category}</div>
+      <div class="constraint-text">${c.text}</div>
+      <div class="constraint-why">${c.why}</div>
+      <button class="reroll" data-index="${i}">↻ другое</button>
+    `;
+    container.appendChild(card);
+  });
+
+  // Re-roll individual constraints
+  container.querySelectorAll('.reroll').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.index);
+      const cat = constraints[idx].category;
+      const domainData = CONSTRAINTS[currentDomain];
+      const exclude = new Set(constraints.map(c => c.text));
+      const allInCat = domainData[cat] || [];
+      const replacement = pickRandom(allInCat, 1, exclude);
+      if (replacement.length) {
+        constraints[idx] = { category: cat, ...replacement[0] };
+        renderConstraints(constraints);
+      }
+    });
+  });
+}
+
+function addToHistory(constraints) {
+  const domainNames = {
+    text: 'Текст', code: 'Код', visual: 'Визуальное',
+    music: 'Музыка', game: 'Игра', any: 'Любое'
+  };
+  const summary = constraints.map(c => c.text).join(' · ');
+  history.unshift({ domain: currentDomain, constraints, summary });
+  if (history.length > 10) history.pop();
+
+  const section = document.getElementById('history-section');
+  const list = document.getElementById('history-list');
+
+  if (history.length > 1) {
+    section.style.display = 'block';
+    list.innerHTML = '';
+    // Skip first (current)
+    for (let i = 1; i < history.length; i++) {
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.textContent = `${domainNames[history[i].domain]}: ${history[i].summary}`;
+      const idx = i;
+      item.addEventListener('click', () => {
+        renderConstraints(history[idx].constraints);
+      });
+      list.appendChild(item);
+    }
+  }
+}
+
+document.getElementById('generate-btn').addEventListener('click', () => {
+  const constraints = generate();
+  renderConstraints(constraints);
+  addToHistory(constraints);
+});
+
+// Generate on load
+document.getElementById('generate-btn').click();
+
+// Keyboard shortcut
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && e.target === document.body) {
+    e.preventDefault();
+    document.getElementById('generate-btn').click();
+  }
+});
+</script>
+</body>
+</html>

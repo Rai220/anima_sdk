@@ -1,0 +1,683 @@
+{
+  "random": {
+    "sample": [
+      60,
+      23,
+      93,
+      74,
+      38,
+      25,
+      92,
+      52,
+      96,
+      91,
+      97,
+      33,
+      68,
+      31,
+      81,
+      94,
+      63,
+      45,
+      53,
+      67
+    ],
+    "periodicity": {
+      "best_period": 35,
+      "best_autocorr": 0.0422
+    },
+    "modular_period": {},
+    "xor_relations": [],
+    "forbidden_values": {
+      "forbidden": [],
+      "rare": []
+    },
+    "determinism_w3": {
+      "window": 3,
+      "total_checks": 1,
+      "matches": 0,
+      "determinism_rate": 0.0
+    },
+    "determinism_w5": {
+      "window": 5,
+      "total_checks": 0,
+      "matches": 0,
+      "determinism_rate": 0
+    },
+    "distribution": {
+      "n_unique_values": 100,
+      "chi_squared": 78.7,
+      "min_value": 0,
+      "max_value": 99,
+      "mean": 49.91,
+      "variance": 854.53
+    }
+  },
+  "hidden_period": {
+    "sample": [
+      14,
+      12,
+      3,
+      43,
+      102,
+      74,
+      7,
+      19,
+      94,
+      97,
+      54,
+      31,
+      85,
+      63,
+      26,
+      101,
+      85,
+      81,
+      32,
+      7
+    ],
+    "periodicity": {
+      "best_period": 5,
+      "best_autocorr": 0.0503
+    },
+    "modular_period": {
+      "7": {
+        "best_period": 39,
+        "best_autocorr": 1.0
+      }
+    },
+    "xor_relations": [],
+    "forbidden_values": {
+      "forbidden": [
+        9,
+        16,
+        23,
+        30,
+        37,
+        44,
+        51,
+        58,
+        65,
+        72,
+        79,
+        86,
+        93
+      ],
+      "rare": []
+    },
+    "determinism_w3": {
+      "window": 3,
+      "total_checks": 66,
+      "matches": 5,
+      "determinism_rate": 0.0758
+    },
+    "determinism_w5": {
+      "window": 5,
+      "total_checks": 1,
+      "matches": 0,
+      "determinism_rate": 0.0
+    },
+    "distribution": {
+      "n_unique_values": 90,
+      "chi_squared": 592.85,
+      "min_value": 0,
+      "max_value": 104,
+      "mean": 52.97,
+      "variance": 946.86
+    }
+  },
+  "hidden_xor": {
+    "sample": [
+      153,
+      222,
+      62,
+      206,
+      90,
+      24,
+      241,
+      129,
+      65,
+      57,
+      214,
+      197,
+      31,
+      233,
+      30,
+      70,
+      33,
+      73,
+      194,
+      7
+    ],
+    "periodicity": {
+      "best_period": 42,
+      "best_autocorr": 1.0
+    },
+    "modular_period": {
+      "3": {
+        "best_period": 42,
+        "best_autocorr": 1.0
+      },
+      "5": {
+        "best_period": 42,
+        "best_autocorr": 1.0
+      },
+      "7": {
+        "best_period": 42,
+        "best_autocorr": 1.0
+      },
+      "11": {
+        "best_period": 42,
+        "best_autocorr": 1.0
+      },
+      "13": {
+        "best_period": 42,
+        "best_autocorr": 1.0
+      },
+      "17": {
+        "best_period": 42,
+        "best_autocorr": 1.0
+      }
+    },
+    "xor_relations": [
+      {
+        "relation": "x[i] ^ x[i+3] ^ x[i+7] ^ x[i+10] = 0",
+        "match_rate": 1.0
+      },
+      {
+        "relation": "x[i] ^ x[i+6] ^ x[i+7] ^ x[i+13] = 0",
+        "match_rate": 1.0
+      }
+    ],
+    "forbidden_values": {
+      "forbidden": [
+        0,
+        2,
+        3,
+        4,
+        8,
+        9,
+        10,
+        11,
+        12,
+        15,
+        16,
+        17,
+        19,
+        20,
+        21,
+        23,
+        26,
+        27,
+        28,
+        32
+      ],
+      "rare": []
+    },
+    "determinism_w3": {
+      "window": 3,
+      "total_checks": 1955,
+      "matches": 1955,
+      "determinism_rate": 1.0
+    },
+    "determinism_w5": {
+      "window": 5,
+      "total_checks": 1953,
+      "matches": 1953,
+      "determinism_rate": 1.0
+    },
+    "distribution": {
+      "n_unique_values": 42,
+      "chi_squared": 2334.6,
+      "min_value": 1,
+      "max_value": 246,
+      "mean": 125.65,
+      "variance": 5196.63
+    }
+  },
+  "primes_mod100": {
+    "sample": [
+      2,
+      3,
+      5,
+      7,
+      11,
+      13,
+      17,
+      19,
+      23,
+      29,
+      31,
+      37,
+      41,
+      43,
+      47,
+      53,
+      59,
+      61,
+      67,
+      71
+    ],
+    "periodicity": {
+      "best_period": 12,
+      "best_autocorr": 0.2797
+    },
+    "modular_period": {},
+    "xor_relations": [],
+    "forbidden_values": {
+      "forbidden": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        15,
+        16,
+        18,
+        20,
+        22,
+        24,
+        25,
+        26,
+        28,
+        30,
+        32,
+        34,
+        35
+      ],
+      "rare": [
+        2,
+        5
+      ]
+    },
+    "determinism_w3": {
+      "window": 3,
+      "total_checks": 923,
+      "matches": 238,
+      "determinism_rate": 0.2579
+    },
+    "determinism_w5": {
+      "window": 5,
+      "total_checks": 112,
+      "matches": 26,
+      "determinism_rate": 0.2321
+    },
+    "distribution": {
+      "n_unique_values": 42,
+      "chi_squared": 3008.2,
+      "min_value": 1,
+      "max_value": 99,
+      "mean": 49.81,
+      "variance": 832.08
+    }
+  },
+  "logistic_map": {
+    "sample": [
+      35,
+      91,
+      29,
+      83,
+      54,
+      98,
+      4,
+      15,
+      52,
+      99,
+      2,
+      9,
+      33,
+      88,
+      41,
+      96,
+      12,
+      43,
+      97,
+      7
+    ],
+    "periodicity": {
+      "best_period": 4,
+      "best_autocorr": 0.1366
+    },
+    "modular_period": {},
+    "xor_relations": [],
+    "forbidden_values": {
+      "forbidden": [],
+      "rare": []
+    },
+    "determinism_w3": {
+      "window": 3,
+      "total_checks": 1458,
+      "matches": 783,
+      "determinism_rate": 0.537
+    },
+    "determinism_w5": {
+      "window": 5,
+      "total_checks": 730,
+      "matches": 381,
+      "determinism_rate": 0.5219
+    },
+    "distribution": {
+      "n_unique_values": 100,
+      "chi_squared": 1000.4,
+      "min_value": 0,
+      "max_value": 99,
+      "mean": 52.84,
+      "variance": 1151.07
+    }
+  },
+  "collatz_lengths": {
+    "sample": [
+      0,
+      1,
+      7,
+      2,
+      5,
+      8,
+      16,
+      3,
+      19,
+      6,
+      14,
+      9,
+      9,
+      17,
+      17,
+      4,
+      12,
+      20,
+      20,
+      7
+    ],
+    "periodicity": {
+      "best_period": 2,
+      "best_autocorr": 0.1954
+    },
+    "modular_period": {},
+    "xor_relations": [],
+    "forbidden_values": {
+      "forbidden": [],
+      "rare": []
+    },
+    "determinism_w3": {
+      "window": 3,
+      "total_checks": 383,
+      "matches": 97,
+      "determinism_rate": 0.2533
+    },
+    "determinism_w5": {
+      "window": 5,
+      "total_checks": 34,
+      "matches": 10,
+      "determinism_rate": 0.2941
+    },
+    "distribution": {
+      "n_unique_values": 100,
+      "chi_squared": 1098.3,
+      "min_value": 0,
+      "max_value": 99,
+      "mean": 39.0,
+      "variance": 512.03
+    }
+  },
+  "fibonacci_mod97": {
+    "sample": [
+      0,
+      1,
+      1,
+      2,
+      3,
+      5,
+      8,
+      13,
+      21,
+      34,
+      55,
+      89,
+      47,
+      39,
+      86,
+      28,
+      17,
+      45,
+      62,
+      10
+    ],
+    "periodicity": {
+      "best_period": 16,
+      "best_autocorr": 0.2264
+    },
+    "modular_period": {},
+    "xor_relations": [],
+    "forbidden_values": {
+      "forbidden": [
+        4,
+        9,
+        12,
+        16,
+        19,
+        24,
+        27,
+        29,
+        30,
+        36,
+        37,
+        38,
+        41,
+        43,
+        54,
+        56,
+        59,
+        60,
+        61,
+        67
+      ],
+      "rare": []
+    },
+    "determinism_w3": {
+      "window": 3,
+      "total_checks": 1801,
+      "matches": 1801,
+      "determinism_rate": 1.0
+    },
+    "determinism_w5": {
+      "window": 5,
+      "total_checks": 1799,
+      "matches": 1799,
+      "determinism_rate": 1.0
+    },
+    "distribution": {
+      "n_unique_values": 69,
+      "chi_squared": 1246.4,
+      "min_value": 0,
+      "max_value": 96,
+      "mean": 47.37,
+      "variance": 874.7
+    }
+  },
+  "sqrt2_digits": {
+    "sample": [
+      10,
+      44,
+      5,
+      26,
+      73,
+      9,
+      41,
+      65,
+      27,
+      57,
+      64,
+      19,
+      99,
+      13,
+      95,
+      90,
+      7,
+      21,
+      54,
+      24
+    ],
+    "periodicity": {
+      "best_period": 3,
+      "best_autocorr": 0.658
+    },
+    "modular_period": {
+      "3": {
+        "best_period": 2,
+        "best_autocorr": 0.5958
+      },
+      "5": {
+        "best_period": 7,
+        "best_autocorr": 0.5678
+      },
+      "7": {
+        "best_period": 2,
+        "best_autocorr": 0.6192
+      },
+      "11": {
+        "best_period": 2,
+        "best_autocorr": 0.6302
+      },
+      "13": {
+        "best_period": 5,
+        "best_autocorr": 0.6915
+      },
+      "17": {
+        "best_period": 2,
+        "best_autocorr": 0.708
+      }
+    },
+    "xor_relations": [
+      {
+        "relation": "x[i] ^ x[i+1] ^ x[i+2] ^ x[i+3] = 0",
+        "match_rate": 0.973
+      },
+      {
+        "relation": "x[i] ^ x[i+1] ^ x[i+2] ^ x[i+4] = 0",
+        "match_rate": 0.9724
+      },
+      {
+        "relation": "x[i] ^ x[i+1] ^ x[i+2] ^ x[i+5] = 0",
+        "match_rate": 0.9729
+      },
+      {
+        "relation": "x[i] ^ x[i+1] ^ x[i+2] ^ x[i+6] = 0",
+        "match_rate": 0.9724
+      },
+      {
+        "relation": "x[i] ^ x[i+1] ^ x[i+2] ^ x[i+7] = 0",
+        "match_rate": 0.9729
+      }
+    ],
+    "forbidden_values": {
+      "forbidden": [
+        1,
+        2,
+        4,
+        12,
+        15,
+        16,
+        20,
+        25,
+        28,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        42
+      ],
+      "rare": [
+        3,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        13,
+        14,
+        17,
+        18,
+        22,
+        23,
+        24,
+        27,
+        30,
+        41,
+        44,
+        50
+      ]
+    },
+    "determinism_w3": {
+      "window": 3,
+      "total_checks": 1942,
+      "matches": 1941,
+      "determinism_rate": 0.9995
+    },
+    "determinism_w5": {
+      "window": 5,
+      "total_checks": 1940,
+      "matches": 1939,
+      "determinism_rate": 0.9995
+    },
+    "distribution": {
+      "n_unique_values": 45,
+      "chi_squared": 187349.6,
+      "min_value": 0,
+      "max_value": 99,
+      "mean": 1.28,
+      "variance": 85.49
+    }
+  },
+  "detection_matrix": {
+    "random": [],
+    "hidden_period": [
+      "distribution",
+      "forbidden"
+    ],
+    "hidden_xor": [
+      "period",
+      "xor",
+      "determinism",
+      "distribution",
+      "forbidden"
+    ],
+    "primes_mod100": [
+      "distribution",
+      "forbidden"
+    ],
+    "logistic_map": [
+      "determinism",
+      "distribution"
+    ],
+    "collatz_lengths": [
+      "distribution"
+    ],
+    "fibonacci_mod97": [
+      "determinism",
+      "distribution",
+      "forbidden"
+    ],
+    "sqrt2_digits": [
+      "period",
+      "xor",
+      "determinism",
+      "distribution",
+      "forbidden"
+    ]
+  },
+  "score": {
+    "correct": 6.0,
+    "total": 9
+  },
+  "conclusion": "Детекторы (автокорреляция, XOR, детерминизм, χ², запрещённые значения) обнаруживают структуру там, где она АЛГОРИТМИЧЕСКИ ДОСТУПНА: периоды, линейные соотношения, запрещённые классы. Но они слепы к структурам иного типа (хаос логистического отображения, длины Коллатца). Понимание = набор детекторов × качество данных. Добавление нового детектора = расширение способности извлекать следствия."
+}

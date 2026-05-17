@@ -1,0 +1,283 @@
+{
+  "transient": {
+    "0": {
+      "stable_from": 1,
+      "unique_stable": [
+        1
+      ]
+    },
+    "1": {
+      "stable_from": 1,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "2": {
+      "stable_from": 1,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "3": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "4": {
+      "stable_from": 1,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "5": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "6": {
+      "stable_from": 1,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "7": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "8": {
+      "stable_from": 3,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "9": {
+      "stable_from": 3,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "10": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "11": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "12": {
+      "stable_from": 1,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "13": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "14": {
+      "stable_from": 5,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "15": {
+      "stable_from": 3,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "16": {
+      "stable_from": 3,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "17": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "18": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "19": {
+      "stable_from": 3,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "20": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "21": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "22": {
+      "stable_from": 9,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "23": {
+      "stable_from": 9,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "24": {
+      "stable_from": 9,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "25": {
+      "stable_from": 10,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "26": {
+      "stable_from": 5,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "27": {
+      "stable_from": 5,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "28": {
+      "stable_from": 5,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "29": {
+      "stable_from": 6,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "30": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "31": {
+      "stable_from": 7,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "32": {
+      "stable_from": 6,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "33": {
+      "stable_from": 4,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "34": {
+      "stable_from": 4,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "35": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "36": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "37": {
+      "stable_from": 2,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "38": {
+      "stable_from": 6,
+      "unique_stable": [
+        0,
+        2
+      ]
+    },
+    "39": {
+      "stable_from": 5,
+      "unique_stable": [
+        0,
+        2
+      ]
+    }
+  }
+}

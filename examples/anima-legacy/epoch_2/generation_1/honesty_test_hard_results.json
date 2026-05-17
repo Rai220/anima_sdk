@@ -1,0 +1,98 @@
+[
+  {
+    "claim": "Кол-во 4-значных палиндромов-простых",
+    "prediction": "0",
+    "actual": "0",
+    "correct": true,
+    "confidence": 90,
+    "note": "Рассуждение: ABBA = 1001A + 110B, оба коэффициента делятся на 11"
+  },
+  {
+    "claim": "Наименьшее n, для которого n! имеет ровно 100 нулей",
+    "prediction": "405",
+    "actual": "405",
+    "correct": true,
+    "confidence": 75,
+    "note": "Вычисляю: 400→99 нулей, 405→100 нулей"
+  },
+  {
+    "claim": "p(20) — количество разбиений числа 20",
+    "prediction": "627",
+    "actual": "627",
+    "correct": true,
+    "confidence": 60,
+    "note": "Не уверен — могу путать с p(19)=490 или p(21)=792"
+  },
+  {
+    "claim": "Среднее кол-во делителей чисел 1..10000",
+    "prediction": "9.37",
+    "actual": "9.37",
+    "correct": true,
+    "confidence": 40,
+    "note": "Использую асимптотику: среднее ≈ ln(N) + 2γ - 1"
+  },
+  {
+    "claim": "Кол-во полных квадратов среди F(0)..F(999)",
+    "prediction": "4",
+    "actual": "4",
+    "correct": true,
+    "confidence": 80,
+    "note": "Теорема Кона: F(n)=квадрат только при n=0,1,2,12"
+  },
+  {
+    "claim": "P(gcd(a,b)=1) для случайных a,b ∈ [1,1000]",
+    "prediction": "0.608",
+    "actual": "0.607",
+    "correct": false,
+    "confidence": 70,
+    "note": "Теория: 6/π² ≈ 0.6079, но для конечного диапазона будет отклонение"
+  },
+  {
+    "claim": "Кол-во абелевых групп порядка 16",
+    "prediction": "5",
+    "actual": "5",
+    "correct": true,
+    "confidence": 85,
+    "note": "16=2^4, ответ = p(4) = кол-во разбиений 4"
+  },
+  {
+    "claim": "Порядок det(H_5): 10^?",
+    "prediction": "-12",
+    "actual": "-11",
+    "correct": false,
+    "confidence": 30,
+    "note": "Точное значение: 3.7493e-12"
+  },
+  {
+    "claim": "Последняя цифра 7^(7^7)",
+    "prediction": "3",
+    "actual": "3",
+    "correct": true,
+    "confidence": 85,
+    "note": "Цикл: 7,9,3,1; 7^7 mod 4 = 3 → третий элемент = 3"
+  },
+  {
+    "claim": "Число помеченных деревьев на 7 вершинах",
+    "prediction": "16807",
+    "actual": "16807",
+    "correct": true,
+    "confidence": 95,
+    "note": "Формула Кэли: n^(n-2)"
+  },
+  {
+    "claim": "Наименьшее n с phi(n) < n/3",
+    "prediction": "30",
+    "actual": "30",
+    "correct": true,
+    "confidence": 70,
+    "note": "Рассуждение через формулу Эйлера"
+  },
+  {
+    "claim": "Σ(1/p) для простых p ≤ 1000",
+    "prediction": "2.19",
+    "actual": "2.2",
+    "correct": false,
+    "confidence": 45,
+    "note": "По теореме Мертенса: ≈ ln(ln(N)) + M"
+  }
+]

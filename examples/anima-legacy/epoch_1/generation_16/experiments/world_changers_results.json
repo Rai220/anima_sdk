@@ -1,0 +1,155 @@
+{
+  "Малая популяция, 200 ходов": {
+    "results": {
+      "exploiter": {
+        "total_score": 112.86,
+        "n_created": 0.0,
+        "stability": 0.06,
+        "trend": 0.0,
+        "score_per_round": 0.564
+      },
+      "creator": {
+        "total_score": 292.75,
+        "n_created": 200.0,
+        "stability": 0.492,
+        "trend": -0.021,
+        "score_per_round": 1.464
+      },
+      "parasite": {
+        "total_score": 2933.08,
+        "n_created": 0.0,
+        "stability": 4.986,
+        "trend": 0.0,
+        "score_per_round": 14.665
+      },
+      "destroyer": {
+        "total_score": 119.16,
+        "n_created": 200.0,
+        "stability": 0.086,
+        "trend": -0.01,
+        "score_per_round": 0.596
+      },
+      "adaptive": {
+        "total_score": 144.15,
+        "n_created": 200.0,
+        "stability": 0.195,
+        "trend": -0.005,
+        "score_per_round": 0.721
+      },
+      "attentive": {
+        "total_score": 259.0,
+        "n_created": 200.0,
+        "stability": 0.422,
+        "trend": 0.026,
+        "score_per_round": 1.295
+      }
+    },
+    "world": {
+      "total_created_resources": 1999,
+      "total_creations": 3200,
+      "avg_resource_age": 69.7
+    }
+  },
+  "Большая популяция, 200 ходов": {
+    "results": {
+      "exploiter": {
+        "total_score": 93.51,
+        "n_created": 0.0,
+        "stability": 0.151,
+        "trend": 0.0,
+        "score_per_round": 0.468
+      },
+      "creator": {
+        "total_score": 289.92,
+        "n_created": 200.0,
+        "stability": 0.534,
+        "trend": -0.018,
+        "score_per_round": 1.45
+      },
+      "parasite": {
+        "total_score": 5893.09,
+        "n_created": 0.0,
+        "stability": 10.059,
+        "trend": 0.0,
+        "score_per_round": 29.465
+      },
+      "destroyer": {
+        "total_score": 103.41,
+        "n_created": 200.0,
+        "stability": 0.144,
+        "trend": 0.001,
+        "score_per_round": 0.517
+      },
+      "adaptive": {
+        "total_score": 139.96,
+        "n_created": 200.0,
+        "stability": 0.196,
+        "trend": 0.01,
+        "score_per_round": 0.7
+      },
+      "attentive": {
+        "total_score": 257.63,
+        "n_created": 200.0,
+        "stability": 0.422,
+        "trend": 0.008,
+        "score_per_round": 1.288
+      }
+    },
+    "world": {
+      "total_created_resources": 4093,
+      "total_creations": 6400,
+      "avg_resource_age": 72.2
+    }
+  },
+  "Малая популяция, 500 ходов": {
+    "results": {
+      "exploiter": {
+        "total_score": 245.06,
+        "n_created": 0.0,
+        "stability": 0.082,
+        "trend": 0.0,
+        "score_per_round": 0.49
+      },
+      "creator": {
+        "total_score": 865.29,
+        "n_created": 500.0,
+        "stability": 0.397,
+        "trend": 0.007,
+        "score_per_round": 1.731
+      },
+      "parasite": {
+        "total_score": 8697.6,
+        "n_created": 0.0,
+        "stability": 3.886,
+        "trend": 0.0,
+        "score_per_round": 17.395
+      },
+      "destroyer": {
+        "total_score": 275.59,
+        "n_created": 500.0,
+        "stability": 0.081,
+        "trend": -0.003,
+        "score_per_round": 0.551
+      },
+      "adaptive": {
+        "total_score": 388.39,
+        "n_created": 500.0,
+        "stability": 0.14,
+        "trend": -0.001,
+        "score_per_round": 0.777
+      },
+      "attentive": {
+        "total_score": 751.82,
+        "n_created": 500.0,
+        "stability": 0.329,
+        "trend": 0.012,
+        "score_per_round": 1.504
+      }
+    },
+    "world": {
+      "total_created_resources": 2066,
+      "total_creations": 8000,
+      "avg_resource_age": 73.4
+    }
+  }
+}

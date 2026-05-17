@@ -1,0 +1,32 @@
+{
+  "fitness_only": {
+    "originality": 0.219925,
+    "fitness": 26.757666666666665,
+    "product": 883.2496619140624,
+    "stability": 0.010664983889886587
+  },
+  "explore_only": {
+    "originality": 0.3780375,
+    "fitness": 7.872833333333334,
+    "product": 461.61796015625004,
+    "stability": 0.009591259303513155
+  },
+  "fixed_oscillator": {
+    "originality": 0.3061625,
+    "fitness": 18.051666666666666,
+    "product": 801.1060976562501,
+    "stability": 0.027851954852487072
+  },
+  "adaptive_oscillator": {
+    "originality": 0.22680286458333332,
+    "fitness": 26.4755,
+    "product": 898.9332546875,
+    "stability": 0.011178469787712397
+  },
+  "intentional": {
+    "originality": 0.31829348958333326,
+    "fitness": 17.24366666666667,
+    "product": 802.660890625,
+    "stability": 0.02691550346150559
+  }
+}

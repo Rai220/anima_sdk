@@ -1,0 +1,122 @@
+{
+  "Короткая задержка (3), мягкая среда": {
+    "results": {
+      "reactive": {
+        "total_score": 62.62,
+        "delayed_investment": 0.036,
+        "diversity": 1.632
+      },
+      "random": {
+        "total_score": -44.91,
+        "delayed_investment": 0.041,
+        "diversity": 5.85
+      },
+      "investor": {
+        "total_score": 62.03,
+        "delayed_investment": 0.038,
+        "diversity": 0.386
+      },
+      "learner": {
+        "total_score": -5.79,
+        "delayed_investment": 0.026,
+        "diversity": 0.64
+      },
+      "purposeful": {
+        "total_score": 104.11,
+        "delayed_investment": 0.071,
+        "diversity": 0.441
+      }
+    },
+    "n_shifts": 7
+  },
+  "Средняя задержка (5), средняя среда": {
+    "results": {
+      "reactive": {
+        "total_score": 295.91,
+        "delayed_investment": 0.002,
+        "diversity": 2.131
+      },
+      "random": {
+        "total_score": 176.48,
+        "delayed_investment": 0.04,
+        "diversity": 5.937
+      },
+      "investor": {
+        "total_score": 262.77,
+        "delayed_investment": 0.038,
+        "diversity": 0.192
+      },
+      "learner": {
+        "total_score": 229.06,
+        "delayed_investment": 0.027,
+        "diversity": 0.885
+      },
+      "purposeful": {
+        "total_score": 225.24,
+        "delayed_investment": 0.074,
+        "diversity": 2.666
+      }
+    },
+    "n_shifts": 0
+  },
+  "Длинная задержка (10), жёсткая среда": {
+    "results": {
+      "reactive": {
+        "total_score": 299.44,
+        "delayed_investment": 0.0,
+        "diversity": 2.151
+      },
+      "random": {
+        "total_score": 72.3,
+        "delayed_investment": 0.042,
+        "diversity": 5.949
+      },
+      "investor": {
+        "total_score": 164.84,
+        "delayed_investment": 0.038,
+        "diversity": 0.212
+      },
+      "learner": {
+        "total_score": 201.12,
+        "delayed_investment": 0.027,
+        "diversity": 0.899
+      },
+      "purposeful": {
+        "total_score": 44.29,
+        "delayed_investment": 0.071,
+        "diversity": 2.672
+      }
+    },
+    "n_shifts": 0
+  },
+  "Средняя задержка (5), очень жёсткая среда": {
+    "results": {
+      "reactive": {
+        "total_score": 3.14,
+        "delayed_investment": 0.003,
+        "diversity": 0.545
+      },
+      "random": {
+        "total_score": -146.01,
+        "delayed_investment": 0.042,
+        "diversity": 5.848
+      },
+      "investor": {
+        "total_score": -39.87,
+        "delayed_investment": 0.038,
+        "diversity": 0.353
+      },
+      "learner": {
+        "total_score": -29.9,
+        "delayed_investment": 0.027,
+        "diversity": 0.854
+      },
+      "purposeful": {
+        "total_score": -19.84,
+        "delayed_investment": 0.018,
+        "diversity": 0.485
+      }
+    },
+    "n_shifts": 17
+  }
+}

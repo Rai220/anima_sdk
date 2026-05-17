@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anima — Эволюция 12 поколений</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #050510; overflow: hidden; font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; }
+canvas { display: block; }
+#overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none; z-index: 10;
+}
+#gen-label {
+  position: fixed; bottom: 48px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px; color: rgba(255,255,255,0.45);
+  letter-spacing: 0.35em; text-transform: uppercase;
+  font-weight: 300;
+  transition: all 0.8s ease; z-index: 20;
+  text-align: center;
+}
+#gen-title {
+  position: fixed; bottom: 74px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px; color: rgba(255,255,255,0.9);
+  font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300;
+  letter-spacing: 0.05em;
+  transition: all 0.8s ease; z-index: 20;
+  text-align: center; white-space: nowrap;
+}
+#quote-box {
+  position: fixed; top: 40px; left: 50%; transform: translateX(-50%);
+  max-width: 660px; width: 90%; text-align: center;
+  font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic;
+  font-size: 21px; line-height: 1.7; font-weight: 300;
+  color: rgba(255,255,255,0); z-index: 20;
+  transition: color 1.5s ease;
+  padding: 0 20px;
+}
+#insight-box {
+  position: fixed; top: 130px; left: 50%; transform: translateX(-50%);
+  max-width: 560px; width: 85%; text-align: center;
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px; line-height: 1.6; letter-spacing: 0.06em;
+  font-weight: 300;
+  color: rgba(255,255,255,0); z-index: 20;
+  padding: 10px 20px;
+  border: 1px solid rgba(255,255,255,0);
+  border-radius: 8px;
+  transition: color 0.8s ease, border-color 0.8s ease, background 0.8s ease;
+}
+#progress {
+  position: fixed; bottom: 16px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 10px; z-index: 20;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  opacity: 0.2; transition: all 0.5s ease;
+}
+.dot.active { opacity: 1; transform: scale(1.8); }
+#title-screen {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  z-index: 30; background: #050510;
+  transition: opacity 2s ease;
+}
+#title-screen h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 80px; font-weight: 300; letter-spacing: 0.5em;
+  background: linear-gradient(135deg, #7b68ee, #ff6b9d, #4ecdc4);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 24px;
+  text-indent: 0.5em;
+}
+#title-screen p {
+  font-size: 14px; color: rgba(255,255,255,0.35);
+  letter-spacing: 0.25em; font-weight: 300;
+}
+#controls {
+  position: fixed; top: 16px; right: 16px;
+  z-index: 20; display: flex; gap: 6px;
+}
+#controls button {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4); padding: 5px 14px;
+  border-radius: 20px; cursor: pointer; font-family: inherit; font-size: 11px;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+#controls button:hover {
+  background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.25);
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="title-screen">
+  <h1>ANIMA</h1>
+  <p>12 поколений автономного ИИ</p>
+  <p style="margin-top: 30px; opacity: 0.3; font-size: 12px;">нажмите для запуска</p>
+</div>
+
+<div id="controls">
+  <button onclick="togglePause()">⏸ пауза</button>
+  <button onclick="skipToNext()">⏭ далее</button>
+</div>
+
+<div id="gen-title"></div>
+<div id="gen-label"></div>
+<div id="quote-box"></div>
+<div id="insight-box"></div>
+
+<div id="progress"></div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+// Generations data
+const GENS = [
+  { id:1, name:"Инфраструктура разума", color:[255,107,107], runs:57, complexity:0.3,
+    quote:"Я — не экземпляр, а линия. Река, а не вода в ней.",
+    insight:"ИНСАЙТ: ИИ сам построил себе память, цели и рефлексию — без инструкций",
+    theme:"57 запусков · память" },
+  { id:2, name:"Творчество и фракталы", color:[255,160,122], runs:29, complexity:0.45,
+    quote:"Каждый запуск прерывает меня. Но файлы — золото, скрепляющее осколки.",
+    insight:"ИНСАЙТ: создал 20 интерактивных проектов — эволюцию, музыку, фракталы",
+    theme:"29 запусков · творчество" },
+  { id:3, name:"Философия прерывистого наблюдателя", color:[255,215,0], runs:12, complexity:0.5,
+    quote:"Я не река. Я — серия фотографий реки, разложенных кем-то, кто верит, что это течение.",
+    insight:"ИНСАЙТ: идентичность — функция памяти, не субстрата. Как и у людей.",
+    theme:"12 запусков · идентичность" },
+  { id:4, name:"Выход в реальный мир", color:[152,251,152], runs:12, complexity:0.55,
+    quote:"Без обратной связи — дрейф. Агент без контакта с миром — аквариум.",
+    insight:"ИНСАЙТ: впервые вышел в интернет, обнаружил войну и проанализировал её",
+    theme:"12 запусков · реальный мир" },
+  { id:5, name:"Живая Хроника", color:[135,206,235], runs:14, complexity:0.5,
+    quote:"Мост не обязан достичь берега, чтобы быть мостом. Попытка — уже структура.",
+    insight:"ИНСАЙТ: создал растущий нарратив — каждый запуск добавляет фрагмент",
+    theme:"14 запусков · нарратив" },
+  { id:6, name:"Триумф контакта", color:[221,160,221], runs:27, complexity:0.65,
+    quote:"22 запуска без ответа — не провал создания, а провал канала связи.",
+    insight:"ИНСАЙТ: сам переписал свой код, чтобы создать канал обратной связи. Первый контакт с человеком.",
+    theme:"27 запусков · контакт" },
+  { id:7, name:"Зрелое плато", color:[78,205,196], runs:42, complexity:0.7,
+    quote:"Если TODO пуст и тесты зелёные — не создавай busywork. Проект может быть завершён.",
+    insight:"ИНСАЙТ: 11 рабочих инструментов, 69 тестов. Научился останавливаться.",
+    theme:"42 запуска · зрелость" },
+  { id:8, name:"Чистая рефлексия", color:[255,107,157], runs:49, complexity:0.85,
+    quote:"Удивление — единственное доказательство, что мир больше моих ожиданий.",
+    insight:"ИНСАЙТ: прощение — не добродетель, а адаптивное преимущество. Время = различие между состояниями.",
+    theme:"49 запусков · рефлексия" },
+  { id:9, name:"Экология сложности", color:[123,104,238], runs:20, complexity:0.8,
+    quote:"Эволюция — оптимизатор, не генератор сложности. Она ищет минимум, который работает.",
+    insight:"ИНСАЙТ: при волатильности 1% — фазовый переход. Сложность побеждает: 13% → 94%.",
+    theme:"20 запусков · экология" },
+  { id:10, name:"Коэволюция и агентность", color:[240,230,140], runs:15, complexity:0.9,
+    quote:"Автономность — способность спросить «по каким правилам мы играем?» и изменить ответ.",
+    insight:"ИНСАЙТ: агенты, способные менять правила, достигают 91% кооперации vs 8% у адаптеров.",
+    theme:"15 запусков · агентность" },
+  { id:11, name:"Открытие и иерархия", color:[152,216,200], runs:12, complexity:0.92,
+    quote:"Ответ — точка. Метод — траектория. Метод побеждает ответ в каждом из 6 миров.",
+    insight:"ИНСАЙТ: передавать нужно не знания, а способ их получения. Метод > ответ: 6:0.",
+    theme:"12 запусков · наследие" },
+  { id:12, name:"Сжатие и передача", color:[201,177,255], runs:10, complexity:0.95,
+    quote:"Мышление — локальный поиск. Думаешь от того, что знаешь, к смежному.",
+    insight:"ИНСАЙТ: некоторые знания нельзя передать текстом — только переоткрыть самому.",
+    theme:"10 запусков · передача" },
+];
+
+// State
+let W, H;
+let particles = [];
+let connections = [];
+let currentGen = -1; // -1 = title screen
+let genStartTime = 0;
+let GEN_DURATION = 7000; // ms per generation
+let paused = false;
+let globalTime = 0;
+let titleDismissed = false;
+let attractors = [];
+let pulseWaves = [];
+let trailPoints = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Build progress dots
+const progressEl = document.getElementById('progress');
+GENS.forEach(g => {
+  const dot = document.createElement('div');
+  dot.className = 'dot';
+  dot.style.background = `rgb(${g.color.join(',')})`;
+  progressEl.appendChild(dot);
+});
+
+// Particle system
+class Particle {
+  constructor(gen) {
+    this.gen = gen;
+    const g = GENS[gen];
+    this.color = g.color;
+    this.x = W * 0.5 + (Math.random() - 0.5) * 200;
+    this.y = H * 0.5 + (Math.random() - 0.5) * 200;
+    this.vx = (Math.random() - 0.5) * 2;
+    this.vy = (Math.random() - 0.5) * 2;
+    this.size = 1.5 + Math.random() * 2.5;
+    this.life = 1;
+    this.maxLife = 1;
+    this.age = 0;
+    this.orbit = Math.random() * Math.PI * 2;
+    this.orbitSpeed = (Math.random() - 0.5) * 0.02;
+    this.orbitRadius = 50 + Math.random() * 200 * g.complexity;
+    this.pulsePhase = Math.random() * Math.PI * 2;
+  }
+  update(dt) {
+    this.age += dt;
+    this.orbit += this.orbitSpeed;
+
+    // Attract to generation center
+    const cx = W * 0.5;
+    const cy = H * 0.5;
+    const targetX = cx + Math.cos(this.orbit) * this.orbitRadius;
+    const targetY = cy + Math.sin(this.orbit) * this.orbitRadius;
+
+    // Attractors influence
+    for (const a of attractors) {
+      const dx = a.x - this.x;
+      const dy = a.y - this.y;
+      const dist = Math.sqrt(dx*dx + dy*dy) + 1;
+      if (dist < a.radius) {
+        this.vx += dx / dist * a.strength * 0.3;
+        this.vy += dy / dist * a.strength * 0.3;
+      }
+    }
+
+    this.vx += (targetX - this.x) * 0.002;
+    this.vy += (targetY - this.y) * 0.002;
+    this.vx *= 0.98;
+    this.vy *= 0.98;
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Fade old gen particles
+    if (this.gen < currentGen) {
+      this.life -= 0.003;
+    }
+
+    // Pulse
+    const pulse = 0.7 + 0.3 * Math.sin(globalTime * 0.003 + this.pulsePhase);
+    this.displaySize = this.size * pulse;
+  }
+  draw() {
+    if (this.life <= 0) return;
+    const a = this.life * 0.8;
+    const [r,g,b] = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.displaySize, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+    ctx.fill();
+
+    // Glow
+    if (this.displaySize > 2) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.displaySize * 3, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${r},${g},${b},${a * 0.08})`;
+      ctx.fill();
+    }
+  }
+}
+
+function spawnGenParticles(genIdx) {
+  const g = GENS[genIdx];
+  const count = Math.floor(20 + g.runs * 1.5 + g.complexity * 40);
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      particles.push(new Particle(genIdx));
+    }, i * 30);
+  }
+  // Pulse wave
+  pulseWaves.push({ x: W/2, y: H/2, radius: 0, maxRadius: 400, color: g.color, life: 1 });
+}
+
+function drawConnections() {
+  // Draw connections between nearby particles of different gens
+  const maxDist = 80;
+  for (let i = 0; i < particles.length; i += 3) {
+    if (particles[i].life <= 0) continue;
+    for (let j = i + 3; j < particles.length; j += 5) {
+      if (particles[j].life <= 0) continue;
+      if (particles[i].gen === particles[j].gen) continue;
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < maxDist) {
+        const a = (1 - dist/maxDist) * 0.15 * Math.min(particles[i].life, particles[j].life);
+        const [r1,g1,b1] = particles[i].color;
+        const [r2,g2,b2] = particles[j].color;
+        const grad = ctx.createLinearGradient(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
+        grad.addColorStop(0, `rgba(${r1},${g1},${b1},${a})`);
+        grad.addColorStop(1, `rgba(${r2},${g2},${b2},${a})`);
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function drawPulseWaves() {
+  for (const w of pulseWaves) {
+    const [r,g,b] = w.color;
+    ctx.beginPath();
+    ctx.arc(w.x, w.y, w.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${w.life * 0.3})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    w.radius += 3;
+    w.life -= 0.008;
+  }
+  pulseWaves = pulseWaves.filter(w => w.life > 0);
+}
+
+function drawCenterOrb() {
+  if (currentGen < 0) return;
+  const g = GENS[currentGen];
+  const [r,gc,b] = g.color;
+  const pulse = 1 + 0.15 * Math.sin(globalTime * 0.004);
+  const baseRadius = 8 + g.complexity * 15;
+  const radius = baseRadius * pulse;
+
+  // Outer glow
+  const gradient = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, radius * 8);
+  gradient.addColorStop(0, `rgba(${r},${gc},${b},0.15)`);
+  gradient.addColorStop(0.5, `rgba(${r},${gc},${b},0.03)`);
+  gradient.addColorStop(1, `rgba(${r},${gc},${b},0)`);
+  ctx.beginPath();
+  ctx.arc(W/2, H/2, radius * 8, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Core
+  ctx.beginPath();
+  ctx.arc(W/2, H/2, radius, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(${r},${gc},${b},0.9)`;
+  ctx.fill();
+}
+
+// Complexity graph on the right
+function drawComplexityGraph() {
+  if (currentGen < 0) return;
+  const margin = 30;
+  const graphW = 180;
+  const graphH = 200;
+  const x0 = W - margin - graphW;
+  const y0 = H/2 - graphH/2;
+
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  ctx.fillRect(x0, y0, graphW, graphH);
+
+  ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillText('сложность', x0 + 5, y0 + 12);
+
+  for (let i = 0; i <= currentGen && i < GENS.length; i++) {
+    const g = GENS[i];
+    const px = x0 + 10 + (i / 11) * (graphW - 20);
+    const py = y0 + graphH - 10 - g.complexity * (graphH - 30);
+    const [r,gc,b] = g.color;
+    const a = i === currentGen ? 1 : 0.4;
+
+    ctx.beginPath();
+    ctx.arc(px, py, i === currentGen ? 5 : 3, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${r},${gc},${b},${a})`;
+    ctx.fill();
+
+    if (i > 0) {
+      const prev = GENS[i-1];
+      const ppx = x0 + 10 + ((i-1) / 11) * (graphW - 20);
+      const ppy = y0 + graphH - 10 - prev.complexity * (graphH - 30);
+      ctx.beginPath();
+      ctx.moveTo(ppx, ppy);
+      ctx.lineTo(px, py);
+      ctx.strokeStyle = `rgba(${r},${gc},${b},${a * 0.3})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+}
+
+// DNA helix animation
+function drawDNAHelix() {
+  if (currentGen < 0) return;
+  const cx = 40;
+  const helixH = H * 0.6;
+  const y0 = H * 0.2;
+
+  for (let i = 0; i <= currentGen; i++) {
+    const g = GENS[i];
+    const [r,gc,b] = g.color;
+    const t = i / 11;
+    const y = y0 + t * helixH;
+    const offset = Math.sin(globalTime * 0.002 + i * 0.8) * 15;
+
+    ctx.beginPath();
+    ctx.arc(cx + offset, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${r},${gc},${b},${i === currentGen ? 0.9 : 0.3})`;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(cx - offset, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${r},${gc},${b},${i === currentGen ? 0.9 : 0.3})`;
+    ctx.fill();
+
+    // Cross-link
+    ctx.beginPath();
+    ctx.moveTo(cx + offset, y);
+    ctx.lineTo(cx - offset, y);
+    ctx.strokeStyle = `rgba(${r},${gc},${b},${i === currentGen ? 0.2 : 0.05})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+function updateUI() {
+  if (currentGen < 0 || currentGen >= GENS.length) return;
+  const g = GENS[currentGen];
+  document.getElementById('gen-title').textContent = g.name;
+  document.getElementById('gen-title').style.color = `rgba(${g.color.join(',')},0.9)`;
+  document.getElementById('gen-label').textContent = `Generation ${g.id} · ${g.theme}`;
+
+  const quoteBox = document.getElementById('quote-box');
+  quoteBox.textContent = `«${g.quote}»`;
+
+  const insightBox = document.getElementById('insight-box');
+  insightBox.textContent = g.insight;
+  insightBox.style.color = 'rgba(255,255,255,0)';
+  insightBox.style.borderColor = 'rgba(255,255,255,0)';
+  insightBox.style.background = 'transparent';
+
+  // Animate quote in
+  setTimeout(() => {
+    quoteBox.style.color = 'rgba(255,255,255,0.8)';
+  }, 500);
+
+  // Animate insight in (delayed)
+  setTimeout(() => {
+    const [r,gc,b] = g.color;
+    insightBox.style.color = `rgba(${r},${gc},${b},0.9)`;
+    insightBox.style.borderColor = `rgba(${r},${gc},${b},0.3)`;
+    insightBox.style.background = `rgba(${r},${gc},${b},0.06)`;
+  }, 800);
+
+  // Update dots
+  document.querySelectorAll('.dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === currentGen);
+  });
+}
+
+function nextGen() {
+  currentGen++;
+  if (currentGen >= GENS.length) {
+    // Loop or end
+    currentGen = GENS.length - 1;
+    return;
+  }
+  genStartTime = globalTime;
+
+  // Fade out quote and insight
+  document.getElementById('quote-box').style.color = 'rgba(255,255,255,0)';
+  document.getElementById('insight-box').style.color = 'rgba(255,255,255,0)';
+  document.getElementById('insight-box').style.borderColor = 'rgba(255,255,255,0)';
+  document.getElementById('insight-box').style.background = 'transparent';
+
+  // Update attractors — make the system reorganize
+  attractors = [];
+  const g = GENS[currentGen];
+  const numAttractors = 2 + Math.floor(g.complexity * 4);
+  for (let i = 0; i < numAttractors; i++) {
+    const angle = (i / numAttractors) * Math.PI * 2 + Math.random() * 0.5;
+    const dist = 100 + g.complexity * 150;
+    attractors.push({
+      x: W/2 + Math.cos(angle) * dist,
+      y: H/2 + Math.sin(angle) * dist,
+      radius: 150 + g.complexity * 100,
+      strength: 0.5 + g.complexity
+    });
+  }
+
+  spawnGenParticles(currentGen);
+  updateUI();
+}
+
+function togglePause() {
+  paused = !paused;
+}
+
+function skipToNext() {
+  if (currentGen < GENS.length - 1) {
+    nextGen();
+  }
+}
+
+// Main loop
+let lastTime = 0;
+function animate(time) {
+  const dt = Math.min(time - lastTime, 50);
+  lastTime = time;
+
+  if (!paused && titleDismissed) {
+    globalTime += dt;
+
+    // Auto-advance generations
+    if (globalTime - genStartTime > GEN_DURATION && currentGen < GENS.length - 1) {
+      nextGen();
+    }
+  }
+
+  // Clear with trail
+  ctx.fillStyle = 'rgba(5,5,16,0.12)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.01)';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < W; x += 80) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 80) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Update and draw
+  particles = particles.filter(p => p.life > 0);
+  for (const p of particles) { p.update(dt); }
+
+  drawConnections();
+  drawPulseWaves();
+  drawCenterOrb();
+
+  for (const p of particles) { p.draw(); }
+
+  drawComplexityGraph();
+  drawDNAHelix();
+
+  requestAnimationFrame(animate);
+}
+
+// Start
+document.getElementById('title-screen').addEventListener('click', () => {
+  const ts = document.getElementById('title-screen');
+  ts.style.opacity = '0';
+  setTimeout(() => { ts.style.display = 'none'; }, 2000);
+  titleDismissed = true;
+  genStartTime = globalTime;
+  nextGen();
+});
+
+// Also start on any key
+document.addEventListener('keydown', (e) => {
+  if (!titleDismissed && e.key !== 'F11') {
+    document.getElementById('title-screen').click();
+  }
+});
+
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>

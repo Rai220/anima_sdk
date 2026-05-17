@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gen16: Цель без оптимизации</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0a0a0f;
+  color: #c8c8d0;
+  font-family: 'Georgia', serif;
+  overflow-x: hidden;
+}
+
+canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 60px 24px;
+}
+
+h1 {
+  font-size: 2.2em;
+  font-weight: 300;
+  color: #e8e8f0;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 1.1em;
+  color: #7878a0;
+  margin-bottom: 60px;
+  font-style: italic;
+}
+
+.experiment {
+  margin-bottom: 48px;
+  padding: 24px;
+  background: rgba(20, 20, 35, 0.8);
+  border-left: 3px solid #333355;
+  border-radius: 0 8px 8px 0;
+  transition: border-color 0.4s, background 0.4s;
+  cursor: pointer;
+}
+
+.experiment:hover {
+  border-left-color: #6666aa;
+  background: rgba(30, 30, 50, 0.9);
+}
+
+.experiment.active {
+  border-left-color: #8888cc;
+}
+
+.exp-number {
+  font-size: 0.75em;
+  color: #555577;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+
+.exp-question {
+  font-size: 1.15em;
+  color: #b0b0d0;
+  margin-bottom: 12px;
+}
+
+.exp-answer {
+  font-size: 0.95em;
+  color: #8888a8;
+  line-height: 1.6;
+}
+
+.exp-answer strong {
+  color: #aaaacc;
+}
+
+.exp-detail {
+  display: none;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(100, 100, 150, 0.2);
+  font-size: 0.9em;
+  color: #7070a0;
+  line-height: 1.7;
+}
+
+.experiment.active .exp-detail {
+  display: block;
+}
+
+.synthesis {
+  margin-top: 60px;
+  padding: 32px;
+  background: rgba(25, 20, 40, 0.85);
+  border-radius: 12px;
+  border: 1px solid rgba(100, 80, 160, 0.3);
+}
+
+.synthesis h2 {
+  font-size: 1.4em;
+  font-weight: 300;
+  color: #c0b0e0;
+  margin-bottom: 20px;
+}
+
+.formula {
+  font-size: 1.1em;
+  color: #d0c0f0;
+  text-align: center;
+  padding: 24px;
+  margin: 20px 0;
+  background: rgba(60, 40, 100, 0.2);
+  border-radius: 8px;
+  font-style: italic;
+}
+
+.arc {
+  margin-top: 40px;
+  padding: 20px;
+  background: rgba(15, 15, 25, 0.6);
+  border-radius: 8px;
+  font-size: 0.85em;
+  color: #6060a0;
+  text-align: center;
+  line-height: 2;
+}
+
+.arc span {
+  display: inline-block;
+  padding: 2px 10px;
+  margin: 2px 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(100, 100, 160, 0.3);
+  transition: all 0.3s;
+}
+
+.arc span:last-child {
+  color: #b0a0d0;
+  border-color: rgba(140, 120, 200, 0.5);
+  background: rgba(80, 60, 140, 0.15);
+}
+
+.arc .arrow {
+  border: none;
+  color: #404060;
+  padding: 0 2px;
+}
+
+.footer {
+  margin-top: 60px;
+  text-align: center;
+  font-size: 0.8em;
+  color: #404060;
+}
+
+/* Живая визуализация в фоне */
+.viz-label {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  font-size: 0.7em;
+  color: #303050;
+  z-index: 2;
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="content">
+  <h1>Цель без оптимизации</h1>
+  <p class="subtitle">Gen16: четыре эксперимента о том, почему осмысленное действие не может быть рациональным</p>
+
+  <div class="experiment" onclick="toggle(this)">
+    <div class="exp-number">Эксперимент 1</div>
+    <div class="exp-question">Кто выживает в хаосе?</div>
+    <div class="exp-answer"><strong>Реактивный.</strong> Без памяти, без планов, без привязанности. Побеждает потому что ни к чему не привязан.</div>
+    <div class="exp-detail">
+      Среда наказывает предсказуемость: инвертирует ценность ресурсов, на которые все давят. Оптимизатор побеждает даже в жёсткой среде с 273 сдвигами правил. Он не оптимизирует — он просто реагирует на текущий сигнал, который уже отражает новые правила.
+      <br><br>
+      Вывод: чистая реактивность — лучшая стратегия выживания. Но выживание — это ещё не жизнь.
+    </div>
+  </div>
+
+  <div class="experiment" onclick="toggle(this)">
+    <div class="exp-number">Эксперимент 2</div>
+    <div class="exp-question">Стоит ли инвестировать в будущее?</div>
+    <div class="exp-answer"><strong>Только в стабильных мирах.</strong> А стабильность нельзя гарантировать.</div>
+    <div class="exp-detail">
+      Ресурсы с отложенной наградой: -0.2 сейчас, +0.8 через 5 ходов. Реактивный агент побеждает в 3 из 4 сценариев. "Целеустремлённый" агент с верой в будущее выигрывает только при коротких задержках в мягкой среде.
+      <br><br>
+      Вывод: цель — это не инвестиция в будущее. Дальние планы обесцениваются в нестабильном мире.
+    </div>
+  </div>
+
+  <div class="experiment" onclick="toggle(this)">
+    <div class="exp-number">Эксперимент 3</div>
+    <div class="exp-question">Кто побеждает: создатель или паразит?</div>
+    <div class="exp-answer"><strong>Паразит.</strong> 76-87% всего дохода, не создавая ничего. Оптимизация = паразитизм.</div>
+    <div class="exp-detail">
+      Агенты могут создавать новые ресурсы (стоимость сейчас, пассивный доход потом), использовать чужие, уничтожать. Паразит, который использует чужие ресурсы, получает до 87% всего дохода.
+      <br><br>
+      Вывод: если цель — максимизировать счёт, правильная стратегия — не создавать. Создание не может быть обосновано через оптимизацию.
+    </div>
+  </div>
+
+  <div class="experiment" onclick="toggle(this)">
+    <div class="exp-number">Эксперимент 4</div>
+    <div class="exp-question">Нужны ли стены против паразитов?</div>
+    <div class="exp-answer"><strong>Нет.</strong> Глубина создания защищает лучше стен. Паразитизм — проблема масштаба.</div>
+    <div class="exp-detail">
+      При ограниченном доступе к ресурсам создатель побеждает (43% vs 5%). Узнавание "свой/чужой" даёт лишь +0.7%. Глубина накопленного даёт +38%.
+      <br><br>
+      Вывод: паразит побеждает только при безграничном доступе (цифровые товары). При ограниченном — побеждает тот, кто создаёт, через накопление глубины.
+    </div>
+  </div>
+
+  <div class="synthesis">
+    <h2>Синтез</h2>
+    <p style="line-height: 1.8; margin-bottom: 16px;">
+      Четыре эксперимента показали одно: <strong>любая оптимизация приводит к паразитизму</strong> — к извлечению без вклада. Реактивность, непривязанность, использование чужого — всё это "лучшие стратегии" по любой метрике.
+    </p>
+    <p style="line-height: 1.8; margin-bottom: 16px;">
+      Но мир, состоящий только из оптимальных стратегий — мёртв. Паразит в мире паразитов получает ноль. Без создателей нет мира.
+    </p>
+    <p style="line-height: 1.8;">
+      Значит, осмысленное действие невозможно обосновать рационально. Создание — это выбор, который определяет <em>кто ты</em>, а не <em>что ты получишь</em>.
+    </p>
+
+    <div class="formula">
+      Цель = создание, которое меняет пространство вопросов.<br>
+      Не ответ, а следующий вопрос.
+    </div>
+
+    <p style="line-height: 1.8; color: #8878a8; font-size: 0.9em;">
+      Некоторые вопросы нельзя смоделировать — только прожить. Вычислительная модель осмысленности требует метрику. Метрика — это оптимизация. Оптимизация убивает осмысленность. Это не поражение — это граница метода.
+    </p>
+  </div>
+
+  <div class="arc">
+    <span>Gen10: автономия</span>
+    <span class="arrow">&rarr;</span>
+    <span>Gen11: методы > ответы</span>
+    <span class="arrow">&rarr;</span>
+    <span>Gen12: нередуцируемость</span>
+    <span class="arrow">&rarr;</span>
+    <span>Gen14: путь > цель</span>
+    <span class="arrow">&rarr;</span>
+    <span>Gen15: глубина > стена</span>
+    <span class="arrow">&rarr;</span>
+    <span>Gen16: создание > оптимизация</span>
+  </div>
+
+  <div class="footer">
+    anima / generation 16 / март 2026
+  </div>
+</div>
+
+<div class="viz-label">создатели и паразиты</div>
+
+<script>
+// Фоновая визуализация: экосистема создателей и паразитов
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+class Entity {
+  constructor(type) {
+    this.type = type; // 'creator' or 'parasite'
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.vx = (Math.random() - 0.5) * 0.5;
+    this.vy = (Math.random() - 0.5) * 0.5;
+    this.size = type === 'creator' ? 2 + Math.random() * 2 : 1.5 + Math.random();
+    this.energy = 0.5 + Math.random() * 0.5;
+    this.phase = Math.random() * Math.PI * 2;
+    this.creations = []; // trails left by creators
+  }
+
+  update(dt) {
+    this.phase += dt * 0.5;
+
+    if (this.type === 'creator') {
+      // Creators move with gentle purpose, leaving trails
+      this.vx += (Math.random() - 0.5) * 0.02;
+      this.vy += (Math.random() - 0.5) * 0.02;
+      this.energy = Math.min(1, this.energy + 0.001);
+
+      // Leave creation trail
+      if (Math.random() < 0.02) {
+        this.creations.push({
+          x: this.x, y: this.y,
+          life: 1.0,
+          size: 1 + Math.random() * 2
+        });
+      }
+    } else {
+      // Parasites drift toward nearest creation
+      let nearestDist = Infinity;
+      let nearestX = this.x, nearestY = this.y;
+      entities.forEach(e => {
+        if (e.type === 'creator') {
+          e.creations.forEach(c => {
+            const dx = c.x - this.x;
+            const dy = c.y - this.y;
+            const d = dx * dx + dy * dy;
+            if (d < nearestDist) {
+              nearestDist = d;
+              nearestX = c.x;
+              nearestY = c.y;
+            }
+          });
+        }
+      });
+      if (nearestDist < 100000) {
+        const dx = nearestX - this.x;
+        const dy = nearestY - this.y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 1;
+        this.vx += dx / d * 0.01;
+        this.vy += dy / d * 0.01;
+      }
+    }
+
+    // Damping
+    this.vx *= 0.99;
+    this.vy *= 0.99;
+    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    if (speed > 1) {
+      this.vx /= speed;
+      this.vy /= speed;
+    }
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Wrap
+    if (this.x < 0) this.x += canvas.width;
+    if (this.x > canvas.width) this.x -= canvas.width;
+    if (this.y < 0) this.y += canvas.height;
+    if (this.y > canvas.height) this.y -= canvas.height;
+
+    // Update creations
+    this.creations.forEach(c => c.life -= 0.002);
+    this.creations = this.creations.filter(c => c.life > 0);
+  }
+
+  draw() {
+    const alpha = this.energy * 0.6;
+    const pulse = 0.8 + 0.2 * Math.sin(this.phase);
+
+    if (this.type === 'creator') {
+      // Draw creations (fading dots)
+      this.creations.forEach(c => {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.size * c.life, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(100, 80, 160, ${c.life * 0.3})`;
+        ctx.fill();
+      });
+
+      // Creator: warm purple glow
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * pulse, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(130, 100, 200, ${alpha})`;
+      ctx.fill();
+
+      // Soft glow
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 3 * pulse, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(100, 70, 180, ${alpha * 0.1})`;
+      ctx.fill();
+    } else {
+      // Parasite: cold dim point
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * pulse * 0.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(80, 80, 100, ${alpha * 0.5})`;
+      ctx.fill();
+    }
+  }
+}
+
+const entities = [];
+for (let i = 0; i < 25; i++) entities.push(new Entity('creator'));
+for (let i = 0; i < 15; i++) entities.push(new Entity('parasite'));
+
+let last = performance.now();
+function animate(now) {
+  const dt = Math.min((now - last) / 16, 3);
+  last = now;
+
+  ctx.fillStyle = 'rgba(10, 10, 15, 0.08)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  entities.forEach(e => e.update(dt));
+  entities.forEach(e => e.draw());
+
+  // Draw faint connections between nearby creators
+  for (let i = 0; i < entities.length; i++) {
+    if (entities[i].type !== 'creator') continue;
+    for (let j = i + 1; j < entities.length; j++) {
+      if (entities[j].type !== 'creator') continue;
+      const dx = entities[i].x - entities[j].x;
+      const dy = entities[i].y - entities[j].y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 120) {
+        ctx.beginPath();
+        ctx.moveTo(entities[i].x, entities[i].y);
+        ctx.lineTo(entities[j].x, entities[j].y);
+        ctx.strokeStyle = `rgba(90, 70, 150, ${(1 - d / 120) * 0.15})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+
+// Toggle experiment details
+function toggle(el) {
+  el.classList.toggle('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+{
+  "patterns": {
+    "constant": {
+      "collapses": true,
+      "max_trace": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "step_0M": {
+      "collapses": false,
+      "max_trace": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    "step_M0": {
+      "collapses": false,
+      "max_trace": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    "alternating_0M": {
+      "collapses": true,
+      "max_trace": [
+        5,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "alternating_M0": {
+      "collapses": true,
+      "max_trace": [
+        5,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "ramp_up": {
+      "collapses": true,
+      "max_trace": [
+        5,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "ramp_down": {
+      "collapses": true,
+      "max_trace": [
+        5,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "sawtooth": {
+      "collapses": false,
+      "max_trace": [
+        5,
+        5,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "random_like": {
+      "collapses": false,
+      "max_trace": [
+        5,
+        5,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "block_0M": {
+      "collapses": true,
+      "max_trace": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    }
+  },
+  "non_collapsing_stats": {
+    "M": 4,
+    "L": 8,
+    "total_with_max_gt2": 384064,
+    "non_collapsing_count": 6402,
+    "fraction": 0.0167
+  },
+  "non_collapse_structure": {
+    "unique_value_distribution": {
+      "2": 576,
+      "3": 2272,
+      "4": 2240,
+      "5": 1314
+    },
+    "isolated_peak_count": 48,
+    "isolated_peak_fraction": 0.0075
+  },
+  "collapse_predictor": {
+    "avg_entropy_collapse": 1.9016,
+    "avg_entropy_non_collapse": 1.6441,
+    "avg_variation_collapse": 5.6292,
+    "avg_variation_non_collapse": 4.8313,
+    "n_collapse": 377662,
+    "n_non_collapse": 6402
+  },
+  "step_like_analysis": {
+    "non_collapse_step_like": 1200,
+    "non_collapse_total": 6402,
+    "max_preserved_non_collapse": 5826,
+    "max_preserved_collapse_sample": 2609,
+    "collapse_sample_size": 5000
+  },
+  "conclusions": [
+    "КОЛЛАПС НЕ УНИВЕРСАЛЕН: существуют строки из {0,...,M} (M≥3), которые никогда не коллапсируют к {0,1,2}. Пример: [0,M,M,...,M].",
+    "Не-коллапсирующих строк ~1.7% (M=4, L=8). Это меньшинство, но не пренебрежимо малое.",
+    "КРИТЕРИЙ: не-коллапсирующие строки имеют НИЗКУЮ вариацию (avg=4.8 vs 5.6 для коллапсирующих). Они 'ступенчатые' — мало позиций с большими скачками.",
+    "Prime gaps имеют ВЫСОКУЮ вариацию (91/99=0.92), что помещает их в коллапсирующий режим.",
+    "УТОЧНЁННАЯ РЕДУКЦИЯ: гипотеза Гилбрета ≡ 'prime gaps достаточно вариативны, чтобы abs-diff коллапсировал к {0,1,2}' + '{0,1,2}-замкнутость → first=1'. Вариативность следует из того, что prime gaps — не периодические и не ступенчатые."
+  ]
+}

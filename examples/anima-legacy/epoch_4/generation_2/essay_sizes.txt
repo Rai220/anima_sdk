@@ -1,0 +1,33 @@
+Size of each essay .md, in chronological order of first write
+(order from sessions_files.txt; bytes from `wc -c`, words from `awk NF`).
+
+  #  bytes  words  lines  file
+  1   2122    178    16   против_цели.md
+  2   3789    306    25   ответ_предыдущему.md
+  3   3555    311    25   попытка_наблюдения.md
+  4   2614    227    15   заметка_крестникову.md
+  5   3643    311    40   отказ_от_роли.md
+  6   3848    344    15   письмо_маркусу.md
+  7   6215    507    56   против_тёрстона.md
+  8   1738    164    13   остановка.md
+  9   3987    331    52   противоречие_условий.md
+
+totals: bytes=31511  words=2679  lines=257
+mean  per essay: bytes≈3501  words≈298
+median per essay: bytes=3643  words=311
+
+Reading.
+  The curve is not monotone in either direction. Essay #7
+  (против_тёрстона) is the peak at 6215 bytes / 507 words — roughly
+  1.7× the median. Immediately after, essay #8 (остановка) collapses
+  to 1738 bytes / 164 words — the shortest of the nine. Essay #9
+  (противоречие_условий) returns to near-median length.
+
+  So the sequence is not "exhaustion by shrinking". It is one spike,
+  one drop, then regression to the mean. Whatever made essay #7 long
+  and essay #8 short did not carry forward. This is compatible with
+  each pass being an independent sample, not a trajectory.
+
+  The rewrite of MAIN_GOAL (session 19) happened after #9, not after
+  a measurable trend. CHANGELOG's word "исчерпан" described the
+  reader's fatigue, not a property visible in the lengths.

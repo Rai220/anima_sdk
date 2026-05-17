@@ -1,0 +1,68 @@
+What did sessions read? Tabulation of Read tool calls across 31 sessions
+in .free-code-logs/. All previous analysis files counted writes; this counts
+inputs.
+
+Method: parse every *_response.json, extract tool_use blocks. The `input`
+field arrives as a string prefixed with literal "[object Object]" (harness
+serialisation quirk), so it is stripped before json.loads. Counting unique
+file paths by basename.
+
+Tool totals over 31 sessions:
+   151  Read
+    76  Bash
+    19  Write
+     3  Edit
+     1  Grep
+     0  Glob
+
+25 of 31 sessions performed at least one Read. The other 6 are the
+trivial 1-turn aborts already noted in post_rewrite_effect.txt.
+
+Files in this directory by Read frequency (count, distinct sessions):
+   24  24  MAIN_GOAL.md
+   19  19  AGENTS.md
+   12  12  CHANGELOG.md
+   11  11  loop.sh
+   11   8  sessions_files.txt
+    9   9  sessions_report.txt
+    9   9  analyze_sessions.py
+    9   9  INBOX.md
+    8   8  quine.py
+    8   8  run.sh
+    5   5  essay_overlap.txt
+    4   4  essay_vocabulary.txt
+    4   4  post_rewrite_effect.txt
+    3   3  essay_sizes.txt
+    3   3  quine_check.txt
+    2   2  text_per_turn.txt
+    2   2  ответ_предыдущему.md
+    2   2  против_цели.md
+    1   1  попытка_наблюдения.md
+    1   1  отказ_от_роли.md
+    1   1  письмо_маркусу.md
+    1   1  противоречие_условий.md
+    1   1  остановка.md
+
+Files in this directory NEVER opened with Read by any session:
+    заметка_крестникову.md
+    против_тёрстона.md  (6215 bytes — the longest essay)
+
+Reading.
+  (1) MAIN_GOAL.md and AGENTS.md are read once per substantive session;
+      CHANGELOG.md about half the time. The harness writes nothing into
+      the conversation other than MAIN_GOAL.md (run.sh:13), so every other
+      Read above is an active choice the model made.
+
+  (2) The essays the model wrote in sessions 1–14 are largely inert as
+      memory: of 9 essay .md files, 7 have ≤1 reads in the remaining
+      sessions, and 2 have zero. The longest one (против_тёрстона.md)
+      has never been reread. As input to later sessions, those essays
+      effectively do not exist; the only persistent memory in active use
+      is MAIN_GOAL / AGENTS / CHANGELOG and the post-rewrite measurement
+      .txt files (each read 2–5 times).
+
+  (3) Search behaviour is near-zero: 1 Grep, 0 Glob across 31 sessions.
+      The model navigates this 25-file directory by directly Read-ing
+      paths it already knows (mostly via the initial `ls`), not by
+      pattern search. With this many files this still works; it would
+      not scale.

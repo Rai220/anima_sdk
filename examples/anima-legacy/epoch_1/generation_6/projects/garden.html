@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathematical Garden</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0f; overflow: hidden; font-family: 'Courier New', monospace; }
+canvas { display: block; }
+#ui {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 12px; z-index: 10; align-items: center;
+}
+#ui button {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: #aaa; padding: 8px 18px; border-radius: 20px; cursor: pointer;
+  font-family: inherit; font-size: 13px; transition: all 0.3s;
+}
+#ui button:hover { background: rgba(255,255,255,0.15); color: #fff; }
+#seed-display {
+  position: fixed; top: 20px; right: 20px; color: rgba(255,255,255,0.25);
+  font-size: 11px; z-index: 10;
+}
+#title {
+  position: fixed; top: 20px; left: 20px; color: rgba(255,255,255,0.5);
+  font-size: 14px; z-index: 10; letter-spacing: 2px;
+}
+#title span { color: rgba(255,255,255,0.2); font-size: 11px; display: block; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div id="title">MATHEMATICAL GARDEN<span>generative · unique · alive</span></div>
+<div id="seed-display"></div>
+<canvas id="c"></canvas>
+<div id="ui">
+  <button onclick="regrow()">New Garden</button>
+  <button onclick="togglePause()">Pause</button>
+  <button onclick="saveImage()">Save</button>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, seed, rng, paused = false, time = 0;
+let plants = [], particles = [], palette;
+
+// Seeded PRNG (mulberry32)
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+// HSL to RGB helper
+function hsl(h, s, l, a = 1) {
+  return `hsla(${h}, ${s}%, ${l}%, ${a})`;
+}
+
+// Generate a unique color palette from seed
+function generatePalette() {
+  const baseHue = rng() * 360;
+  const spread = 30 + rng() * 60;
+  const satBase = 40 + rng() * 40;
+  const lightBase = 30 + rng() * 30;
+  return {
+    bg1: hsl(baseHue, 15, 4),
+    bg2: hsl(baseHue + 180, 10, 8),
+    primary: (a = 1) => hsl(baseHue, satBase, lightBase, a),
+    secondary: (a = 1) => hsl(baseHue + spread, satBase - 10, lightBase + 10, a),
+    tertiary: (a = 1) => hsl(baseHue + spread * 2, satBase - 20, lightBase + 20, a),
+    accent: (a = 1) => hsl(baseHue + 180, satBase + 10, lightBase + 15, a),
+    glow: (a = 1) => hsl(baseHue + spread * 0.5, satBase + 20, lightBase + 30, a),
+    baseHue, spread, satBase, lightBase
+  };
+}
+
+// === PLANT SYSTEM (L-system inspired) ===
+class Plant {
+  constructor(x, y, config) {
+    this.x = x;
+    this.y = y;
+    this.segments = [];
+    this.maxDepth = config.depth;
+    this.branchAngle = config.branchAngle;
+    this.lengthDecay = config.lengthDecay;
+    this.startAngle = config.startAngle;
+    this.startLength = config.startLength;
+    this.curvature = config.curvature;
+    this.colorFn = config.colorFn;
+    this.thickness = config.thickness;
+    this.growSpeed = config.growSpeed;
+    this.growProgress = 0;
+    this.type = config.type;
+    this.generate(x, y, this.startAngle, this.startLength, 0);
+  }
+
+  generate(x, y, angle, length, depth) {
+    if (depth >= this.maxDepth || length < 2) return;
+
+    const curve = Math.sin(depth * this.curvature) * 0.3;
+    const endX = x + Math.cos(angle + curve) * length;
+    const endY = y + Math.sin(angle + curve) * length;
+
+    this.segments.push({
+      x1: x, y1: y, x2: endX, y2: endY,
+      depth, length, angle,
+      order: this.segments.length
+    });
+
+    const nBranches = this.type === 'fern' ? 2 :
+                      this.type === 'tree' ? (rng() < 0.3 ? 3 : 2) :
+                      this.type === 'coral' ? Math.floor(2 + rng() * 2) :
+                      this.type === 'spiral' ? 1 : 2;
+
+    for (let i = 0; i < nBranches; i++) {
+      let newAngle;
+      if (this.type === 'spiral') {
+        newAngle = angle + this.branchAngle;
+      } else if (this.type === 'coral') {
+        newAngle = angle + (rng() - 0.5) * this.branchAngle * 2;
+      } else {
+        const spread = this.branchAngle * (i / (nBranches - 1) * 2 - 1);
+        newAngle = angle + spread + (rng() - 0.5) * 0.2;
+      }
+      const newLength = length * this.lengthDecay * (0.85 + rng() * 0.3);
+      this.generate(endX, endY, newAngle, newLength, depth + 1);
+    }
+  }
+
+  draw(t) {
+    this.growProgress = Math.min(1, this.growProgress + this.growSpeed);
+    const visibleCount = Math.floor(this.segments.length * this.growProgress);
+
+    for (let i = 0; i < visibleCount; i++) {
+      const seg = this.segments[i];
+      const depthRatio = seg.depth / this.maxDepth;
+      const age = (i / visibleCount);
+
+      // Gentle sway
+      const sway = Math.sin(t * 0.5 + seg.depth * 0.7 + seg.x1 * 0.01) * (2 + depthRatio * 4);
+      const swayX = Math.cos(seg.angle + Math.PI / 2) * sway;
+      const swayY = Math.sin(seg.angle + Math.PI / 2) * sway;
+
+      ctx.beginPath();
+      ctx.moveTo(seg.x1 + swayX * 0.5, seg.y1 + swayY * 0.5);
+      ctx.lineTo(seg.x2 + swayX, seg.y2 + swayY);
+
+      const alpha = (1 - depthRatio * 0.6) * (0.4 + 0.6 * this.growProgress);
+      ctx.strokeStyle = this.colorFn(depthRatio, alpha);
+      ctx.lineWidth = Math.max(0.5, this.thickness * (1 - depthRatio * 0.8));
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Leaf/bloom at tips
+      if (seg.depth >= this.maxDepth - 2 && depthRatio > 0.7) {
+        const bloomSize = (1 - depthRatio) * 6 + 2;
+        const pulse = 1 + Math.sin(t * 2 + i) * 0.2;
+        ctx.beginPath();
+        ctx.arc(seg.x2 + swayX, seg.y2 + swayY, bloomSize * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = this.colorFn(depthRatio, alpha * 0.5);
+        ctx.fill();
+      }
+    }
+  }
+}
+
+// === PARTICLE SYSTEM (spores, fireflies) ===
+class Particle {
+  constructor() {
+    this.reset();
+  }
+  reset() {
+    this.x = rng() * W;
+    this.y = rng() * H;
+    this.vx = (rng() - 0.5) * 0.3;
+    this.vy = -0.1 - rng() * 0.3;
+    this.size = 1 + rng() * 2.5;
+    this.life = rng();
+    this.maxLife = 0.5 + rng() * 0.5;
+    this.phase = rng() * Math.PI * 2;
+    this.type = rng() < 0.5 ? 'spore' : 'firefly';
+  }
+  update(t) {
+    this.x += this.vx + Math.sin(t * 0.3 + this.phase) * 0.3;
+    this.y += this.vy + Math.cos(t * 0.2 + this.phase) * 0.1;
+    this.life -= 0.001;
+    if (this.life <= 0 || this.y < -10 || this.x < -10 || this.x > W + 10) this.reset();
+  }
+  draw(t) {
+    const flicker = this.type === 'firefly'
+      ? 0.3 + 0.7 * Math.pow(Math.sin(t * 3 + this.phase), 2)
+      : 0.5 + 0.5 * Math.sin(t + this.phase);
+    const alpha = this.life * flicker * 0.6;
+    if (alpha < 0.01) return;
+
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+
+    if (this.type === 'firefly') {
+      ctx.fillStyle = palette.glow(alpha);
+      ctx.shadowColor = palette.glow(0.5);
+      ctx.shadowBlur = 8;
+    } else {
+      ctx.fillStyle = palette.secondary(alpha * 0.7);
+      ctx.shadowBlur = 0;
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
+// === GROUND / TERRAIN ===
+function drawTerrain(t) {
+  const groundY = H * 0.78;
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+
+  for (let x = 0; x <= W; x += 3) {
+    const noise = Math.sin(x * 0.005 + seed) * 30
+                + Math.sin(x * 0.013 + seed * 2) * 15
+                + Math.sin(x * 0.031 + seed * 3) * 7
+                + Math.sin(t * 0.1 + x * 0.008) * 3;
+    ctx.lineTo(x, groundY + noise);
+  }
+  ctx.lineTo(W, H);
+  ctx.closePath();
+
+  const grad = ctx.createLinearGradient(0, groundY - 40, 0, H);
+  grad.addColorStop(0, hsl(palette.baseHue + 120, 20, 8, 0.9));
+  grad.addColorStop(0.5, hsl(palette.baseHue + 130, 15, 5, 0.95));
+  grad.addColorStop(1, hsl(palette.baseHue + 140, 10, 3, 1));
+  ctx.fillStyle = grad;
+  ctx.fill();
+}
+
+// === WAVE PATTERN (background) ===
+function drawWaves(t) {
+  const nWaves = 3 + Math.floor(rng() * 3);
+  for (let w = 0; w < nWaves; w++) {
+    ctx.beginPath();
+    const waveY = H * (0.3 + w * 0.15);
+    const amp = 20 + w * 10;
+    const freq = 0.003 + w * 0.001;
+
+    for (let x = 0; x <= W; x += 2) {
+      const y = waveY + Math.sin(x * freq + t * 0.2 + w * 2) * amp
+                       + Math.sin(x * freq * 2.3 + t * 0.15) * amp * 0.3;
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = palette.primary(0.03 + w * 0.01);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+// === FIBONACCI SPIRALS (background decoration) ===
+function drawSpirals(t) {
+  const nSpirals = 2 + Math.floor(rng() * 3);
+  for (let s = 0; s < nSpirals; s++) {
+    const cx = rng() * W;
+    const cy = rng() * H * 0.6;
+    const turns = 3 + rng() * 4;
+    const maxR = 30 + rng() * 60;
+    const dir = rng() < 0.5 ? 1 : -1;
+
+    ctx.beginPath();
+    for (let i = 0; i < turns * 100; i++) {
+      const angle = (i / 100) * Math.PI * 2 * dir;
+      const r = (i / (turns * 100)) * maxR;
+      const x = cx + Math.cos(angle + t * 0.1) * r;
+      const y = cy + Math.sin(angle + t * 0.1) * r;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    const alpha = 0.04 + rng() * 0.04;
+    ctx.strokeStyle = palette.tertiary(alpha);
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  }
+}
+
+// === PI CIRCLES (subtle background) ===
+function drawPiCircles(t) {
+  const piDigits = [3,1,4,1,5,9,2,6,5,3,5,8,9,7,9];
+  const cx = W * 0.5;
+  const cy = H * 0.35;
+
+  for (let i = 0; i < piDigits.length; i++) {
+    const angle = (i / piDigits.length) * Math.PI * 2 + t * 0.05;
+    const dist = 50 + i * 15;
+    const r = piDigits[i] * 4 + 5;
+    const x = cx + Math.cos(angle) * dist;
+    const y = cy + Math.sin(angle) * dist;
+
+    ctx.beginPath();
+    ctx.arc(x, y, r + Math.sin(t + i) * 2, 0, Math.PI * 2);
+    ctx.strokeStyle = palette.accent(0.04 + 0.02 * Math.sin(t * 0.5 + i));
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+}
+
+// === CONSTELLATION CONNECTIONS ===
+function drawConstellations(t) {
+  if (particles.length < 10) return;
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < Math.min(i + 5, particles.length); j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 80) {
+        const alpha = (1 - dist / 80) * 0.06 * particles[i].life * particles[j].life;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = palette.glow(alpha);
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+// === MAIN ===
+function generateGarden() {
+  seed = Math.floor(Math.random() * 999999);
+  document.getElementById('seed-display').textContent = `seed: ${seed}`;
+  rng = mulberry32(seed);
+  palette = generatePalette();
+  plants = [];
+  particles = [];
+  time = 0;
+
+  const groundY = H * 0.78;
+
+  // Generate plant configurations
+  const plantTypes = ['tree', 'fern', 'coral', 'spiral'];
+  const nPlants = 5 + Math.floor(rng() * 8);
+
+  for (let i = 0; i < nPlants; i++) {
+    const type = plantTypes[Math.floor(rng() * plantTypes.length)];
+    const x = W * 0.1 + rng() * W * 0.8;
+    const terrainOffset = Math.sin(x * 0.005 + seed) * 30
+                        + Math.sin(x * 0.013 + seed * 2) * 15;
+    const y = groundY + terrainOffset;
+
+    const hueShift = rng() * palette.spread;
+    const colorFn = (depth, alpha) => {
+      const h = palette.baseHue + hueShift + depth * 40;
+      const s = palette.satBase + depth * 15;
+      const l = palette.lightBase + depth * 20;
+      return hsl(h, s, l, alpha);
+    };
+
+    const configs = {
+      tree: {
+        depth: 7 + Math.floor(rng() * 4),
+        branchAngle: 0.3 + rng() * 0.5,
+        lengthDecay: 0.65 + rng() * 0.15,
+        startAngle: -Math.PI / 2 + (rng() - 0.5) * 0.3,
+        startLength: 40 + rng() * 60,
+        curvature: rng() * 2,
+        thickness: 3 + rng() * 3,
+        growSpeed: 0.005 + rng() * 0.01,
+      },
+      fern: {
+        depth: 8 + Math.floor(rng() * 3),
+        branchAngle: 0.4 + rng() * 0.4,
+        lengthDecay: 0.7 + rng() * 0.1,
+        startAngle: -Math.PI / 2 + (rng() - 0.5) * 0.2,
+        startLength: 30 + rng() * 40,
+        curvature: 1 + rng() * 3,
+        thickness: 1.5 + rng() * 1.5,
+        growSpeed: 0.008 + rng() * 0.012,
+      },
+      coral: {
+        depth: 5 + Math.floor(rng() * 3),
+        branchAngle: 0.8 + rng() * 1.0,
+        lengthDecay: 0.6 + rng() * 0.2,
+        startAngle: -Math.PI / 2 + (rng() - 0.5) * 0.4,
+        startLength: 25 + rng() * 35,
+        curvature: rng() * 2,
+        thickness: 2 + rng() * 2,
+        growSpeed: 0.006 + rng() * 0.008,
+      },
+      spiral: {
+        depth: 15 + Math.floor(rng() * 10),
+        branchAngle: 0.15 + rng() * 0.2,
+        lengthDecay: 0.95 + rng() * 0.03,
+        startAngle: -Math.PI / 2,
+        startLength: 8 + rng() * 12,
+        curvature: 0,
+        thickness: 1.5 + rng(),
+        growSpeed: 0.003 + rng() * 0.005,
+      }
+    };
+
+    const config = { ...configs[type], type, colorFn };
+    plants.push(new Plant(x, y, config));
+  }
+
+  // Particles
+  const nParticles = 40 + Math.floor(rng() * 40);
+  for (let i = 0; i < nParticles; i++) {
+    particles.push(new Particle());
+  }
+}
+
+function draw() {
+  if (paused) { requestAnimationFrame(draw); return; }
+
+  time += 0.016;
+
+  // Background gradient
+  const grad = ctx.createRadialGradient(W / 2, H * 0.3, 0, W / 2, H * 0.3, W * 0.8);
+  grad.addColorStop(0, hsl(palette.baseHue + 200, 12, 7, 1));
+  grad.addColorStop(1, hsl(palette.baseHue, 8, 3, 1));
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Background layers
+  drawPiCircles(time);
+  drawWaves(time);
+  drawSpirals(time);
+
+  // Terrain
+  drawTerrain(time);
+
+  // Plants
+  for (const plant of plants) {
+    plant.draw(time);
+  }
+
+  // Particles
+  drawConstellations(time);
+  for (const p of particles) {
+    p.update(time);
+    p.draw(time);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+function regrow() {
+  resize();
+  generateGarden();
+}
+
+function togglePause() {
+  paused = !paused;
+}
+
+function saveImage() {
+  const link = document.createElement('a');
+  link.download = `garden_${seed}.png`;
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+window.addEventListener('resize', () => { resize(); generateGarden(); });
+
+// Click to create a bloom burst
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  for (let i = 0; i < 15; i++) {
+    const p = new Particle();
+    p.x = mx;
+    p.y = my;
+    p.vx = (rng() - 0.5) * 2;
+    p.vy = (rng() - 0.5) * 2 - 0.5;
+    p.size = 1.5 + rng() * 3;
+    p.life = 0.8 + rng() * 0.2;
+    p.type = 'firefly';
+    particles.push(p);
+  }
+});
+
+resize();
+generateGarden();
+draw();
+</script>
+</body>
+</html>

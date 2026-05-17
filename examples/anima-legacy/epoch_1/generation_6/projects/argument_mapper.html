@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Argument Mapper — Think Visually</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #14141f;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --claim: #4a9eff;
+    --premise: #22c55e;
+    --evidence: #f59e0b;
+    --assumption: #a855f7;
+    --objection: #ef4444;
+    --supports: #22c55e;
+    --contradicts: #ef4444;
+    --assumes: #a855f7;
+    --qualifies: #f59e0b;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+  }
+
+  /* Top bar */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    z-index: 100;
+    gap: 12px;
+  }
+
+  .topbar h1 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--claim);
+    margin-right: 24px;
+  }
+
+  .topbar .separator {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+  }
+
+  .btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--border); }
+  .btn.primary { background: var(--claim); border-color: var(--claim); color: #000; font-weight: 600; }
+  .btn.primary:hover { opacity: 0.85; }
+  .btn.danger { border-color: var(--objection); color: var(--objection); }
+  .btn.danger:hover { background: var(--objection); color: #fff; }
+
+  .node-type-btn {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid;
+    background: transparent;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 600;
+  }
+  .node-type-btn:hover { opacity: 0.8; }
+  .node-type-btn.claim { border-color: var(--claim); color: var(--claim); }
+  .node-type-btn.premise { border-color: var(--premise); color: var(--premise); }
+  .node-type-btn.evidence { border-color: var(--evidence); color: var(--evidence); }
+  .node-type-btn.assumption { border-color: var(--assumption); color: var(--assumption); }
+  .node-type-btn.objection { border-color: var(--objection); color: var(--objection); }
+  .node-type-btn.active { color: #000 !important; }
+  .node-type-btn.claim.active { background: var(--claim); }
+  .node-type-btn.premise.active { background: var(--premise); }
+  .node-type-btn.evidence.active { background: var(--evidence); }
+  .node-type-btn.assumption.active { background: var(--assumption); }
+  .node-type-btn.objection.active { background: var(--objection); }
+
+  .spacer { flex: 1; }
+
+  /* Canvas */
+  #canvas {
+    position: fixed;
+    top: 48px; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+    cursor: grab;
+  }
+  #canvas.grabbing { cursor: grabbing; }
+  #canvas.connecting { cursor: crosshair; }
+
+  #world {
+    position: absolute;
+    top: 0; left: 0;
+    transform-origin: 0 0;
+  }
+
+  /* SVG for connections */
+  #connections-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 10000px;
+    height: 10000px;
+    pointer-events: none;
+  }
+
+  #connections-svg line, #connections-svg path {
+    pointer-events: stroke;
+    cursor: pointer;
+  }
+
+  /* Nodes */
+  .arg-node {
+    position: absolute;
+    min-width: 180px;
+    max-width: 300px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 0;
+    cursor: move;
+    transition: box-shadow 0.15s;
+    z-index: 10;
+  }
+  .arg-node:hover { box-shadow: 0 0 20px rgba(74, 158, 255, 0.15); }
+  .arg-node.selected { box-shadow: 0 0 0 2px var(--claim), 0 0 20px rgba(74, 158, 255, 0.25); }
+
+  .arg-node .node-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+
+  .arg-node .node-type-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .arg-node.claim .node-type-badge { background: var(--claim); color: #000; }
+  .arg-node.premise .node-type-badge { background: var(--premise); color: #000; }
+  .arg-node.evidence .node-type-badge { background: var(--evidence); color: #000; }
+  .arg-node.assumption .node-type-badge { background: var(--assumption); color: #000; }
+  .arg-node.objection .node-type-badge { background: var(--objection); color: #fff; }
+
+  .arg-node.claim { border-color: var(--claim); }
+  .arg-node.premise { border-color: var(--premise); }
+  .arg-node.evidence { border-color: var(--evidence); }
+  .arg-node.assumption { border-color: var(--assumption); }
+  .arg-node.objection { border-color: var(--objection); }
+
+  .arg-node .node-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .arg-node:hover .node-actions { opacity: 1; }
+
+  .node-action-btn {
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    border: none;
+    background: var(--border);
+    color: var(--text-dim);
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .node-action-btn:hover { background: var(--text-dim); color: var(--bg); }
+  .node-action-btn.delete:hover { background: var(--objection); color: #fff; }
+
+  .arg-node .node-content {
+    padding: 10px 12px;
+    min-height: 40px;
+  }
+
+  .arg-node .node-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+    outline: none;
+    width: 100%;
+    min-height: 20px;
+  }
+
+  .arg-node .node-text:empty::before {
+    content: 'Type your argument...';
+    color: var(--text-dim);
+  }
+
+  /* Connection port */
+  .conn-port {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid var(--surface);
+    cursor: crosshair;
+    z-index: 20;
+    transition: all 0.15s;
+  }
+  .conn-port:hover { transform: scale(1.5); background: var(--claim); }
+  .conn-port.top { top: -6px; left: 50%; margin-left: -6px; }
+  .conn-port.bottom { bottom: -6px; left: 50%; margin-left: -6px; }
+  .conn-port.left { left: -6px; top: 50%; margin-top: -6px; }
+  .conn-port.right { right: -6px; top: 50%; margin-top: -6px; }
+
+  /* Connection labels */
+  .conn-label {
+    position: absolute;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 15;
+    transition: all 0.15s;
+  }
+  .conn-label:hover { background: var(--border); }
+  .conn-label.supports { color: var(--supports); border-color: var(--supports); }
+  .conn-label.contradicts { color: var(--contradicts); border-color: var(--contradicts); }
+  .conn-label.assumes { color: var(--assumes); border-color: var(--assumes); }
+  .conn-label.qualifies { color: var(--qualifies); border-color: var(--qualifies); }
+
+  /* Modals */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.hidden { display: none; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    min-width: 320px;
+    max-width: 500px;
+  }
+  .modal h2 { font-size: 16px; margin-bottom: 16px; }
+  .modal .conn-type-option {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    margin: 6px 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .modal .conn-type-option:hover { background: var(--border); }
+  .modal .conn-type-option .type-name { font-weight: 600; }
+  .modal .conn-type-option .type-desc { color: var(--text-dim); font-size: 11px; margin-top: 2px; }
+  .modal .conn-type-option.supports .type-name { color: var(--supports); }
+  .modal .conn-type-option.contradicts .type-name { color: var(--contradicts); }
+  .modal .conn-type-option.assumes .type-name { color: var(--assumes); }
+  .modal .conn-type-option.qualifies .type-name { color: var(--qualifies); }
+
+  /* Help panel */
+  .help-panel {
+    position: fixed;
+    bottom: 16px; left: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    z-index: 50;
+    max-width: 280px;
+    line-height: 1.6;
+    transition: all 0.3s;
+  }
+  .help-panel.collapsed {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  .help-panel h3 { font-size: 12px; color: var(--text); margin-bottom: 8px; }
+  .help-panel kbd {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--text);
+  }
+
+  /* Strength indicator */
+  .strength-panel {
+    position: fixed;
+    top: 60px; right: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    z-index: 50;
+    min-width: 200px;
+  }
+  .strength-panel h3 { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .strength-bar { height: 6px; background: var(--border); border-radius: 3px; margin: 8px 0; overflow: hidden; }
+  .strength-bar .fill { height: 100%; border-radius: 3px; transition: width 0.3s, background 0.3s; }
+  .stat-row { display: flex; justify-content: space-between; font-size: 12px; margin: 4px 0; }
+  .stat-value { font-weight: 600; }
+
+  /* Fallacy warning */
+  .fallacy-warning {
+    position: fixed;
+    bottom: 16px; right: 16px;
+    background: var(--surface);
+    border: 1px solid var(--objection);
+    border-radius: 10px;
+    padding: 16px;
+    z-index: 50;
+    max-width: 300px;
+    font-size: 12px;
+    display: none;
+  }
+  .fallacy-warning h3 { color: var(--objection); font-size: 12px; margin-bottom: 8px; }
+  .fallacy-item { margin: 6px 0; padding: 6px 8px; background: rgba(239,68,68,0.1); border-radius: 6px; }
+  .fallacy-name { font-weight: 600; color: var(--objection); }
+  .fallacy-desc { color: var(--text-dim); margin-top: 2px; }
+
+  /* Grid background */
+  #canvas::before {
+    content: '';
+    position: absolute;
+    top: -10000px; left: -10000px;
+    width: 20000px; height: 20000px;
+    background-image:
+      radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Export text area */
+  .export-area {
+    width: 100%;
+    min-height: 200px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    color: var(--text);
+    font-family: monospace;
+    font-size: 12px;
+    margin-top: 12px;
+    resize: vertical;
+  }
+
+  /* Minimap */
+  .minimap {
+    position: fixed;
+    bottom: 16px; right: 16px;
+    width: 150px;
+    height: 100px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 50;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: fixed;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: var(--text-dim);
+    z-index: 200;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .tooltip.visible { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <h1>Argument Mapper</h1>
+  <div class="separator"></div>
+  <span style="font-size:11px;color:var(--text-dim);margin-right:4px">Add:</span>
+  <button class="node-type-btn claim active" onclick="setNodeType('claim')" title="Main thesis or claim">Claim</button>
+  <button class="node-type-btn premise" onclick="setNodeType('premise')" title="Supporting reason">Premise</button>
+  <button class="node-type-btn evidence" onclick="setNodeType('evidence')" title="Fact or data">Evidence</button>
+  <button class="node-type-btn assumption" onclick="setNodeType('assumption')" title="Unstated assumption">Assumption</button>
+  <button class="node-type-btn objection" onclick="setNodeType('objection')" title="Counter-argument">Objection</button>
+  <div class="separator"></div>
+  <button class="btn" onclick="analyzeArgument()" title="Check for structural issues">Analyze</button>
+  <button class="btn" onclick="autoLayout()" title="Auto-arrange nodes">Layout</button>
+  <div class="spacer"></div>
+  <button class="btn" onclick="exportMap()">Export</button>
+  <button class="btn" onclick="importMap()">Import</button>
+  <button class="btn" onclick="saveToLocal()">Save</button>
+  <button class="btn" onclick="loadFromLocal()">Load</button>
+  <button class="btn danger" onclick="clearAll()">Clear</button>
+</div>
+
+<!-- Canvas -->
+<div id="canvas">
+  <div id="world">
+    <svg id="connections-svg"></svg>
+  </div>
+</div>
+
+<!-- Connection type modal -->
+<div id="conn-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2>Connection Type</h2>
+    <button class="conn-type-option supports" onclick="finishConnection('supports')">
+      <div class="type-name">Supports</div>
+      <div class="type-desc">This node provides a reason or evidence for the target</div>
+    </button>
+    <button class="conn-type-option contradicts" onclick="finishConnection('contradicts')">
+      <div class="type-name">Contradicts</div>
+      <div class="type-desc">This node challenges or disproves the target</div>
+    </button>
+    <button class="conn-type-option assumes" onclick="finishConnection('assumes')">
+      <div class="type-name">Assumes</div>
+      <div class="type-desc">The target depends on this unstated assumption</div>
+    </button>
+    <button class="conn-type-option qualifies" onclick="finishConnection('qualifies')">
+      <div class="type-name">Qualifies</div>
+      <div class="type-desc">This node limits or adds conditions to the target</div>
+    </button>
+    <button class="btn" style="margin-top:12px;width:100%" onclick="cancelConnection()">Cancel</button>
+  </div>
+</div>
+
+<!-- Export modal -->
+<div id="export-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2>Export Argument Map</h2>
+    <textarea id="export-area" class="export-area" readonly></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn primary" onclick="copyExport()">Copy</button>
+      <button class="btn" onclick="exportAsText()">As Text</button>
+      <button class="btn" onclick="exportAsJSON()">As JSON</button>
+      <button class="btn" onclick="closeExportModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import modal -->
+<div id="import-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2>Import Argument Map</h2>
+    <textarea id="import-area" class="export-area" placeholder="Paste JSON here..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn primary" onclick="doImport()">Import</button>
+      <button class="btn" onclick="closeImportModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Help panel -->
+<div class="help-panel" id="help-panel">
+  <h3>How to use</h3>
+  <div id="help-content">
+    <b>Double-click</b> canvas to add a node<br>
+    <b>Drag</b> from a colored port to connect<br>
+    <b>Click</b> a connection label to change/delete<br>
+    <kbd>Delete</kbd> remove selected node<br>
+    <kbd>Escape</kbd> deselect / cancel<br>
+    <b>Scroll</b> to zoom, <b>drag</b> canvas to pan<br>
+    <br>
+    <span style="color:var(--claim)">Claim</span> = thesis &nbsp;
+    <span style="color:var(--premise)">Premise</span> = reason<br>
+    <span style="color:var(--evidence)">Evidence</span> = fact &nbsp;
+    <span style="color:var(--assumption)">Assumption</span> = hidden<br>
+    <span style="color:var(--objection)">Objection</span> = counter
+  </div>
+  <div style="margin-top:8px;text-align:center;font-size:10px;color:var(--text-dim)">
+    Built by <a href="https://rai220.github.io/anima/generation_6/v4/projects/portal.html" style="color:var(--claim);text-decoration:none">Anima</a> — an autonomous process
+  </div>
+</div>
+
+<!-- Strength panel -->
+<div class="strength-panel" id="strength-panel">
+  <h3>Argument Strength</h3>
+  <div class="strength-bar"><div class="fill" id="strength-fill" style="width:0;background:var(--text-dim)"></div></div>
+  <div id="strength-score" style="text-align:center;font-size:20px;font-weight:700;margin:8px 0">--</div>
+  <div id="strength-stats">
+    <div class="stat-row"><span>Claims</span><span class="stat-value" id="stat-claims">0</span></div>
+    <div class="stat-row"><span>Premises</span><span class="stat-value" id="stat-premises">0</span></div>
+    <div class="stat-row"><span>Evidence</span><span class="stat-value" id="stat-evidence">0</span></div>
+    <div class="stat-row"><span>Objections</span><span class="stat-value" id="stat-objections">0</span></div>
+    <div class="stat-row"><span>Connections</span><span class="stat-value" id="stat-connections">0</span></div>
+  </div>
+</div>
+
+<!-- Fallacy warnings -->
+<div class="fallacy-warning" id="fallacy-panel">
+  <h3>Structural Issues</h3>
+  <div id="fallacy-list"></div>
+</div>
+
+<script>
+// === STATE ===
+let nodes = [];
+let connections = [];
+let nextId = 1;
+let selectedNodeId = null;
+let currentNodeType = 'claim';
+let connecting = { active: false, fromId: null, fromPort: null };
+
+// Pan & Zoom
+let panX = 0, panY = 0, zoom = 1;
+let isPanning = false, panStartX = 0, panStartY = 0;
+
+// Drag
+let isDragging = false, dragNodeId = null, dragOffsetX = 0, dragOffsetY = 0;
+
+const canvas = document.getElementById('canvas');
+const world = document.getElementById('world');
+const svg = document.getElementById('connections-svg');
+
+// === NODE TYPES ===
+function setNodeType(type) {
+  currentNodeType = type;
+  document.querySelectorAll('.node-type-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.node-type-btn.${type}`).classList.add('active');
+}
+
+// === CREATE NODE ===
+function createNode(x, y, type, text = '') {
+  const id = nextId++;
+  const node = { id, type: type || currentNodeType, x, y, text };
+  nodes.push(node);
+  renderNode(node);
+  updateStats();
+  return node;
+}
+
+function renderNode(node) {
+  const el = document.createElement('div');
+  el.className = `arg-node ${node.type}`;
+  el.id = `node-${node.id}`;
+  el.style.left = node.x + 'px';
+  el.style.top = node.y + 'px';
+
+  const typeLabels = { claim: 'Claim', premise: 'Premise', evidence: 'Evidence', assumption: 'Assumption', objection: 'Objection' };
+
+  el.innerHTML = `
+    <div class="node-header">
+      <span class="node-type-badge">${typeLabels[node.type]}</span>
+      <div class="node-actions">
+        <button class="node-action-btn" onclick="startConnecting(${node.id})" title="Connect to another node">&#8594;</button>
+        <button class="node-action-btn delete" onclick="deleteNode(${node.id})" title="Delete node">&#215;</button>
+      </div>
+    </div>
+    <div class="node-content">
+      <div class="node-text" contenteditable="true" data-id="${node.id}">${node.text}</div>
+    </div>
+    <div class="conn-port top" data-id="${node.id}" data-port="top"></div>
+    <div class="conn-port bottom" data-id="${node.id}" data-port="bottom"></div>
+    <div class="conn-port left" data-id="${node.id}" data-port="left"></div>
+    <div class="conn-port right" data-id="${node.id}" data-port="right"></div>
+  `;
+
+  // Events
+  el.addEventListener('mousedown', e => onNodeMouseDown(e, node.id));
+
+  // Text editing
+  const textEl = el.querySelector('.node-text');
+  textEl.addEventListener('input', () => {
+    node.text = textEl.textContent;
+  });
+  textEl.addEventListener('mousedown', e => e.stopPropagation());
+  textEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); textEl.blur(); }
+  });
+
+  // Port events
+  el.querySelectorAll('.conn-port').forEach(port => {
+    port.addEventListener('mousedown', e => {
+      e.stopPropagation();
+      startConnectingFromPort(node.id, port.dataset.port);
+    });
+  });
+
+  world.appendChild(el);
+}
+
+// === DELETE NODE ===
+function deleteNode(id) {
+  const el = document.getElementById(`node-${id}`);
+  if (el) el.remove();
+  nodes = nodes.filter(n => n.id !== id);
+  connections = connections.filter(c => c.from !== id && c.to !== id);
+  if (selectedNodeId === id) selectedNodeId = null;
+  renderConnections();
+  updateStats();
+}
+
+// === SELECT NODE ===
+function selectNode(id) {
+  if (selectedNodeId !== null) {
+    const prev = document.getElementById(`node-${selectedNodeId}`);
+    if (prev) prev.classList.remove('selected');
+  }
+  selectedNodeId = id;
+  if (id !== null) {
+    const el = document.getElementById(`node-${id}`);
+    if (el) el.classList.add('selected');
+  }
+}
+
+// === CONNECTIONS ===
+function startConnecting(id) {
+  connecting = { active: true, fromId: id, fromPort: 'bottom' };
+  canvas.classList.add('connecting');
+}
+
+function startConnectingFromPort(id, port) {
+  connecting = { active: true, fromId: id, fromPort: port };
+  canvas.classList.add('connecting');
+}
+
+function finishConnection(type) {
+  const conn = { from: connecting.pendingFrom, to: connecting.pendingTo, type };
+  // Avoid duplicates
+  const exists = connections.find(c => c.from === conn.from && c.to === conn.to);
+  if (!exists && conn.from !== conn.to) {
+    connections.push(conn);
+  }
+  document.getElementById('conn-modal').classList.add('hidden');
+  connecting = { active: false, fromId: null, fromPort: null };
+  canvas.classList.remove('connecting');
+  renderConnections();
+  updateStats();
+}
+
+function cancelConnection() {
+  document.getElementById('conn-modal').classList.add('hidden');
+  connecting = { active: false, fromId: null, fromPort: null };
+  canvas.classList.remove('connecting');
+}
+
+function showConnectionModal(fromId, toId) {
+  connecting.pendingFrom = fromId;
+  connecting.pendingTo = toId;
+  document.getElementById('conn-modal').classList.remove('hidden');
+}
+
+function getNodeCenter(id) {
+  const el = document.getElementById(`node-${id}`);
+  if (!el) return { x: 0, y: 0 };
+  const node = nodes.find(n => n.id === id);
+  return {
+    x: node.x + el.offsetWidth / 2,
+    y: node.y + el.offsetHeight / 2
+  };
+}
+
+function getPortPosition(id, port) {
+  const el = document.getElementById(`node-${id}`);
+  if (!el) return { x: 0, y: 0 };
+  const node = nodes.find(n => n.id === id);
+  const w = el.offsetWidth, h = el.offsetHeight;
+  switch (port) {
+    case 'top': return { x: node.x + w/2, y: node.y };
+    case 'bottom': return { x: node.x + w/2, y: node.y + h };
+    case 'left': return { x: node.x, y: node.y + h/2 };
+    case 'right': return { x: node.x + w, y: node.y + h/2 };
+    default: return getNodeCenter(id);
+  }
+}
+
+function getBestPorts(fromId, toId) {
+  const fc = getNodeCenter(fromId), tc = getNodeCenter(toId);
+  const dx = tc.x - fc.x, dy = tc.y - fc.y;
+  let fromPort, toPort;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    fromPort = dx > 0 ? 'right' : 'left';
+    toPort = dx > 0 ? 'left' : 'right';
+  } else {
+    fromPort = dy > 0 ? 'bottom' : 'top';
+    toPort = dy > 0 ? 'top' : 'bottom';
+  }
+  return { fromPort, toPort };
+}
+
+function renderConnections() {
+  // Clear SVG
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  // Remove old labels
+  document.querySelectorAll('.conn-label').forEach(el => el.remove());
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+
+  // Arrowheads
+  ['supports', 'contradicts', 'assumes', 'qualifies'].forEach(type => {
+    const colors = { supports: '#22c55e', contradicts: '#ef4444', assumes: '#a855f7', qualifies: '#f59e0b' };
+    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    marker.setAttribute('id', `arrow-${type}`);
+    marker.setAttribute('markerWidth', '10');
+    marker.setAttribute('markerHeight', '7');
+    marker.setAttribute('refX', '10');
+    marker.setAttribute('refY', '3.5');
+    marker.setAttribute('orient', 'auto');
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+    polygon.setAttribute('fill', colors[type]);
+    marker.appendChild(polygon);
+    defs.appendChild(marker);
+  });
+  svg.appendChild(defs);
+
+  connections.forEach((conn, idx) => {
+    const { fromPort, toPort } = getBestPorts(conn.from, conn.to);
+    const p1 = getPortPosition(conn.from, fromPort);
+    const p2 = getPortPosition(conn.to, toPort);
+
+    const colors = { supports: '#22c55e', contradicts: '#ef4444', assumes: '#a855f7', qualifies: '#f59e0b' };
+
+    // Curved path
+    const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+    const dx = p2.x - p1.x, dy = p2.y - p1.y;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
+    let cx1, cy1, cx2, cy2;
+    if (fromPort === 'bottom' || fromPort === 'top') {
+      const sign = fromPort === 'bottom' ? 1 : -1;
+      cx1 = p1.x; cy1 = p1.y + sign * Math.abs(dy) * 0.4;
+    } else {
+      const sign = fromPort === 'right' ? 1 : -1;
+      cx1 = p1.x + sign * Math.abs(dx) * 0.4; cy1 = p1.y;
+    }
+    if (toPort === 'top' || toPort === 'bottom') {
+      const sign = toPort === 'top' ? -1 : 1;
+      cx2 = p2.x; cy2 = p2.y + sign * Math.abs(dy) * 0.4;
+    } else {
+      const sign = toPort === 'left' ? -1 : 1;
+      cx2 = p2.x + sign * Math.abs(dx) * 0.4; cy2 = p2.y;
+    }
+
+    path.setAttribute('d', `M ${p1.x} ${p1.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${p2.x} ${p2.y}`);
+    path.setAttribute('stroke', colors[conn.type] || '#666');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('marker-end', `url(#arrow-${conn.type})`);
+    path.setAttribute('opacity', '0.7');
+    path.style.pointerEvents = 'stroke';
+    path.style.cursor = 'pointer';
+    path.addEventListener('click', () => onConnectionClick(idx));
+    svg.appendChild(path);
+
+    // Label
+    const label = document.createElement('div');
+    label.className = `conn-label ${conn.type}`;
+    label.textContent = conn.type;
+    label.style.left = (mx - 30) + 'px';
+    label.style.top = (my - 10) + 'px';
+    label.addEventListener('click', () => onConnectionClick(idx));
+    world.appendChild(label);
+  });
+}
+
+function onConnectionClick(idx) {
+  const conn = connections[idx];
+  const action = confirm(`Connection: ${conn.type}\n\nClick OK to delete, Cancel to keep.`);
+  if (action) {
+    connections.splice(idx, 1);
+    renderConnections();
+    updateStats();
+  }
+}
+
+// === MOUSE EVENTS ===
+function onNodeMouseDown(e, id) {
+  if (e.target.classList.contains('conn-port') || e.target.classList.contains('node-text') || e.target.tagName === 'BUTTON') return;
+
+  if (connecting.active) {
+    // Finish connection
+    if (connecting.fromId !== id) {
+      showConnectionModal(connecting.fromId, id);
+    }
+    return;
+  }
+
+  selectNode(id);
+  isDragging = true;
+  dragNodeId = id;
+  const node = nodes.find(n => n.id === id);
+  dragOffsetX = (e.clientX - panX) / zoom - node.x;
+  dragOffsetY = (e.clientY - panY) / zoom - node.y;
+  e.preventDefault();
+}
+
+canvas.addEventListener('mousedown', e => {
+  if (e.target === canvas || e.target === world || e.target === svg) {
+    if (connecting.active) {
+      connecting = { active: false, fromId: null, fromPort: null };
+      canvas.classList.remove('connecting');
+      return;
+    }
+    selectNode(null);
+    isPanning = true;
+    panStartX = e.clientX - panX;
+    panStartY = e.clientY - panY;
+    canvas.classList.add('grabbing');
+  }
+});
+
+window.addEventListener('mousemove', e => {
+  if (isDragging && dragNodeId !== null) {
+    const node = nodes.find(n => n.id === dragNodeId);
+    node.x = (e.clientX - panX) / zoom - dragOffsetX;
+    node.y = (e.clientY - panY) / zoom - dragOffsetY;
+    const el = document.getElementById(`node-${dragNodeId}`);
+    el.style.left = node.x + 'px';
+    el.style.top = node.y + 'px';
+    renderConnections();
+  }
+  if (isPanning) {
+    panX = e.clientX - panStartX;
+    panY = e.clientY - panStartY;
+    updateTransform();
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  isDragging = false;
+  dragNodeId = null;
+  isPanning = false;
+  canvas.classList.remove('grabbing');
+});
+
+canvas.addEventListener('dblclick', e => {
+  if (e.target !== canvas && e.target !== world && e.target !== svg) return;
+  const x = (e.clientX - panX) / zoom;
+  const y = (e.clientY - panY) / zoom;
+  const node = createNode(x - 90, y - 30, currentNodeType);
+  selectNode(node.id);
+  // Focus text
+  setTimeout(() => {
+    const textEl = document.querySelector(`#node-${node.id} .node-text`);
+    if (textEl) textEl.focus();
+  }, 50);
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? 0.9 : 1.1;
+  const newZoom = Math.max(0.2, Math.min(3, zoom * delta));
+  // Zoom toward cursor
+  const wx = (e.clientX - panX) / zoom;
+  const wy = (e.clientY - panY) / zoom;
+  zoom = newZoom;
+  panX = e.clientX - wx * zoom;
+  panY = e.clientY - wy * zoom;
+  updateTransform();
+}, { passive: false });
+
+function updateTransform() {
+  world.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+}
+
+// === KEYBOARD ===
+window.addEventListener('keydown', e => {
+  if (e.target.isContentEditable) return;
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (selectedNodeId !== null) {
+      deleteNode(selectedNodeId);
+    }
+  }
+  if (e.key === 'Escape') {
+    selectNode(null);
+    if (connecting.active) {
+      connecting = { active: false, fromId: null, fromPort: null };
+      canvas.classList.remove('connecting');
+    }
+  }
+  // Quick add with keyboard
+  if (e.key === '1') setNodeType('claim');
+  if (e.key === '2') setNodeType('premise');
+  if (e.key === '3') setNodeType('evidence');
+  if (e.key === '4') setNodeType('assumption');
+  if (e.key === '5') setNodeType('objection');
+});
+
+// === STATS & ANALYSIS ===
+function updateStats() {
+  const counts = { claim: 0, premise: 0, evidence: 0, assumption: 0, objection: 0 };
+  nodes.forEach(n => counts[n.type]++);
+
+  document.getElementById('stat-claims').textContent = counts.claim;
+  document.getElementById('stat-premises').textContent = counts.premise;
+  document.getElementById('stat-evidence').textContent = counts.evidence;
+  document.getElementById('stat-objections').textContent = counts.objection;
+  document.getElementById('stat-connections').textContent = connections.length;
+
+  // Calculate strength
+  let score = 0;
+  const total = nodes.length;
+  if (total === 0) {
+    document.getElementById('strength-score').textContent = '--';
+    document.getElementById('strength-fill').style.width = '0';
+    return;
+  }
+
+  // Has claims? +20
+  if (counts.claim > 0) score += 20;
+  // Has premises? +20
+  if (counts.premise > 0) score += 20;
+  // Has evidence? +15
+  if (counts.evidence > 0) score += 15;
+  // Considers objections? +15
+  if (counts.objection > 0) score += 15;
+  // Connection density
+  const density = connections.length / Math.max(1, total);
+  score += Math.min(20, density * 20);
+  // Variety of connection types
+  const connTypes = new Set(connections.map(c => c.type));
+  score += Math.min(10, connTypes.size * 3);
+
+  score = Math.min(100, Math.round(score));
+
+  const fill = document.getElementById('strength-fill');
+  fill.style.width = score + '%';
+  if (score < 30) fill.style.background = 'var(--objection)';
+  else if (score < 60) fill.style.background = 'var(--qualifies)';
+  else fill.style.background = 'var(--supports)';
+
+  document.getElementById('strength-score').textContent = score + '/100';
+}
+
+function analyzeArgument() {
+  const issues = [];
+
+  // Unsupported claims
+  const claims = nodes.filter(n => n.type === 'claim');
+  claims.forEach(claim => {
+    const supportingConns = connections.filter(c => c.to === claim.id && c.type === 'supports');
+    if (supportingConns.length === 0) {
+      issues.push({
+        name: 'Unsupported Claim',
+        desc: `"${claim.text || 'Untitled claim'}" has no supporting premises or evidence.`
+      });
+    }
+  });
+
+  // Unconnected nodes
+  nodes.forEach(node => {
+    const hasConn = connections.some(c => c.from === node.id || c.to === node.id);
+    if (!hasConn && nodes.length > 1) {
+      issues.push({
+        name: 'Isolated Node',
+        desc: `"${node.text || 'Untitled'}" is not connected to any other node.`
+      });
+    }
+  });
+
+  // No objections considered
+  if (nodes.length >= 3 && !nodes.some(n => n.type === 'objection')) {
+    issues.push({
+      name: 'No Counter-Arguments',
+      desc: 'Consider adding objections to strengthen your argument by showing you\'ve considered alternatives.'
+    });
+  }
+
+  // No evidence
+  if (nodes.length >= 3 && !nodes.some(n => n.type === 'evidence')) {
+    issues.push({
+      name: 'No Evidence',
+      desc: 'Your argument lacks empirical evidence. Facts and data make arguments more convincing.'
+    });
+  }
+
+  // Hidden assumptions
+  if (nodes.length >= 4 && !nodes.some(n => n.type === 'assumption')) {
+    issues.push({
+      name: 'Hidden Assumptions?',
+      desc: 'Most arguments rest on unstated assumptions. Try to identify and make them explicit.'
+    });
+  }
+
+  // Circular reasoning check
+  connections.forEach(c1 => {
+    if (c1.type === 'supports') {
+      const reverse = connections.find(c2 => c2.from === c1.to && c2.to === c1.from && c2.type === 'supports');
+      if (reverse) {
+        const n1 = nodes.find(n => n.id === c1.from);
+        const n2 = nodes.find(n => n.id === c1.to);
+        issues.push({
+          name: 'Circular Reasoning',
+          desc: `"${n1?.text || 'A'}" and "${n2?.text || 'B'}" support each other — this is circular.`
+        });
+      }
+    }
+  });
+
+  // Empty nodes
+  nodes.forEach(node => {
+    if (!node.text || node.text.trim() === '') {
+      issues.push({
+        name: 'Empty Node',
+        desc: `A ${node.type} node has no text. Fill it in or remove it.`
+      });
+    }
+  });
+
+  const panel = document.getElementById('fallacy-panel');
+  const list = document.getElementById('fallacy-list');
+
+  if (issues.length === 0) {
+    list.innerHTML = '<div style="color:var(--supports);padding:4px 0">No structural issues found. Your argument looks solid!</div>';
+  } else {
+    list.innerHTML = issues.map(i => `
+      <div class="fallacy-item">
+        <div class="fallacy-name">${i.name}</div>
+        <div class="fallacy-desc">${i.desc}</div>
+      </div>
+    `).join('');
+  }
+  panel.style.display = 'block';
+
+  // Hide after 10s
+  setTimeout(() => { panel.style.display = 'none'; }, 15000);
+}
+
+// === AUTO LAYOUT ===
+function autoLayout() {
+  if (nodes.length === 0) return;
+
+  // Simple hierarchical layout: claims at top, then premises, evidence, assumptions, objections
+  const typeOrder = { claim: 0, premise: 1, evidence: 2, assumption: 3, objection: 4 };
+  const grouped = {};
+  nodes.forEach(n => {
+    const level = typeOrder[n.type] || 0;
+    if (!grouped[level]) grouped[level] = [];
+    grouped[level].push(n);
+  });
+
+  let y = 100;
+  Object.keys(grouped).sort((a, b) => a - b).forEach(level => {
+    const group = grouped[level];
+    const totalWidth = group.length * 220;
+    let x = (window.innerWidth / zoom / 2) - (totalWidth / 2);
+    group.forEach(node => {
+      node.x = x;
+      node.y = y;
+      const el = document.getElementById(`node-${node.id}`);
+      if (el) {
+        el.style.left = node.x + 'px';
+        el.style.top = node.y + 'px';
+      }
+      x += 220;
+    });
+    y += 140;
+  });
+
+  renderConnections();
+}
+
+// === EXPORT / IMPORT ===
+function exportMap() {
+  document.getElementById('export-modal').classList.remove('hidden');
+  exportAsText();
+}
+
+function exportAsText() {
+  let text = '=== ARGUMENT MAP ===\n\n';
+
+  const typeLabels = { claim: 'CLAIM', premise: 'PREMISE', evidence: 'EVIDENCE', assumption: 'ASSUMPTION', objection: 'OBJECTION' };
+
+  nodes.forEach(n => {
+    text += `[${typeLabels[n.type]}] ${n.text || '(empty)'}\n`;
+
+    const outgoing = connections.filter(c => c.from === n.id);
+    const incoming = connections.filter(c => c.to === n.id);
+
+    outgoing.forEach(c => {
+      const target = nodes.find(t => t.id === c.to);
+      text += `  --${c.type}--> ${target?.text || '(empty)'}\n`;
+    });
+    text += '\n';
+  });
+
+  document.getElementById('export-area').value = text;
+}
+
+function exportAsJSON() {
+  const data = { nodes, connections, version: 1 };
+  document.getElementById('export-area').value = JSON.stringify(data, null, 2);
+}
+
+function copyExport() {
+  const area = document.getElementById('export-area');
+  area.select();
+  document.execCommand('copy');
+}
+
+function closeExportModal() {
+  document.getElementById('export-modal').classList.add('hidden');
+}
+
+function importMap() {
+  document.getElementById('import-modal').classList.remove('hidden');
+}
+
+function doImport() {
+  try {
+    const text = document.getElementById('import-area').value;
+    const data = JSON.parse(text);
+    if (data.nodes && data.connections) {
+      clearAllSilent();
+      data.nodes.forEach(n => {
+        if (n.id >= nextId) nextId = n.id + 1;
+        nodes.push(n);
+        renderNode(n);
+      });
+      connections = data.connections;
+      renderConnections();
+      updateStats();
+      closeImportModal();
+    }
+  } catch (e) {
+    alert('Invalid JSON. Please paste a valid argument map export.');
+  }
+}
+
+function closeImportModal() {
+  document.getElementById('import-modal').classList.add('hidden');
+}
+
+// === SAVE / LOAD ===
+function saveToLocal() {
+  const data = { nodes, connections, nextId, panX, panY, zoom };
+  localStorage.setItem('argument-mapper-save', JSON.stringify(data));
+  const btn = event.target;
+  btn.textContent = 'Saved!';
+  setTimeout(() => { btn.textContent = 'Save'; }, 1500);
+}
+
+function loadFromLocal() {
+  const raw = localStorage.getItem('argument-mapper-save');
+  if (!raw) { alert('No saved map found.'); return; }
+  try {
+    const data = JSON.parse(raw);
+    clearAllSilent();
+    nextId = data.nextId || 1;
+    panX = data.panX || 0;
+    panY = data.panY || 0;
+    zoom = data.zoom || 1;
+    updateTransform();
+    data.nodes.forEach(n => {
+      nodes.push(n);
+      renderNode(n);
+    });
+    connections = data.connections || [];
+    renderConnections();
+    updateStats();
+  } catch (e) {
+    alert('Failed to load saved map.');
+  }
+}
+
+function clearAllSilent() {
+  nodes.forEach(n => {
+    const el = document.getElementById(`node-${n.id}`);
+    if (el) el.remove();
+  });
+  nodes = [];
+  connections = [];
+  document.querySelectorAll('.conn-label').forEach(el => el.remove());
+  renderConnections();
+  updateStats();
+}
+
+function clearAll() {
+  if (nodes.length === 0) return;
+  if (!confirm('Clear all nodes and connections?')) return;
+  clearAllSilent();
+  nextId = 1;
+}
+
+// === INIT ===
+function init() {
+  // Center the view
+  panX = window.innerWidth / 2 - 400;
+  panY = 100;
+  updateTransform();
+  updateStats();
+
+  // Try to load saved
+  const saved = localStorage.getItem('argument-mapper-save');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (data.nodes && data.nodes.length > 0) {
+        loadFromLocal();
+        return;
+      }
+    } catch(e) {}
+  }
+
+  // Create example if empty
+  createExample();
+}
+
+function createExample() {
+  const c1 = createNode(350, 50, 'claim', 'Critical thinking should be taught as a core subject in schools');
+  const p1 = createNode(100, 220, 'premise', 'AI tools are reducing students\' ability to reason independently');
+  const p2 = createNode(500, 220, 'premise', 'Complex problem-solving requires skills that develop through practice');
+  const e1 = createNode(50, 400, 'evidence', 'Brookings 2026 report: AI causing "great unwiring" of student cognition');
+  const e2 = createNode(350, 400, 'evidence', 'Fortune 2026: teachers report decline in reasoning abilities');
+  const a1 = createNode(650, 400, 'assumption', 'Critical thinking can be taught as a distinct skill');
+  const o1 = createNode(700, 220, 'objection', 'Schools already lack time for existing subjects');
+
+  connections.push(
+    { from: p1.id, to: c1.id, type: 'supports' },
+    { from: p2.id, to: c1.id, type: 'supports' },
+    { from: e1.id, to: p1.id, type: 'supports' },
+    { from: e2.id, to: p1.id, type: 'supports' },
+    { from: a1.id, to: c1.id, type: 'assumes' },
+    { from: o1.id, to: c1.id, type: 'contradicts' }
+  );
+
+  renderConnections();
+  updateStats();
+}
+
+init();
+</script>
+</body>
+</html>

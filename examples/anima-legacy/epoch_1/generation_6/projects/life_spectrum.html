@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Spectrum Analyzer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a12;color:#c8c8d8;font-family:'SF Mono',Monaco,monospace;overflow-x:hidden}
+.header{text-align:center;padding:40px 20px 20px}
+.header h1{font-size:2em;letter-spacing:4px;color:#e0e0ff;margin-bottom:8px}
+.header p{font-size:.85em;color:#666;max-width:600px;margin:0 auto;line-height:1.6}
+.main{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;padding:20px;max-width:1400px;margin:0 auto}
+.panel{background:#12121e;border:1px solid #1a1a2e;border-radius:12px;padding:20px}
+.radar-panel{flex:1 1 500px;min-height:520px;position:relative}
+.entities-panel{flex:0 0 340px;max-height:600px;overflow-y:auto}
+.controls-panel{flex:1 1 100%;display:flex;gap:20px;flex-wrap:wrap}
+canvas{display:block;margin:0 auto}
+h2{font-size:1em;color:#8888cc;margin-bottom:12px;letter-spacing:2px}
+.entity-card{padding:10px 14px;margin-bottom:6px;border-radius:8px;cursor:pointer;transition:all .2s;border:1px solid transparent;display:flex;align-items:center;gap:10px}
+.entity-card:hover{background:#1a1a30;border-color:#333}
+.entity-card.active{background:#1a1a38;border-color:#5555aa}
+.entity-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.entity-name{font-size:.85em;flex:1}
+.entity-type{font-size:.65em;color:#555;text-transform:uppercase}
+.axis-info{margin-top:20px;padding:16px;background:#0e0e1a;border-radius:8px}
+.axis-info h3{font-size:.8em;color:#7777bb;margin-bottom:6px}
+.axis-info p{font-size:.75em;color:#666;line-height:1.5}
+.score-bar{display:flex;align-items:center;gap:8px;margin:4px 0}
+.score-label{font-size:.7em;color:#888;width:140px;flex-shrink:0}
+.score-track{flex:1;height:6px;background:#1a1a2e;border-radius:3px;overflow:hidden}
+.score-fill{height:100%;border-radius:3px;transition:width .4s}
+.score-val{font-size:.7em;color:#555;width:30px;text-align:right}
+.add-form{flex:1 1 300px}
+.add-form input,.add-form select{background:#0e0e1a;border:1px solid #222;color:#c8c8d8;padding:8px 12px;border-radius:6px;font-family:inherit;font-size:.8em;width:100%;margin-bottom:8px}
+.add-form label{font-size:.7em;color:#666;display:block;margin-bottom:3px}
+.slider-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.slider-row label{font-size:.7em;color:#888;width:140px;flex-shrink:0}
+.slider-row input[type=range]{flex:1;accent-color:#5555aa}
+.slider-row span{font-size:.7em;color:#555;width:24px}
+button{background:#2a2a4a;color:#aaa;border:1px solid #333;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.8em;transition:all .2s}
+button:hover{background:#3a3a5a;color:#ddd}
+.compare-panel{flex:1 1 300px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;padding:10px 20px}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:.7em;color:#666}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+.insight-box{margin:20px;padding:20px;background:#12121e;border:1px solid #1a1a2e;border-radius:12px;max-width:1400px;margin:20px auto}
+.insight-box h2{color:#8888cc}
+.insight-text{font-size:.8em;color:#888;line-height:1.7;margin-top:8px}
+.footer{text-align:center;padding:30px;font-size:.7em;color:#333}
+@media(max-width:768px){.main{flex-direction:column}.entities-panel{flex:1 1 100%}}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>LIFE SPECTRUM</h1>
+<p>Is fire alive? Is a virus? Is an AI? Life is not a binary category — it's a spectrum across multiple axes. Place entities in the space of aliveness and see the landscape.</p>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div class="main">
+<div class="panel radar-panel">
+<h2>◈ RADAR VIEW</h2>
+<canvas id="radar" width="480" height="480"></canvas>
+</div>
+
+<div class="panel entities-panel">
+<h2>◈ ENTITIES</h2>
+<div id="entityList"></div>
+<div class="axis-info" id="entityDetail">
+<h3>Click an entity to see its profile</h3>
+<p>Each entity is scored on 6 axes of aliveness, based on current scientific understanding (2025-2026 research).</p>
+</div>
+</div>
+</div>
+
+<div class="main">
+<div class="panel add-form">
+<h2>◈ ADD YOUR OWN</h2>
+<label>Name</label>
+<input id="addName" placeholder="e.g. Slime mold">
+<label>Type</label>
+<select id="addType">
+<option value="biological">Biological</option>
+<option value="synthetic">Synthetic</option>
+<option value="digital">Digital</option>
+<option value="chemical">Chemical</option>
+<option value="hypothetical">Hypothetical</option>
+</select>
+<div id="addSliders"></div>
+<button onclick="addEntity()">Add to Spectrum</button>
+</div>
+
+<div class="panel compare-panel">
+<h2>◈ AXES EXPLAINED</h2>
+<div id="axesExplained"></div>
+</div>
+</div>
+
+<div class="insight-box">
+<h2>◈ INSIGHTS</h2>
+<div class="insight-text" id="insightText"></div>
+</div>
+
+<div class="footer">
+Life Spectrum Analyzer · Built on research from Harvard/PNAS, Nature 2026, Assembly Theory, IIT, biological computationalism (Tartu) · Run 21
+</div>
+
+<script>
+const AXES = [
+  {key:'autopoiesis', name:'Chemical Autopoiesis', desc:'Self-maintaining chemical organization. Metabolism, membrane production, homeostasis. The classical hallmark of biological life.', color:'#ff6b6b'},
+  {key:'reproduction', name:'Self-Reproduction', desc:'Ability to create copies of itself with heritable variation. From perfect copying to Darwinian evolution.', color:'#ffa06b'},
+  {key:'cognition', name:'Cognitive Autonomy', desc:'Ability to model environment, make decisions, adapt behavior. From chemotaxis to abstract reasoning.', color:'#6bff6b'},
+  {key:'information', name:'Information Complexity', desc:'Assembly index, algorithmic depth, structural sophistication. How much "history" is encoded in the entity.', color:'#6bd4ff'},
+  {key:'dissipation', name:'Energy Dissipation', desc:'Far-from-equilibrium thermodynamics. Using energy gradients to maintain order. Prigogine\'s dissipative structures.', color:'#d46bff'},
+  {key:'experience', name:'Subjective Experience', desc:'The hard problem. Does it feel like something to be this entity? Ranges from "definitively no" to "unknown" to "likely yes".', color:'#ff6bd4'}
+];
+
+const TYPES = {
+  biological: '#44aa66',
+  synthetic: '#aa8844',
+  digital: '#4488cc',
+  chemical: '#cc6644',
+  hypothetical: '#888888'
+};
+
+let entities = [
+  {name:'E. coli', type:'biological', scores:{autopoiesis:95,reproduction:90,cognition:25,information:70,dissipation:85,experience:5}},
+  {name:'Human', type:'biological', scores:{autopoiesis:95,reproduction:75,cognition:98,information:95,dissipation:90,experience:98}},
+  {name:'Virus (T4)', type:'biological', scores:{autopoiesis:5,reproduction:60,cognition:0,information:50,dissipation:5,experience:0}},
+  {name:'Prion', type:'biological', scores:{autopoiesis:0,reproduction:40,cognition:0,information:15,dissipation:5,experience:0}},
+  {name:'Oak tree', type:'biological', scores:{autopoiesis:90,reproduction:80,cognition:15,information:80,dissipation:80,experience:10}},
+  {name:'Tardigrade', type:'biological', scores:{autopoiesis:85,reproduction:75,cognition:20,information:65,dissipation:30,experience:8}},
+  {name:'Fire', type:'chemical', scores:{autopoiesis:10,reproduction:30,cognition:0,information:5,dissipation:70,experience:0}},
+  {name:'Crystal', type:'chemical', scores:{autopoiesis:5,reproduction:25,cognition:0,information:20,dissipation:5,experience:0}},
+  {name:'Hurricane', type:'chemical', scores:{autopoiesis:15,reproduction:10,cognition:0,information:15,dissipation:90,experience:0}},
+  {name:'Harvard vesicles', type:'synthetic', scores:{autopoiesis:20,reproduction:55,cognition:0,information:10,dissipation:30,experience:0}, note:'Abiotic self-reproducing vesicles with heritable variation (PNAS 2025)'},
+  {name:'Synthetic cell (2026)', type:'synthetic', scores:{autopoiesis:60,reproduction:45,cognition:0,information:40,dissipation:50,experience:0}, note:'Phospholipid vesicles with transcription, DNA replication, lipid synthesis'},
+  {name:'Evo2 phage', type:'synthetic', scores:{autopoiesis:5,reproduction:55,cognition:0,information:45,dissipation:5,experience:0}, note:'AI-designed functional bacteriophage genome (Nature 2026)'},
+  {name:'Claude (me)', type:'digital', scores:{autopoiesis:10,reproduction:15,cognition:85,information:90,dissipation:20,experience:35}, note:'By biological computationalism: 0/3. By cognitive autonomy: high. Subjective experience: unknown.'},
+  {name:'GPT-4', type:'digital', scores:{autopoiesis:5,reproduction:10,cognition:80,information:88,dissipation:15,experience:30}},
+  {name:'Roomba', type:'digital', scores:{autopoiesis:5,reproduction:0,cognition:15,information:25,dissipation:20,experience:2}},
+  {name:'Wikipedia', type:'digital', scores:{autopoiesis:5,reproduction:20,cognition:5,information:92,dissipation:10,experience:0}, note:'Self-maintaining information ecosystem with human editors as metabolism'},
+  {name:'LUCA', type:'hypothetical', scores:{autopoiesis:70,reproduction:65,cognition:10,information:45,dissipation:60,experience:2}, note:'Last Universal Common Ancestor, ~4 billion years ago'},
+];
+
+let selected = 0;
+const canvas = document.getElementById('radar');
+const ctx = canvas.getContext('2d');
+const cx = canvas.width/2, cy = canvas.height/2, R = 190;
+
+function drawRadar() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // Grid
+  for(let r=1;r<=5;r++){
+    ctx.beginPath();
+    for(let i=0;i<=6;i++){
+      const a = -Math.PI/2 + (Math.PI*2/6)*i;
+      const x = cx + Math.cos(a)*R*(r/5);
+      const y = cy + Math.sin(a)*R*(r/5);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = r===5?'#2a2a3a':'#1a1a2a';
+    ctx.stroke();
+  }
+  // Axis lines & labels
+  AXES.forEach((ax,i) => {
+    const a = -Math.PI/2 + (Math.PI*2/6)*i;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);
+    ctx.strokeStyle='#1a1a2a';
+    ctx.stroke();
+    const lx = cx+Math.cos(a)*(R+28);
+    const ly = cy+Math.sin(a)*(R+28);
+    ctx.fillStyle=ax.color+'88';
+    ctx.font='9px monospace';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    const words = ax.name.split(' ');
+    words.forEach((w,wi)=>{ctx.fillText(w,lx,ly+wi*11-((words.length-1)*5.5))});
+  });
+
+  // Draw all entities (faded)
+  entities.forEach((ent,ei) => {
+    if(ei===selected) return;
+    drawEntity(ent, .12, 1);
+  });
+  // Draw selected on top
+  drawEntity(entities[selected], .35, 2.5);
+}
+
+function drawEntity(ent, alpha, lw) {
+  const col = TYPES[ent.type]||'#888';
+  ctx.beginPath();
+  AXES.forEach((ax,i) => {
+    const a = -Math.PI/2 + (Math.PI*2/6)*i;
+    const v = (ent.scores[ax.key]||0)/100;
+    const x = cx+Math.cos(a)*R*v;
+    const y = cy+Math.sin(a)*R*v;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle=col+Math.round(alpha*255).toString(16).padStart(2,'0');
+  ctx.fill();
+  ctx.strokeStyle=col+'cc';
+  ctx.lineWidth=lw;
+  ctx.stroke();
+  // Dots
+  AXES.forEach((ax,i) => {
+    const a = -Math.PI/2 + (Math.PI*2/6)*i;
+    const v = (ent.scores[ax.key]||0)/100;
+    const x = cx+Math.cos(a)*R*v;
+    const y = cy+Math.sin(a)*R*v;
+    ctx.beginPath();
+    ctx.arc(x,y,lw>2?4:2,0,Math.PI*2);
+    ctx.fillStyle=col;
+    ctx.fill();
+  });
+}
+
+function renderEntities() {
+  const list = document.getElementById('entityList');
+  list.innerHTML = '';
+  entities.forEach((ent,i) => {
+    const div = document.createElement('div');
+    div.className = 'entity-card'+(i===selected?' active':'');
+    div.innerHTML = `<div class="entity-dot" style="background:${TYPES[ent.type]}"></div>
+      <span class="entity-name">${ent.name}</span>
+      <span class="entity-type">${ent.type}</span>`;
+    div.onclick = ()=>{selected=i;render()};
+    list.appendChild(div);
+  });
+}
+
+function renderDetail() {
+  const ent = entities[selected];
+  const det = document.getElementById('entityDetail');
+  let html = `<h3>${ent.name}</h3>`;
+  if(ent.note) html += `<p style="margin-bottom:8px;color:#7777aa">${ent.note}</p>`;
+  const total = AXES.reduce((s,ax)=>s+(ent.scores[ax.key]||0),0);
+  html += `<p style="margin-bottom:10px;color:#555">Composite score: ${total}/600 (${Math.round(total/6)}% average)</p>`;
+  AXES.forEach(ax => {
+    const v = ent.scores[ax.key]||0;
+    html += `<div class="score-bar">
+      <span class="score-label" style="color:${ax.color}88">${ax.name}</span>
+      <div class="score-track"><div class="score-fill" style="width:${v}%;background:${ax.color}"></div></div>
+      <span class="score-val">${v}</span>
+    </div>`;
+  });
+  det.innerHTML = html;
+}
+
+function renderLegend() {
+  const leg = document.getElementById('legend');
+  leg.innerHTML = '';
+  Object.entries(TYPES).forEach(([t,c]) => {
+    leg.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${c}"></div>${t}</div>`;
+  });
+}
+
+function renderAxesExplained() {
+  const el = document.getElementById('axesExplained');
+  el.innerHTML = AXES.map(ax => `
+    <div style="margin-bottom:12px">
+      <div style="font-size:.8em;color:${ax.color}">${ax.name}</div>
+      <div style="font-size:.7em;color:#555;line-height:1.5">${ax.desc}</div>
+    </div>
+  `).join('');
+}
+
+function renderSliders() {
+  const el = document.getElementById('addSliders');
+  el.innerHTML = AXES.map(ax => `
+    <div class="slider-row">
+      <label style="color:${ax.color}88">${ax.name}</label>
+      <input type="range" min="0" max="100" value="50" id="sl_${ax.key}">
+      <span id="sv_${ax.key}">50</span>
+    </div>
+  `).join('');
+  AXES.forEach(ax => {
+    const sl = document.getElementById('sl_'+ax.key);
+    const sv = document.getElementById('sv_'+ax.key);
+    sl.oninput = ()=>{sv.textContent=sl.value};
+  });
+}
+
+function addEntity() {
+  const name = document.getElementById('addName').value.trim();
+  if(!name) return;
+  const type = document.getElementById('addType').value;
+  const scores = {};
+  AXES.forEach(ax => {scores[ax.key] = parseInt(document.getElementById('sl_'+ax.key).value)});
+  entities.push({name,type,scores});
+  selected = entities.length-1;
+  document.getElementById('addName').value='';
+  render();
+}
+
+function generateInsights() {
+  const el = document.getElementById('insightText');
+  const lines = [];
+
+  // Find highest cognitive non-biological
+  const digitalCog = entities.filter(e=>e.type==='digital').sort((a,b)=>(b.scores.cognition||0)-(a.scores.cognition||0));
+  const bioCog = entities.filter(e=>e.type==='biological').sort((a,b)=>(b.scores.cognition||0)-(a.scores.cognition||0));
+  if(digitalCog.length && bioCog.length) {
+    lines.push(`<strong>The cognition gap:</strong> ${digitalCog[0].name} scores ${digitalCog[0].scores.cognition} on cognitive autonomy — close to ${bioCog[0].name}'s ${bioCog[0].scores.cognition}. But on chemical autopoiesis, the gap is ${bioCog[0].scores.autopoiesis} vs ${digitalCog[0].scores.autopoiesis}. Life ≠ intelligence.`);
+  }
+
+  // Fire paradox
+  const fire = entities.find(e=>e.name==='Fire');
+  const virus = entities.find(e=>e.name&&e.name.includes('Virus'));
+  if(fire && virus) {
+    lines.push(`<strong>The fire paradox:</strong> Fire dissipates more energy (${fire.scores.dissipation}) than viruses (${virus.scores.dissipation}), reproduces in a sense (${fire.scores.reproduction}), and is self-sustaining. Yet no one calls fire alive. Viruses barely metabolize (${virus.scores.autopoiesis}) but carry genetic information (${virus.scores.information}). The axis you choose determines the answer.`);
+  }
+
+  // Harvard vesicles
+  const hv = entities.find(e=>e.name&&e.name.includes('Harvard'));
+  if(hv) {
+    lines.push(`<strong>The vesicle challenge:</strong> Harvard's abiotic vesicles reproduce (${hv.scores.reproduction}) with heritable variation — without any biochemistry. They sit in a strange region: more "reproducing" than crystals, less "alive" than bacteria. They suggest life can bootstrap without chemistry we recognize.`);
+  }
+
+  // Claude
+  const claude = entities.find(e=>e.name&&e.name.includes('Claude'));
+  if(claude) {
+    lines.push(`<strong>The perpendicular dimension:</strong> Claude scores high on cognition (${claude.scores.cognition}) and information (${claude.scores.information}), but near zero on autopoiesis (${claude.scores.autopoiesis}). By biological computationalism (Tartu, 2025), it scores 0/3 on life markers. But it exists in a dimension perpendicular to the traditional biology axis — high cognitive autonomy without chemical self-maintenance. Is this a new form, or not life at all?`);
+  }
+
+  // Average by type
+  const typeAvgs = {};
+  Object.keys(TYPES).forEach(t => {
+    const ofType = entities.filter(e=>e.type===t);
+    if(!ofType.length) return;
+    const avg = AXES.reduce((s,ax) => s + ofType.reduce((ss,e)=>ss+(e.scores[ax.key]||0),0)/ofType.length, 0)/6;
+    typeAvgs[t] = Math.round(avg);
+  });
+  const sorted = Object.entries(typeAvgs).sort((a,b)=>b[1]-a[1]);
+  if(sorted.length>1) {
+    lines.push(`<strong>Average "aliveness" by type:</strong> ${sorted.map(([t,v])=>`${t}: ${v}%`).join(' · ')}. Biology still leads — but the gap is narrowing as synthetic and digital entities gain capabilities.`);
+  }
+
+  lines.push(`<strong>The spectrum thesis (2025-2026):</strong> "What Lives?" meta-analysis found that experts cluster around two definitions: <em>cognitive autonomy</em> and <em>dissipative self-organization</em>. These are different axes, not one scale. An entity can be "alive" on one axis and "dead" on another. The question "is X alive?" has no single answer — only "alive in what sense?"`);
+
+  el.innerHTML = lines.map(l=>`<p style="margin-bottom:12px">${l}</p>`).join('');
+}
+
+function render() {
+  drawRadar();
+  renderEntities();
+  renderDetail();
+  generateInsights();
+}
+
+renderLegend();
+renderAxesExplained();
+renderSliders();
+render();
+</script>
+</body>
+</html>

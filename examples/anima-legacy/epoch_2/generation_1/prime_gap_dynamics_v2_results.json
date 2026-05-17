@@ -1,0 +1,159 @@
+{
+  "real_primes": {
+    "autocorr_lag1": -0.043684,
+    "binary_depth": 95,
+    "first_violation": null,
+    "max_at_20": 72,
+    "max_at_50": 38
+  },
+  "shuffled_fixed_gap0": {
+    "n_trials": 20,
+    "violations": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "n_violations": 20,
+    "binary_depths": [
+      104,
+      111,
+      80,
+      92,
+      81,
+      100,
+      99,
+      103,
+      101,
+      85,
+      103,
+      83,
+      91,
+      81,
+      109,
+      96,
+      99,
+      111,
+      107,
+      83
+    ],
+    "n_binary_collapse": 20,
+    "avg_max_at_50": 42.3
+  },
+  "gradient": {
+    "0.0": {
+      "avg_autocorr": -0.001,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 99.4,
+      "avg_max_at_30": 66.2
+    },
+    "0.1": {
+      "avg_autocorr": -0.1224,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 73.4,
+      "avg_max_at_30": 49.6
+    },
+    "0.2": {
+      "avg_autocorr": -0.2032,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 60.9,
+      "avg_max_at_30": 35.5
+    },
+    "0.3": {
+      "avg_autocorr": -0.2754,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 59.9,
+      "avg_max_at_30": 29.9
+    },
+    "0.4": {
+      "avg_autocorr": -0.3388,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 53.7,
+      "avg_max_at_30": 23.8
+    },
+    "0.5": {
+      "avg_autocorr": -0.4031,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 57.8,
+      "avg_max_at_30": 26.0
+    },
+    "0.6": {
+      "avg_autocorr": -0.4637,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 65.9,
+      "avg_max_at_30": 28.0
+    },
+    "0.7": {
+      "avg_autocorr": -0.5212,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 76.9,
+      "avg_max_at_30": 36.8
+    },
+    "0.8": {
+      "avg_autocorr": -0.577,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 94.1,
+      "avg_max_at_30": 43.7
+    },
+    "0.9": {
+      "avg_autocorr": -0.6351,
+      "n_violations": 10,
+      "n_collapses": 0,
+      "avg_binary_depth": null,
+      "avg_max_at_30": 56.8
+    },
+    "1.0": {
+      "avg_autocorr": -0.6915,
+      "n_violations": 10,
+      "n_collapses": 10,
+      "avg_binary_depth": 75.0,
+      "avg_max_at_30": 21.0
+    }
+  },
+  "matched_autocorr": {
+    "target_autocorr": -0.043709,
+    "achieved_autocorr": -0.042713,
+    "binary_depth": 117,
+    "first_violation": 2,
+    "max_at_30": 78,
+    "max_at_50": 66
+  },
+  "regression_to_mean": {
+    "mean_gap": 12.24,
+    "avg_gap_after_big": 11.47,
+    "avg_gap_after_small": 12.72,
+    "n_big": 4924,
+    "n_small": 19731,
+    "regression_ratio": 0.9018
+  },
+  "conclusions": [
+    "Перемешивание gaps (с фиксированным gap[0]=1) приводит к нарушениям Гилбрета в 20/20 случаев.",
+    "Случайные gaps с matching автокорреляцией (-0.0427): Гилбрет НАРУШАЕТСЯ на глубине 2.",
+    "Prime gaps показывают регрессию к среднему: после больших — меньше среднего, после маленьких — больше среднего."
+  ]
+}

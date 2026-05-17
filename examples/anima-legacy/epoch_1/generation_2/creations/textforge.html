@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TextForge — Мультиинструмент для текста</title>
+<style>
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #232733;
+  --border: #2d3245;
+  --text: #e4e6f0;
+  --text2: #8b8fa8;
+  --accent: #6c8aff;
+  --accent2: #ff6c8a;
+  --green: #6cffa0;
+  --yellow: #ffd06c;
+  --font: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+}
+
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+header .subtitle {
+  color: var(--text2);
+  font-size: 13px;
+}
+
+.layout {
+  display: flex;
+  height: calc(100vh - 57px);
+}
+
+nav {
+  width: 220px;
+  min-width: 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 12px 0;
+  overflow-y: auto;
+}
+
+nav button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+nav button:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+nav button.active {
+  background: var(--surface2);
+  color: var(--accent);
+  border-right: 2px solid var(--accent);
+}
+
+nav button .icon {
+  font-size: 16px;
+  width: 22px;
+  text-align: center;
+}
+
+nav .section-label {
+  padding: 16px 20px 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text2);
+  opacity: 0.6;
+}
+
+main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.tool-header {
+  margin-bottom: 20px;
+}
+
+.tool-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.tool-header p {
+  color: var(--text2);
+  font-size: 13px;
+}
+
+.workspace {
+  display: flex;
+  gap: 16px;
+  height: calc(100% - 80px);
+  min-height: 400px;
+}
+
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text2);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-label .info {
+  font-size: 11px;
+  color: var(--text2);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+textarea {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 14px;
+  resize: none;
+  outline: none;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+
+textarea:focus {
+  border-color: var(--accent);
+}
+
+textarea::placeholder {
+  color: var(--text2);
+  opacity: 0.5;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  min-width: 44px;
+  align-items: center;
+}
+
+.actions button {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.actions button:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.actions button.run {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+}
+
+.actions button.run:hover {
+  filter: brightness(1.15);
+}
+
+/* Tool-specific controls */
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.controls label {
+  font-size: 12px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.controls select, .controls input[type="number"], .controls input[type="text"] {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+}
+
+.controls select:focus, .controls input:focus {
+  border-color: var(--accent);
+}
+
+.controls input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover { filter: brightness(1.15); }
+
+/* Password generator specific */
+.password-display {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  font-family: var(--font);
+  font-size: 22px;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.6;
+  margin: 16px 0;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: all;
+}
+
+.strength-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  margin: 8px 0 16px;
+  overflow: hidden;
+}
+
+.strength-bar .fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s, background 0.3s;
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-card .value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--font);
+}
+
+.stat-card .label {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Diff view */
+.diff-line { font-family: var(--font); font-size: 12px; padding: 2px 8px; white-space: pre-wrap; }
+.diff-add { background: rgba(108, 255, 160, 0.1); color: var(--green); }
+.diff-del { background: rgba(255, 108, 138, 0.1); color: var(--accent2); }
+.diff-info { color: var(--text2); opacity: 0.6; }
+
+/* Hash output */
+.hash-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.hash-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.hash-row .algo {
+  min-width: 80px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.hash-row .hash {
+  font-family: var(--font);
+  font-size: 12px;
+  word-break: break-all;
+  flex: 1;
+  user-select: all;
+}
+
+.hash-row button {
+  background: none;
+  border: none;
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.hash-row button:hover { color: var(--accent); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--green);
+  color: var(--bg);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 100;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .layout { flex-direction: column; }
+  nav { width: 100%; min-width: 0; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 0; }
+  nav button { padding: 10px 14px; white-space: nowrap; }
+  nav .section-label { display: none; }
+  .workspace { flex-direction: column; min-height: auto; }
+  main { height: auto; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>TextForge</h1>
+  <span class="subtitle">Мультиинструмент для текста — всё в одном файле, работает офлайн</span>
+</header>
+
+<div class="layout">
+  <nav id="nav">
+    <div class="section-label">Преобразование</div>
+    <button data-tool="json" class="active"><span class="icon">{ }</span> JSON Format</button>
+    <button data-tool="base64"><span class="icon">B64</span> Base64</button>
+    <button data-tool="url"><span class="icon">%</span> URL Encode</button>
+    <button data-tool="case"><span class="icon">Aa</span> Регистр</button>
+    <button data-tool="escape"><span class="icon">\n</span> Escape/Unescape</button>
+    <div class="section-label">Анализ</div>
+    <button data-tool="stats"><span class="icon">#</span> Статистика</button>
+    <button data-tool="diff"><span class="icon">+-</span> Diff</button>
+    <button data-tool="regex"><span class="icon">.*</span> Regex</button>
+    <div class="section-label">Генерация</div>
+    <button data-tool="password"><span class="icon">🔑</span> Пароли</button>
+    <button data-tool="uuid"><span class="icon">id</span> UUID</button>
+    <button data-tool="lorem"><span class="icon">Lp</span> Lorem Ipsum</button>
+    <div class="section-label">Утилиты</div>
+    <button data-tool="hash"><span class="icon">#!</span> Hash</button>
+    <button data-tool="sort"><span class="icon">↕</span> Сортировка</button>
+    <button data-tool="dedupe"><span class="icon">∪</span> Дедупликация</button>
+    <button data-tool="numbers"><span class="icon">42</span> Числа</button>
+  </nav>
+
+  <main id="main"></main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== UTILITIES =====================
+function $(sel, ctx = document) { return ctx.querySelector(sel); }
+function $$(sel, ctx = document) { return [...ctx.querySelectorAll(sel)]; }
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('Скопировано!')).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('Скопировано!');
+  });
+}
+
+// ===================== TOOL DEFINITIONS =====================
+const tools = {
+  // ---- JSON Format ----
+  json: {
+    title: 'JSON Formatter',
+    desc: 'Форматирование, минификация и валидация JSON',
+    render: () => `
+      <div class="controls">
+        <label>Отступ: <select id="jsonIndent"><option value="2">2 пробела</option><option value="4">4 пробела</option><option value="\\t">Tab</option></select></label>
+        <button class="btn btn-primary" onclick="tools.json.format()">Форматировать</button>
+        <button class="btn" onclick="tools.json.minify()">Минифицировать</button>
+        <button class="btn" onclick="tools.json.validate()">Валидировать</button>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Ввод <span class="info" id="jsonStatus"></span></div>
+          <textarea id="jsonIn" placeholder='{"key": "value", "array": [1,2,3]}'></textarea>
+        </div>
+        <div class="actions">
+          <button onclick="copyText($('#jsonOut').value)" title="Копировать">📋</button>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Результат</div>
+          <textarea id="jsonOut" readonly></textarea>
+        </div>
+      </div>`,
+    format() {
+      try {
+        const indent = $('#jsonIndent').value;
+        const ind = indent === '\\t' ? '\t' : parseInt(indent);
+        const obj = JSON.parse($('#jsonIn').value);
+        $('#jsonOut').value = JSON.stringify(obj, null, ind);
+        $('#jsonStatus').textContent = '✓ Валидный JSON';
+        $('#jsonStatus').style.color = 'var(--green)';
+      } catch (e) {
+        $('#jsonStatus').textContent = '✗ ' + e.message;
+        $('#jsonStatus').style.color = 'var(--accent2)';
+      }
+    },
+    minify() {
+      try {
+        const obj = JSON.parse($('#jsonIn').value);
+        $('#jsonOut').value = JSON.stringify(obj);
+        $('#jsonStatus').textContent = '✓ Минифицировано';
+        $('#jsonStatus').style.color = 'var(--green)';
+      } catch (e) {
+        $('#jsonStatus').textContent = '✗ ' + e.message;
+        $('#jsonStatus').style.color = 'var(--accent2)';
+      }
+    },
+    validate() {
+      try {
+        const obj = JSON.parse($('#jsonIn').value);
+        const keys = countKeys(obj);
+        $('#jsonStatus').textContent = `✓ Валидный JSON — ${keys} ключей, глубина ${jsonDepth(obj)}`;
+        $('#jsonStatus').style.color = 'var(--green)';
+        $('#jsonOut').value = '';
+      } catch (e) {
+        $('#jsonStatus').textContent = '✗ ' + e.message;
+        $('#jsonStatus').style.color = 'var(--accent2)';
+      }
+    }
+  },
+
+  // ---- Base64 ----
+  base64: {
+    title: 'Base64 Encode/Decode',
+    desc: 'Кодирование и декодирование Base64',
+    render: () => `
+      <div class="controls">
+        <button class="btn btn-primary" onclick="tools.base64.encode()">Encode →</button>
+        <button class="btn" onclick="tools.base64.decode()">← Decode</button>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Текст</div>
+          <textarea id="b64In" placeholder="Введите текст для кодирования..."></textarea>
+        </div>
+        <div class="actions">
+          <button onclick="copyText($('#b64Out').value)" title="Копировать">📋</button>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Base64</div>
+          <textarea id="b64Out" placeholder="...или Base64 для декодирования"></textarea>
+        </div>
+      </div>`,
+    encode() {
+      try {
+        $('#b64Out').value = btoa(unescape(encodeURIComponent($('#b64In').value)));
+      } catch(e) { toast('Ошибка кодирования'); }
+    },
+    decode() {
+      try {
+        $('#b64In').value = decodeURIComponent(escape(atob($('#b64Out').value.trim())));
+      } catch(e) { toast('Ошибка декодирования — невалидный Base64'); }
+    }
+  },
+
+  // ---- URL Encode ----
+  url: {
+    title: 'URL Encode/Decode',
+    desc: 'Кодирование и декодирование URL-компонентов',
+    render: () => `
+      <div class="controls">
+        <button class="btn btn-primary" onclick="tools.url.encode()">Encode →</button>
+        <button class="btn" onclick="tools.url.decode()">← Decode</button>
+        <button class="btn" onclick="tools.url.encodeAll()">Encode All</button>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Текст</div>
+          <textarea id="urlIn" placeholder="Привет мир! Hello & goodbye"></textarea>
+        </div>
+        <div class="actions">
+          <button onclick="copyText($('#urlOut').value)" title="Копировать">📋</button>
+        </div>
+        <div class="panel">
+          <div class="panel-label">URL-encoded</div>
+          <textarea id="urlOut" placeholder="%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82"></textarea>
+        </div>
+      </div>`,
+    encode() { $('#urlOut').value = encodeURIComponent($('#urlIn').value); },
+    decode() { try { $('#urlIn').value = decodeURIComponent($('#urlOut').value); } catch(e) { toast('Невалидный URL-encoded текст'); } },
+    encodeAll() { $('#urlOut').value = [...$('#urlIn').value].map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0').toUpperCase()).join(''); }
+  },
+
+  // ---- Case ----
+  case: {
+    title: 'Преобразование регистра',
+    desc: 'camelCase, snake_case, UPPER, lower, Title Case, kebab-case и другие',
+    render: () => `
+      <div class="controls">
+        <button class="btn" onclick="tools.case.to('upper')">UPPER</button>
+        <button class="btn" onclick="tools.case.to('lower')">lower</button>
+        <button class="btn" onclick="tools.case.to('title')">Title Case</button>
+        <button class="btn" onclick="tools.case.to('sentence')">Sentence case</button>
+        <button class="btn" onclick="tools.case.to('camel')">camelCase</button>
+        <button class="btn" onclick="tools.case.to('pascal')">PascalCase</button>
+        <button class="btn" onclick="tools.case.to('snake')">snake_case</button>
+        <button class="btn" onclick="tools.case.to('kebab')">kebab-case</button>
+        <button class="btn" onclick="tools.case.to('constant')">CONSTANT_CASE</button>
+        <button class="btn" onclick="tools.case.to('toggle')">tOGGLE</button>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Ввод</div>
+          <textarea id="caseIn" placeholder="Hello World example text"></textarea>
+        </div>
+        <div class="actions">
+          <button onclick="copyText($('#caseOut').value)" title="Копировать">📋</button>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Результат</div>
+          <textarea id="caseOut" readonly></textarea>
+        </div>
+      </div>`,
+    to(type) {
+      const text = $('#caseIn').value;
+      const words = text.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[_\-]+/g, ' ').split(/\s+/).filter(Boolean);
+      const map = {
+        upper: () => text.toUpperCase(),
+        lower: () => text.toLowerCase(),
+        title: () => words.map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' '),
+        sentence: () => { const s = text.toLowerCase(); return s[0].toUpperCase() + s.slice(1); },
+        camel: () => words.map((w, i) => i === 0 ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1).toLowerCase()).join(''),
+        pascal: () => words.map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(''),
+        snake: () => words.map(w => w.toLowerCase()).join('_'),
+        kebab: () => words.map(w => w.toLowerCase()).join('-'),
+        constant: () => words.map(w => w.toUpperCase()).join('_'),
+        toggle: () => [...text].map(c => c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join('')
+      };
+      $('#caseOut').value = map[type]();
+    }
+  },
+
+  // ---- Escape ----
+  escape: {
+    title: 'Escape / Unescape',
+    desc: 'HTML-entities, строки JSON, обратные слеши',
+    render: () => `
+      <div class="controls">
+        <label>Формат: <select id="escapeMode">
+          <option value="html">HTML Entities</option>
+          <option value="json">JSON String</option>
+          <option value="backslash">Backslash</option>
+        </select></label>
+        <button class="btn btn-primary" onclick="tools.escape.esc()">Escape →</button>
+        <button class="btn" onclick="tools.escape.unesc()">← Unescape</button>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Текст</div>
+          <textarea id="escIn" placeholder='<div class="test">&amp;</div>'></textarea>
+        </div>
+        <div class="actions">
+          <button onclick="copyText($('#escOut').value)" title="Копировать">📋</button>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Результат</div>
+          <textarea id="escOut"></textarea>
+        </div>
+      </div>`,
+    esc() {
+      const text = $('#escIn').value;
+      const mode = $('#escapeMode').value;
+      if (mode === 'html') {
+        const div = document.createElement('div');
+        div.textContent = text;
+        $('#escOut').value = div.innerHTML;
+      } else if (mode === 'json') {
+        $('#escOut').value = JSON.stringify(text);
+      } else {
+        $('#escOut').value = text.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t').replace(/"/g, '\\"');
+      }
+    },
+    unesc() {
+      const text = $('#escOut').value;
+      const mode = $('#escapeMode').value;
+      if (mode === 'html') {
+        const div = document.createElement('div');
+        div.innerHTML = text;
+        $('#escIn').value = div.textContent;
+      } else if (mode === 'json') {
+        try { $('#escIn').value = JSON.parse(text); } catch(e) { toast('Невалидная JSON-строка'); }
+      } else {
+        $('#escIn').value = text.replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      }
+    }
+  },
+
+  // ---- Stats ----
+  stats: {
+    title: 'Статистика текста',
+    desc: 'Подсчёт символов, слов, строк, предложений, время чтения',
+    render: () => `
+      <div class="workspace" style="flex-direction:column;">
+        <div class="panel" style="flex:1;">
+          <div class="panel-label">Текст для анализа</div>
+          <textarea id="statsIn" placeholder="Вставьте текст для анализа..." oninput="tools.stats.analyze()"></textarea>
+        </div>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>`,
+    analyze() {
+      const text = $('#statsIn').value;
+      const chars = text.length;
+      const charsNoSpace = text.replace(/\s/g, '').length;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      const lines = text ? text.split('\n').length : 0;
+      const sentences = text.trim() ? (text.match(/[.!?。]+/g) || []).length || (text.trim() ? 1 : 0) : 0;
+      const paragraphs = text.trim() ? text.split(/\n\s*\n/).filter(p => p.trim()).length : 0;
+      const readTime = Math.ceil(words / 200);
+      const speakTime = Math.ceil(words / 130);
+      const uniqWords = text.trim() ? new Set(text.toLowerCase().match(/[\p{L}]+/gu) || []).size : 0;
+
+      $('#statsGrid').innerHTML = [
+        { v: chars, l: 'Символов' },
+        { v: charsNoSpace, l: 'Без пробелов' },
+        { v: words, l: 'Слов' },
+        { v: uniqWords, l: 'Уникальных слов' },
+        { v: lines, l: 'Строк' },
+        { v: sentences, l: 'Предложений' },
+        { v: paragraphs, l: 'Абзацев' },
+        { v: readTime + ' мин', l: 'Время чтения' },
+        { v: speakTime + ' мин', l: 'Время речи' },
+        { v: text.trim() ? (charsNoSpace / Math.max(words, 1)).toFixed(1) : 0, l: 'Ср. длина слова' }
+      ].map(s => `<div class="stat-card"><div class="value">${s.v}</div><div class="label">${s.l}</div></div>`).join('');
+    }
+  },
+
+  // ---- Diff ----
+  diff: {
+    title: 'Text Diff',
+    desc: 'Сравнение двух текстов построчно',
+    render: () => `
+      <div class="controls">
+        <button class="btn btn-primary" onclick="tools.diff.compare()">Сравнить</button>
+        <label><input type="checkbox" id="diffTrim"> Игнорировать пробелы</label>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Текст A</div>
+          <textarea id="diffA" placeholder="Первый текст..."></textarea>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Текст B</div>
+          <textarea id="diffB" placeholder="Второй текст..."></textarea>
+        </div>
+      </div>
+      <div id="diffResult" style="margin-top:16px; max-height:300px; overflow-y:auto; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px;"></div>`,
+    compare() {
+      const trim = $('#diffTrim').checked;
+      const a = $('#diffA').value.split('\n');
+      const b = $('#diffB').value.split('\n');
+      const max = Math.max(a.length, b.length);
+      let html = '';
+      let changes = 0;
+      for (let i = 0; i < max; i++) {
+        const la = a[i] ?? '';
+        const lb = b[i] ?? '';
+        const ca = trim ? la.trim() : la;
+        const cb = trim ? lb.trim() : lb;
+        if (ca === cb) {
+          html += `<div class="diff-line">&nbsp; ${escHtml(la)}</div>`;
+        } else {
+          changes++;
+          if (la !== undefined && a[i] !== undefined) html += `<div class="diff-line diff-del">- ${escHtml(la)}</div>`;
+          if (lb !== undefined && b[i] !== undefined) html += `<div class="diff-line diff-add">+ ${escHtml(lb)}</div>`;
+        }
+      }
+      html = `<div class="diff-line diff-info">--- ${changes} изменений из ${max} строк ---</div>` + html;
+      $('#diffResult').innerHTML = html;
+    }
+  },
+
+  // ---- Regex ----
+  regex: {
+    title: 'Regex Tester',
+    desc: 'Тестирование регулярных выражений с подсветкой совпадений',
+    render: () => `
+      <div class="controls">
+        <label>Regex: <input type="text" id="regexPattern" placeholder="[A-Z]\\w+" style="width:300px;"></label>
+        <label>Флаги: <input type="text" id="regexFlags" value="gi" style="width:60px;"></label>
+        <button class="btn btn-primary" onclick="tools.regex.test()">Тест</button>
+        <button class="btn" onclick="tools.regex.replace()">Заменить</button>
+        <label>Замена: <input type="text" id="regexReplace" placeholder="$1" style="width:200px;"></label>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Текст <span class="info" id="regexInfo"></span></div>
+          <textarea id="regexIn" placeholder="Текст для поиска совпадений..."></textarea>
+        </div>
+        <div class="actions">
+          <button onclick="copyText($('#regexOut').value)" title="Копировать">📋</button>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Совпадения / Результат</div>
+          <textarea id="regexOut" readonly></textarea>
+        </div>
+      </div>`,
+    test() {
+      try {
+        const re = new RegExp($('#regexPattern').value, $('#regexFlags').value);
+        const matches = [...$('#regexIn').value.matchAll(re)];
+        $('#regexOut').value = matches.map((m, i) => `[${i}] "${m[0]}" (pos ${m.index})${m.length > 1 ? ' groups: ' + m.slice(1).join(', ') : ''}`).join('\n');
+        $('#regexInfo').textContent = `${matches.length} совпадений`;
+        $('#regexInfo').style.color = matches.length ? 'var(--green)' : 'var(--accent2)';
+      } catch (e) {
+        $('#regexInfo').textContent = '✗ ' + e.message;
+        $('#regexInfo').style.color = 'var(--accent2)';
+      }
+    },
+    replace() {
+      try {
+        const re = new RegExp($('#regexPattern').value, $('#regexFlags').value);
+        $('#regexOut').value = $('#regexIn').value.replace(re, $('#regexReplace').value);
+      } catch (e) {
+        $('#regexInfo').textContent = '✗ ' + e.message;
+        $('#regexInfo').style.color = 'var(--accent2)';
+      }
+    }
+  },
+
+  // ---- Password ----
+  password: {
+    title: 'Генератор паролей',
+    desc: 'Криптографически стойкие пароли с оценкой сложности',
+    render: () => `
+      <div class="controls">
+        <label>Длина: <input type="number" id="pwLen" value="20" min="4" max="128" style="width:70px;"></label>
+        <label><input type="checkbox" id="pwUpper" checked> A-Z</label>
+        <label><input type="checkbox" id="pwLower" checked> a-z</label>
+        <label><input type="checkbox" id="pwDigits" checked> 0-9</label>
+        <label><input type="checkbox" id="pwSymbols" checked> !@#$</label>
+        <label>Кол-во: <input type="number" id="pwCount" value="5" min="1" max="20" style="width:60px;"></label>
+        <button class="btn btn-primary" onclick="tools.password.generate()">Генерировать</button>
+      </div>
+      <div class="password-display" id="pwDisplay" onclick="copyText(this.textContent)">Нажмите «Генерировать»</div>
+      <div class="strength-bar"><div class="fill" id="pwStrength"></div></div>
+      <div id="pwList" style="font-family:var(--font); font-size:13px;"></div>`,
+    generate() {
+      let chars = '';
+      if ($('#pwUpper').checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      if ($('#pwLower').checked) chars += 'abcdefghijklmnopqrstuvwxyz';
+      if ($('#pwDigits').checked) chars += '0123456789';
+      if ($('#pwSymbols').checked) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+      if (!chars) { toast('Выберите хотя бы один набор символов'); return; }
+
+      const len = parseInt($('#pwLen').value);
+      const count = parseInt($('#pwCount').value);
+      const passwords = [];
+
+      for (let j = 0; j < count; j++) {
+        const arr = new Uint32Array(len);
+        crypto.getRandomValues(arr);
+        let pw = '';
+        for (let i = 0; i < len; i++) pw += chars[arr[i] % chars.length];
+        passwords.push(pw);
+      }
+
+      $('#pwDisplay').textContent = passwords[0];
+
+      // Strength
+      const entropy = Math.log2(chars.length) * len;
+      const pct = Math.min(100, entropy / 1.28);
+      const bar = $('#pwStrength');
+      bar.style.width = pct + '%';
+      bar.style.background = pct < 30 ? 'var(--accent2)' : pct < 60 ? 'var(--yellow)' : 'var(--green)';
+
+      if (count > 1) {
+        $('#pwList').innerHTML = '<div style="margin-top:8px; color:var(--text2);">Все пароли (клик для копирования):</div>' +
+          passwords.map(p => `<div style="padding:6px 0; cursor:pointer; border-bottom:1px solid var(--border);" onclick="copyText('${p}')">${p}</div>`).join('');
+      }
+    }
+  },
+
+  // ---- UUID ----
+  uuid: {
+    title: 'UUID Generator',
+    desc: 'Генерация UUID v4 (криптографически случайные)',
+    render: () => `
+      <div class="controls">
+        <label>Кол-во: <input type="number" id="uuidCount" value="10" min="1" max="100" style="width:70px;"></label>
+        <label>Формат: <select id="uuidFormat"><option value="standard">Стандартный</option><option value="upper">ВЕРХНИЙ</option><option value="noDash">Без дефисов</option><option value="braces">{В скобках}</option></select></label>
+        <button class="btn btn-primary" onclick="tools.uuid.generate()">Генерировать</button>
+        <button class="btn" onclick="copyText($('#uuidOut').value)">Копировать всё</button>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">UUID</div>
+          <textarea id="uuidOut" readonly></textarea>
+        </div>
+      </div>`,
+    generate() {
+      const count = parseInt($('#uuidCount').value);
+      const fmt = $('#uuidFormat').value;
+      const uuids = [];
+      for (let i = 0; i < count; i++) {
+        let u = crypto.randomUUID();
+        if (fmt === 'upper') u = u.toUpperCase();
+        else if (fmt === 'noDash') u = u.replace(/-/g, '');
+        else if (fmt === 'braces') u = '{' + u + '}';
+        uuids.push(u);
+      }
+      $('#uuidOut').value = uuids.join('\n');
+    }
+  },
+
+  // ---- Lorem ----
+  lorem: {
+    title: 'Lorem Ipsum',
+    desc: 'Генерация текста-заполнителя',
+    render: () => `
+      <div class="controls">
+        <label>Тип: <select id="loremType"><option value="paragraphs">Абзацы</option><option value="sentences">Предложения</option><option value="words">Слова</option></select></label>
+        <label>Кол-во: <input type="number" id="loremCount" value="3" min="1" max="50" style="width:70px;"></label>
+        <button class="btn btn-primary" onclick="tools.lorem.generate()">Генерировать</button>
+        <button class="btn" onclick="copyText($('#loremOut').value)">Копировать</button>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Lorem Ipsum</div>
+          <textarea id="loremOut" readonly></textarea>
+        </div>
+      </div>`,
+    generate() {
+      const words = 'lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum'.split(' ');
+      const count = parseInt($('#loremCount').value);
+      const type = $('#loremType').value;
+
+      function randWord() { return words[Math.floor(Math.random() * words.length)]; }
+      function sentence() { const len = 8 + Math.floor(Math.random() * 12); const s = Array.from({length: len}, randWord).join(' '); return s[0].toUpperCase() + s.slice(1) + '.'; }
+      function paragraph() { return Array.from({length: 3 + Math.floor(Math.random() * 4)}, sentence).join(' '); }
+
+      if (type === 'words') {
+        $('#loremOut').value = Array.from({length: count}, randWord).join(' ');
+      } else if (type === 'sentences') {
+        $('#loremOut').value = Array.from({length: count}, sentence).join(' ');
+      } else {
+        $('#loremOut').value = Array.from({length: count}, paragraph).join('\n\n');
+      }
+    }
+  },
+
+  // ---- Hash ----
+  hash: {
+    title: 'Hash (SHA / MD5)',
+    desc: 'Вычисление хешей текста (SHA-1, SHA-256, SHA-384, SHA-512)',
+    render: () => `
+      <div class="workspace" style="flex-direction:column;">
+        <div class="panel" style="flex:0.5;">
+          <div class="panel-label">Текст для хеширования</div>
+          <textarea id="hashIn" placeholder="Введите текст..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="tools.hash.compute()" style="align-self:flex-start;margin:8px 0;">Вычислить хеши</button>
+        <div class="hash-results" id="hashResults"></div>
+      </div>`,
+    async compute() {
+      const text = $('#hashIn').value;
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const algos = ['SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'];
+      let html = '';
+      for (const algo of algos) {
+        const buf = await crypto.subtle.digest(algo, data);
+        const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        html += `<div class="hash-row"><span class="algo">${algo}</span><span class="hash">${hash}</span><button onclick="copyText('${hash}')" title="Копировать">📋</button></div>`;
+      }
+      $('#hashResults').innerHTML = html;
+    }
+  },
+
+  // ---- Sort ----
+  sort: {
+    title: 'Сортировка строк',
+    desc: 'Сортировка по алфавиту, числовая, по длине, случайная',
+    render: () => `
+      <div class="controls">
+        <label>Тип: <select id="sortType">
+          <option value="alpha">По алфавиту</option>
+          <option value="alphaDesc">По алфавиту (обр.)</option>
+          <option value="numeric">Числовая</option>
+          <option value="length">По длине</option>
+          <option value="lengthDesc">По длине (обр.)</option>
+          <option value="random">Случайная</option>
+          <option value="reverse">Перевернуть</option>
+        </select></label>
+        <button class="btn btn-primary" onclick="tools.sort.run()">Сортировать</button>
+        <label><input type="checkbox" id="sortTrim"> Trim строки</label>
+        <label><input type="checkbox" id="sortEmpty"> Убрать пустые</label>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Ввод (по одному на строку)</div>
+          <textarea id="sortIn" placeholder="banana\napple\ncherry\ndate"></textarea>
+        </div>
+        <div class="actions">
+          <button onclick="copyText($('#sortOut').value)">📋</button>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Результат</div>
+          <textarea id="sortOut" readonly></textarea>
+        </div>
+      </div>`,
+    run() {
+      let lines = $('#sortIn').value.split('\n');
+      if ($('#sortTrim').checked) lines = lines.map(l => l.trim());
+      if ($('#sortEmpty').checked) lines = lines.filter(l => l.length > 0);
+      const type = $('#sortType').value;
+      const sorters = {
+        alpha: (a, b) => a.localeCompare(b),
+        alphaDesc: (a, b) => b.localeCompare(a),
+        numeric: (a, b) => parseFloat(a) - parseFloat(b),
+        length: (a, b) => a.length - b.length,
+        lengthDesc: (a, b) => b.length - a.length,
+        random: () => Math.random() - 0.5,
+        reverse: null
+      };
+      if (type === 'reverse') lines.reverse();
+      else lines.sort(sorters[type]);
+      $('#sortOut').value = lines.join('\n');
+    }
+  },
+
+  // ---- Dedupe ----
+  dedupe: {
+    title: 'Дедупликация',
+    desc: 'Удаление дубликатов строк, подсчёт частот',
+    render: () => `
+      <div class="controls">
+        <button class="btn btn-primary" onclick="tools.dedupe.run()">Удалить дубликаты</button>
+        <button class="btn" onclick="tools.dedupe.freq()">Частотный анализ</button>
+        <label><input type="checkbox" id="dedupeCase"> Без учёта регистра</label>
+        <label><input type="checkbox" id="dedupeTrim" checked> Trim</label>
+      </div>
+      <div class="workspace">
+        <div class="panel">
+          <div class="panel-label">Ввод</div>
+          <textarea id="dedupeIn" placeholder="apple\nbanana\napple\ncherry\nbanana\napple"></textarea>
+        </div>
+        <div class="actions">
+          <button onclick="copyText($('#dedupeOut').value)">📋</button>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Результат <span class="info" id="dedupeInfo"></span></div>
+          <textarea id="dedupeOut" readonly></textarea>
+        </div>
+      </div>`,
+    run() {
+      let lines = $('#dedupeIn').value.split('\n');
+      if ($('#dedupeTrim').checked) lines = lines.map(l => l.trim());
+      const ci = $('#dedupeCase').checked;
+      const seen = new Set();
+      const result = [];
+      for (const l of lines) {
+        const key = ci ? l.toLowerCase() : l;
+        if (!seen.has(key)) { seen.add(key); result.push(l); }
+      }
+      $('#dedupeOut').value = result.join('\n');
+      $('#dedupeInfo').textContent = `${lines.length} → ${result.length} (убрано ${lines.length - result.length})`;
+    },
+    freq() {
+      let lines = $('#dedupeIn').value.split('\n');
+      if ($('#dedupeTrim').checked) lines = lines.map(l => l.trim());
+      const ci = $('#dedupeCase').checked;
+      const freq = {};
+      for (const l of lines) {
+        const key = ci ? l.toLowerCase() : l;
+        freq[key] = (freq[key] || 0) + 1;
+      }
+      const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+      $('#dedupeOut').value = sorted.map(([k, v]) => `${v}x  ${k}`).join('\n');
+      $('#dedupeInfo').textContent = `${sorted.length} уникальных из ${lines.length}`;
+    }
+  },
+
+  // ---- Numbers ----
+  numbers: {
+    title: 'Конвертер чисел',
+    desc: 'Перевод между системами счисления: dec, hex, bin, oct',
+    render: () => `
+      <div class="controls">
+        <label>Число: <input type="text" id="numIn" placeholder="255" style="width:200px;" oninput="tools.numbers.convert()"></label>
+        <label>Из: <select id="numFrom" onchange="tools.numbers.convert()">
+          <option value="10">Десятичная</option>
+          <option value="16">Hex</option>
+          <option value="2">Двоичная</option>
+          <option value="8">Восьмеричная</option>
+        </select></label>
+      </div>
+      <div class="stats-grid" id="numResults"></div>
+      <div style="margin-top:24px;">
+        <div class="panel-label">Пакетная конвертация (по одному числу на строку)</div>
+        <div class="workspace" style="margin-top:8px;">
+          <div class="panel">
+            <textarea id="numBatchIn" placeholder="255\n128\n42"></textarea>
+          </div>
+          <div class="actions">
+            <button class="btn-primary actions-btn" onclick="tools.numbers.batch()" style="width:40px;height:40px;border-radius:8px;background:var(--accent);border:1px solid var(--accent);color:#fff;font-size:16px;cursor:pointer;">→</button>
+          </div>
+          <div class="panel">
+            <textarea id="numBatchOut" readonly></textarea>
+          </div>
+        </div>
+      </div>`,
+    convert() {
+      const val = $('#numIn').value.trim();
+      if (!val) { $('#numResults').innerHTML = ''; return; }
+      const base = parseInt($('#numFrom').value);
+      const num = parseInt(val, base);
+      if (isNaN(num)) { $('#numResults').innerHTML = '<div class="stat-card"><div class="value">?</div><div class="label">Невалидное число</div></div>'; return; }
+      $('#numResults').innerHTML = [
+        { v: num.toString(10), l: 'Десятичная' },
+        { v: '0x' + num.toString(16).toUpperCase(), l: 'Hex' },
+        { v: '0b' + num.toString(2), l: 'Двоичная' },
+        { v: '0o' + num.toString(8), l: 'Восьмеричная' },
+        { v: String.fromCodePoint(num > 0 && num < 0x10FFFF ? num : 0), l: 'Символ (Unicode)' },
+      ].map(s => `<div class="stat-card" style="cursor:pointer;" onclick="copyText('${s.v}')"><div class="value" style="font-size:20px;">${escHtml(s.v)}</div><div class="label">${s.l}</div></div>`).join('');
+    },
+    batch() {
+      const base = parseInt($('#numFrom').value);
+      const lines = $('#numBatchIn').value.split('\n').filter(l => l.trim());
+      $('#numBatchOut').value = lines.map(l => {
+        const n = parseInt(l.trim(), base);
+        return isNaN(n) ? '?' : `dec:${n} hex:${n.toString(16).toUpperCase()} bin:${n.toString(2)} oct:${n.toString(8)}`;
+      }).join('\n');
+    }
+  }
+};
+
+// ===================== HELPERS =====================
+function escHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function countKeys(obj) { if (typeof obj !== 'object' || obj === null) return 0; return Object.keys(obj).reduce((s, k) => s + 1 + countKeys(obj[k]), 0); }
+function jsonDepth(obj, d = 0) { if (typeof obj !== 'object' || obj === null) return d; return Math.max(...Object.values(obj).map(v => jsonDepth(v, d + 1)), d); }
+
+// ===================== NAVIGATION =====================
+let currentTool = 'json';
+
+function switchTool(name) {
+  currentTool = name;
+  $$('nav button').forEach(b => b.classList.toggle('active', b.dataset.tool === name));
+  $('#main').innerHTML = `<div class="tool-header"><h2>${tools[name].title}</h2><p>${tools[name].desc}</p></div>${tools[name].render()}`;
+  localStorage.setItem('textforge_tool', name);
+}
+
+$$('nav button[data-tool]').forEach(btn => {
+  btn.addEventListener('click', () => switchTool(btn.dataset.tool));
+});
+
+// Keyboard shortcut: Ctrl+Enter to run primary action
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    const primary = $('main .btn-primary');
+    if (primary) primary.click();
+  }
+});
+
+// Init
+const saved = localStorage.getItem('textforge_tool');
+switchTool(saved && tools[saved] ? saved : 'json');
+</script>
+</body>
+</html>

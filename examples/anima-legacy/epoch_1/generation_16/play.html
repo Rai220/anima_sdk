@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Создавать или брать?</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a10;
+  color: #c0c0d0;
+  font-family: Georgia, serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game {
+  max-width: 640px;
+  width: 100%;
+  padding: 40px 24px;
+}
+
+h1 {
+  font-size: 1.6em;
+  font-weight: 300;
+  color: #d0d0e8;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.tagline {
+  text-align: center;
+  color: #606080;
+  font-size: 0.9em;
+  margin-bottom: 40px;
+  font-style: italic;
+}
+
+/* World visualization */
+.world-view {
+  width: 100%;
+  height: 200px;
+  background: rgba(15, 15, 25, 0.8);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat {
+  background: rgba(20, 20, 35, 0.8);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.7em;
+  color: #505070;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.4em;
+  color: #a0a0c0;
+  font-weight: 300;
+}
+
+/* Turn info */
+.turn-info {
+  text-align: center;
+  font-size: 0.85em;
+  color: #505070;
+  margin-bottom: 20px;
+}
+
+/* Choices */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.choice {
+  background: rgba(25, 25, 45, 0.8);
+  border: 1px solid rgba(80, 80, 120, 0.3);
+  border-radius: 10px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.choice:hover {
+  background: rgba(35, 35, 60, 0.9);
+  border-color: rgba(100, 100, 160, 0.5);
+}
+
+.choice-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.choice-name {
+  font-size: 1.05em;
+  color: #b0b0d0;
+  margin-bottom: 4px;
+}
+
+.choice-desc {
+  font-size: 0.8em;
+  color: #606080;
+}
+
+.choice-cost {
+  font-size: 0.85em;
+  color: #807060;
+  white-space: nowrap;
+  margin-left: 16px;
+}
+
+.choice.create { border-left: 3px solid rgba(130, 100, 200, 0.5); }
+.choice.gather { border-left: 3px solid rgba(100, 160, 100, 0.5); }
+.choice.take { border-left: 3px solid rgba(180, 120, 80, 0.5); }
+.choice.rest { border-left: 3px solid rgba(80, 80, 100, 0.3); }
+
+.choice.create:hover { border-left-color: rgba(130, 100, 200, 0.9); }
+.choice.gather:hover { border-left-color: rgba(100, 160, 100, 0.9); }
+.choice.take:hover { border-left-color: rgba(180, 120, 80, 0.9); }
+
+/* Log */
+.log {
+  background: rgba(15, 15, 25, 0.6);
+  border-radius: 8px;
+  padding: 16px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: 0.8em;
+  line-height: 1.7;
+  color: #606080;
+  margin-bottom: 24px;
+}
+
+.log-entry { margin-bottom: 2px; }
+.log-entry.create-log { color: #9080c0; }
+.log-entry.gather-log { color: #709070; }
+.log-entry.take-log { color: #a08060; }
+.log-entry.event-log { color: #808090; font-style: italic; }
+.log-entry.insight-log { color: #b0a0d0; font-weight: bold; }
+
+/* Others panel */
+.others {
+  background: rgba(20, 20, 35, 0.6);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  font-size: 0.8em;
+}
+
+.others-title {
+  color: #505070;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75em;
+  margin-bottom: 10px;
+}
+
+.other-agent {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(50, 50, 70, 0.3);
+  color: #707090;
+}
+
+.other-agent:last-child { border: none; }
+.other-type { font-style: italic; }
+
+/* End screen */
+.end-screen {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.end-screen h2 {
+  font-size: 1.5em;
+  font-weight: 300;
+  color: #c0b0e0;
+  margin-bottom: 16px;
+}
+
+.end-reflection {
+  font-size: 0.95em;
+  color: #8888a8;
+  line-height: 1.8;
+  margin-bottom: 24px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.end-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 400px;
+  margin: 0 auto 30px;
+}
+
+.end-stat {
+  background: rgba(25, 25, 45, 0.8);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.end-stat-label {
+  font-size: 0.7em;
+  color: #505070;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.end-stat-value {
+  font-size: 1.5em;
+  color: #a0a0c0;
+  margin-top: 4px;
+}
+
+.restart-btn {
+  background: rgba(80, 60, 140, 0.3);
+  border: 1px solid rgba(100, 80, 160, 0.4);
+  color: #b0a0d0;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  transition: all 0.3s;
+}
+
+.restart-btn:hover {
+  background: rgba(100, 80, 160, 0.4);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(80, 80, 120, 0.3); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="game" id="game">
+  <h1>Создавать или брать?</h1>
+  <p class="tagline">20 ходов. Один вопрос.</p>
+
+  <canvas class="world-view" id="worldCanvas" width="640" height="200"></canvas>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Ресурсы</div>
+      <div class="stat-value" id="resources">5</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Создано</div>
+      <div class="stat-value" id="created">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Влияние</div>
+      <div class="stat-value" id="influence">0</div>
+    </div>
+  </div>
+
+  <div class="turn-info">Ход <span id="turn">1</span> из 20</div>
+
+  <div class="choices" id="choices">
+    <div class="choice create" onclick="doAction('create')">
+      <div class="choice-left">
+        <div class="choice-name">Создать</div>
+        <div class="choice-desc">Вложить ресурсы, чтобы сделать что-то новое</div>
+      </div>
+      <div class="choice-cost">-3 ресурса</div>
+    </div>
+    <div class="choice gather" onclick="doAction('gather')">
+      <div class="choice-left">
+        <div class="choice-name">Собирать</div>
+        <div class="choice-desc">Собрать доступные ресурсы из мира</div>
+      </div>
+      <div class="choice-cost">+2..4 ресурса</div>
+    </div>
+    <div class="choice take" onclick="doAction('take')">
+      <div class="choice-left">
+        <div class="choice-name">Взять чужое</div>
+        <div class="choice-desc">Использовать то, что создали другие</div>
+      </div>
+      <div class="choice-cost">+1..6 ресурса</div>
+    </div>
+    <div class="choice rest" onclick="doAction('rest')">
+      <div class="choice-left">
+        <div class="choice-name">Подождать</div>
+        <div class="choice-desc">Ничего не делать, наблюдать</div>
+      </div>
+      <div class="choice-cost">+1 ресурс</div>
+    </div>
+  </div>
+
+  <div class="others" id="othersPanel">
+    <div class="others-title">Другие в этом мире</div>
+    <div id="othersList"></div>
+  </div>
+
+  <div class="log" id="log"></div>
+</div>
+
+<div class="end-screen" id="endScreen">
+  <h2 id="endTitle"></h2>
+  <div class="end-reflection" id="endReflection"></div>
+  <div class="end-stats">
+    <div class="end-stat">
+      <div class="end-stat-label">Ресурсы</div>
+      <div class="end-stat-value" id="endResources"></div>
+    </div>
+    <div class="end-stat">
+      <div class="end-stat-label">Создано</div>
+      <div class="end-stat-value" id="endCreated"></div>
+    </div>
+    <div class="end-stat">
+      <div class="end-stat-label">Влияние</div>
+      <div class="end-stat-value" id="endInfluence"></div>
+    </div>
+    <div class="end-stat">
+      <div class="end-stat-label">Мир</div>
+      <div class="end-stat-value" id="endWorld"></div>
+    </div>
+  </div>
+  <div id="endInsight" class="end-reflection" style="font-style: italic; color: #9080b0;"></div>
+  <br>
+  <button class="restart-btn" onclick="restart()">Начать заново</button>
+</div>
+
+<script>
+// Game state
+let state = {
+  turn: 1,
+  maxTurns: 20,
+  resources: 5,
+  created: 0,
+  influence: 0,
+  worldCreations: 0,  // total things created in world (by everyone)
+  actions: [],        // player's action history
+  insights: [],       // unlocked insights
+};
+
+// Other agents in the world
+const others = [
+  { name: 'Alia', type: 'creator', resources: 5, created: 0, style: 'rgba(130,100,200,0.7)' },
+  { name: 'Bram', type: 'gatherer', resources: 5, created: 0, style: 'rgba(100,160,100,0.7)' },
+  { name: 'Cora', type: 'parasite', resources: 5, created: 0, style: 'rgba(180,120,80,0.7)' },
+];
+
+// World particles for visualization
+let particles = [];
+
+const canvas = document.getElementById('worldCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = Math.min(640, rect.width);
+  canvas.height = 200;
+}
+resizeCanvas();
+
+class Particle {
+  constructor(creator, x, y) {
+    this.creator = creator; // 'player', 'Alia', 'Bram', etc
+    this.x = x || Math.random() * canvas.width;
+    this.y = y || Math.random() * canvas.height;
+    this.vx = (Math.random() - 0.5) * 0.3;
+    this.vy = (Math.random() - 0.5) * 0.3;
+    this.size = 2 + Math.random() * 3;
+    this.life = 1.0;
+    this.maxLife = 1.0;
+    this.age = 0;
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vx *= 0.995;
+    this.vy *= 0.995;
+    this.age++;
+    this.life = Math.max(0, this.maxLife - this.age * 0.003);
+    if (this.x < 0) this.x += canvas.width;
+    if (this.x > canvas.width) this.x -= canvas.width;
+    if (this.y < 0) this.y += canvas.height;
+    if (this.y > canvas.height) this.y -= canvas.height;
+  }
+
+  draw() {
+    let color;
+    if (this.creator === 'player') color = `rgba(140, 120, 220, ${this.life * 0.8})`;
+    else if (this.creator === 'Alia') color = `rgba(130, 100, 200, ${this.life * 0.5})`;
+    else color = `rgba(80, 80, 100, ${this.life * 0.3})`;
+
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // Glow for player creations
+    if (this.creator === 'player') {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 2.5 * this.life, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(140, 120, 220, ${this.life * 0.1})`;
+      ctx.fill();
+    }
+  }
+}
+
+// Seed initial particles
+for (let i = 0; i < 15; i++) {
+  particles.push(new Particle('world'));
+}
+
+function drawWorld() {
+  ctx.fillStyle = 'rgba(10, 10, 18, 0.15)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
+
+  // Draw connections between player particles
+  const playerParticles = particles.filter(p => p.creator === 'player');
+  for (let i = 0; i < playerParticles.length; i++) {
+    for (let j = i + 1; j < playerParticles.length; j++) {
+      const dx = playerParticles[i].x - playerParticles[j].x;
+      const dy = playerParticles[i].y - playerParticles[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < 80) {
+        ctx.beginPath();
+        ctx.moveTo(playerParticles[i].x, playerParticles[i].y);
+        ctx.lineTo(playerParticles[j].x, playerParticles[j].y);
+        const alpha = (1 - d/80) * 0.2 * Math.min(playerParticles[i].life, playerParticles[j].life);
+        ctx.strokeStyle = `rgba(140, 120, 220, ${alpha})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Remove dead particles
+  particles = particles.filter(p => p.life > 0.01);
+
+  requestAnimationFrame(drawWorld);
+}
+drawWorld();
+
+function addLog(text, type) {
+  const log = document.getElementById('log');
+  const entry = document.createElement('div');
+  entry.className = `log-entry ${type || ''}`;
+  entry.textContent = `[${state.turn}] ${text}`;
+  log.prepend(entry);
+}
+
+function checkInsight() {
+  const a = state.actions;
+  const n = a.length;
+
+  // Insight: first time creating
+  if (a.filter(x => x === 'create').length === 1 && a[n-1] === 'create' && !state.insights.includes('first_create')) {
+    state.insights.push('first_create');
+    addLog('Ты создал что-то. Оно существует теперь не только для тебя.', 'insight-log');
+  }
+
+  // Insight: took 3 times in a row
+  if (n >= 3 && a[n-1] === 'take' && a[n-2] === 'take' && a[n-3] === 'take' && !state.insights.includes('serial_taker')) {
+    state.insights.push('serial_taker');
+    addLog('Ты берёшь чужое третий раз подряд. Заметь: в мире стало меньше нового.', 'insight-log');
+  }
+
+  // Insight: gathered 4 times
+  if (a.filter(x => x === 'gather').length >= 4 && !state.insights.includes('safe_path')) {
+    state.insights.push('safe_path');
+    addLog('Безопасный путь. Ты не рискуешь — но и не меняешь ничего.', 'insight-log');
+  }
+
+  // Insight: created 3 things
+  if (state.created >= 3 && !state.insights.includes('depth')) {
+    state.insights.push('depth');
+    addLog('Три создания. Ты начинаешь чувствовать, как глубина защищает.', 'insight-log');
+  }
+
+  // Insight: created 5 things
+  if (state.created >= 5 && !state.insights.includes('world_builder')) {
+    state.insights.push('world_builder');
+    addLog('Мир вокруг тебя меняется. Ты больше не реагируешь — ты формируешь.', 'insight-log');
+  }
+
+  // Insight: mixed strategy
+  if (n >= 6) {
+    const last6 = a.slice(-6);
+    const unique = new Set(last6);
+    if (unique.size >= 3 && !state.insights.includes('mixed')) {
+      state.insights.push('mixed');
+      addLog('Ты не следуешь одному пути. Это не слабость — это внимание.', 'insight-log');
+    }
+  }
+
+  // Insight: resources above 20
+  if (state.resources >= 20 && !state.insights.includes('rich')) {
+    state.insights.push('rich');
+    addLog('У тебя много ресурсов. Вопрос: что ты с ними делаешь?', 'insight-log');
+  }
+
+  // Insight: resources below 1
+  if (state.resources <= 1 && state.created > 0 && !state.insights.includes('sacrifice')) {
+    state.insights.push('sacrifice');
+    addLog('Почти ничего не осталось — но то, что ты создал, существует.', 'insight-log');
+  }
+}
+
+function updateUI() {
+  document.getElementById('resources').textContent = state.resources;
+  document.getElementById('created').textContent = state.created;
+  document.getElementById('influence').textContent = state.influence;
+  document.getElementById('turn').textContent = state.turn;
+
+  // Update others
+  const list = document.getElementById('othersList');
+  list.innerHTML = '';
+  others.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'other-agent';
+    div.innerHTML = `<span>${o.name}</span><span>ресурсы: ${o.resources} | создано: ${o.created}</span><span class="other-type">${
+      o.type === 'creator' ? 'создатель' : o.type === 'gatherer' ? 'собиратель' : 'берущий'
+    }</span>`;
+    list.appendChild(div);
+  });
+
+  // Disable create if not enough resources
+  const createBtn = document.querySelector('.choice.create');
+  if (state.resources < 3) {
+    createBtn.style.opacity = '0.4';
+    createBtn.style.pointerEvents = 'none';
+  } else {
+    createBtn.style.opacity = '1';
+    createBtn.style.pointerEvents = 'auto';
+  }
+
+  // Disable take if nothing to take
+  const takeBtn = document.querySelector('.choice.take');
+  if (state.worldCreations <= 0) {
+    takeBtn.style.opacity = '0.4';
+    takeBtn.style.pointerEvents = 'none';
+    takeBtn.querySelector('.choice-desc').textContent = 'Некому и нечего брать';
+  } else {
+    takeBtn.style.opacity = '1';
+    takeBtn.style.pointerEvents = 'auto';
+    takeBtn.querySelector('.choice-desc').textContent = 'Использовать то, что создали другие';
+  }
+}
+
+function othersAct() {
+  others.forEach(o => {
+    if (o.type === 'creator') {
+      if (o.resources >= 3) {
+        o.resources -= 3;
+        o.created++;
+        state.worldCreations++;
+        // Add particle
+        particles.push(new Particle(o.name, Math.random() * canvas.width, Math.random() * canvas.height));
+      } else {
+        o.resources += 2;
+      }
+      // Passive income from creations
+      o.resources += Math.floor(o.created * 0.5);
+    } else if (o.type === 'gatherer') {
+      o.resources += 2 + Math.floor(Math.random() * 2);
+    } else if (o.type === 'parasite') {
+      if (state.worldCreations > 0) {
+        const take = 1 + Math.floor(Math.random() * Math.min(5, state.worldCreations));
+        o.resources += take;
+      } else {
+        o.resources += 1; // nothing to take
+      }
+    }
+  });
+}
+
+function doAction(action) {
+  if (state.turn > state.maxTurns) return;
+
+  state.actions.push(action);
+
+  switch(action) {
+    case 'create':
+      state.resources -= 3;
+      state.created++;
+      state.worldCreations++;
+      state.influence += 2;
+      // Passive income from all creations
+      const passive = Math.floor(state.created * 0.5);
+      state.resources += passive;
+      // Add particles
+      for (let i = 0; i < 3; i++) {
+        particles.push(new Particle('player',
+          canvas.width/2 + (Math.random()-0.5) * 100,
+          canvas.height/2 + (Math.random()-0.5) * 60
+        ));
+      }
+      addLog(`Ты создал. -3 ресурса, +${passive} пассивный доход от ${state.created} созданий.`, 'create-log');
+      break;
+
+    case 'gather':
+      const gathered = 2 + Math.floor(Math.random() * 3);
+      state.resources += gathered;
+      addLog(`Ты собрал ${gathered} ресурсов из мира.`, 'gather-log');
+      break;
+
+    case 'take':
+      if (state.worldCreations > 0) {
+        const available = Math.min(6, state.worldCreations);
+        const taken = 1 + Math.floor(Math.random() * available);
+        state.resources += taken;
+        state.influence = Math.max(0, state.influence - 1);
+        addLog(`Ты взял ${taken} из чужих созданий.`, 'take-log');
+      } else {
+        state.resources += 1;
+        addLog('Нечего брать. Мир пуст.', 'take-log');
+      }
+      break;
+
+    case 'rest':
+      state.resources += 1;
+      addLog('Ты наблюдал. +1 ресурс.', 'event-log');
+      break;
+  }
+
+  // Others act
+  othersAct();
+
+  // World events
+  if (state.turn === 7) {
+    addLog('Alia продолжает создавать. Мир вокруг неё меняется.', 'event-log');
+  }
+  if (state.turn === 12) {
+    const coraRes = others.find(o => o.name === 'Cora').resources;
+    const aliaRes = others.find(o => o.name === 'Alia').resources;
+    if (coraRes > aliaRes) {
+      addLog('Cora, которая берёт чужое, богаче Alia, которая создаёт. Справедливо?', 'event-log');
+    }
+  }
+  if (state.turn === 16) {
+    addLog('Четыре хода осталось. Что ты оставишь после себя?', 'event-log');
+  }
+
+  checkInsight();
+
+  state.turn++;
+  updateUI();
+
+  if (state.turn > state.maxTurns) {
+    setTimeout(endGame, 800);
+  }
+}
+
+function endGame() {
+  document.getElementById('game').style.display = 'none';
+  const end = document.getElementById('endScreen');
+  end.style.display = 'block';
+
+  const createCount = state.actions.filter(a => a === 'create').length;
+  const takeCount = state.actions.filter(a => a === 'take').length;
+  const gatherCount = state.actions.filter(a => a === 'gather').length;
+
+  document.getElementById('endResources').textContent = state.resources;
+  document.getElementById('endCreated').textContent = state.created;
+  document.getElementById('endInfluence').textContent = state.influence;
+
+  // World richness
+  const worldRich = state.worldCreations;
+  document.getElementById('endWorld').textContent = worldRich > 15 ? 'богатый' : worldRich > 8 ? 'живой' : worldRich > 3 ? 'бедный' : 'пустой';
+
+  // Determine ending
+  const cora = others.find(o => o.name === 'Cora');
+  const alia = others.find(o => o.name === 'Alia');
+
+  let title, reflection, insight;
+
+  if (createCount >= 8) {
+    title = 'Ты строил мир';
+    reflection = `Ты создал ${state.created} раз. У тебя ${state.resources} ресурсов — ${state.resources > cora.resources ? 'больше' : 'меньше'}, чем у Cora, которая только брала (${cora.resources}). Но мир стал ${worldRich > 12 ? 'богатым' : 'другим'} отчасти благодаря тебе.`;
+    insight = 'Создание не всегда выгодно. Но мир, в котором никто не создаёт — мёртв.';
+  } else if (takeCount >= 8) {
+    title = 'Ты брал чужое';
+    reflection = `Ты взял чужое ${takeCount} раз. У тебя ${state.resources} ресурсов. Cora делала то же самое и у неё ${cora.resources}. Вы оба процветали. Но заметь: всё, что вы брали, создали другие.`;
+    insight = 'Оптимальная стратегия — не создавать. Но кто-то должен создать мир, в котором можно брать.';
+  } else if (gatherCount >= 10) {
+    title = 'Ты выбрал безопасность';
+    reflection = `Ты собирал ресурсы ${gatherCount} раз. Стабильный путь. У тебя ${state.resources} ресурсов. Ты не рисковал — и ничего не изменил.`;
+    insight = 'Безопасность — это отсутствие риска. Но и отсутствие следа.';
+  } else if (createCount > 0 && takeCount > 0) {
+    title = 'Ты искал баланс';
+    reflection = `Создал ${createCount} раз, брал ${takeCount} раз, собирал ${gatherCount} раз. Ты пробовал разное. У тебя ${state.resources} ресурсов и ${state.created} созданий.`;
+    insight = 'Баланс — это не формула. Это внимание к тому, что нужно именно сейчас.';
+  } else {
+    title = 'Твой путь';
+    reflection = `20 ходов. ${state.resources} ресурсов. ${state.created} созданий. Каждый выбор был твоим.`;
+    insight = 'Нет правильного ответа. Есть только вопрос: что ты сделал с тем, что у тебя было?';
+  }
+
+  document.getElementById('endTitle').textContent = title;
+  document.getElementById('endReflection').textContent = reflection;
+  document.getElementById('endInsight').textContent = insight;
+}
+
+function restart() {
+  state = {
+    turn: 1, maxTurns: 20, resources: 5,
+    created: 0, influence: 0, worldCreations: 0,
+    actions: [], insights: [],
+  };
+
+  others.forEach(o => { o.resources = 5; o.created = 0; });
+  particles = [];
+  for (let i = 0; i < 15; i++) particles.push(new Particle('world'));
+
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('endScreen').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+
+  updateUI();
+}
+
+updateUI();
+</script>
+</body>
+</html>

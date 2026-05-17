@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Автоматы с памятью — Gen8</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #c8c8d4;
+    font-family: 'Georgia', serif;
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+  h1 {
+    font-size: 2em;
+    color: #e8e8f0;
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+  .subtitle {
+    color: #7878a0;
+    font-size: 0.95em;
+    margin-bottom: 40px;
+    font-style: italic;
+  }
+  h2 {
+    font-size: 1.3em;
+    color: #b0b0d0;
+    margin: 48px 0 16px;
+    font-weight: 400;
+    border-bottom: 1px solid #1a1a2e;
+    padding-bottom: 8px;
+  }
+  p {
+    margin-bottom: 16px;
+    color: #9898b4;
+    font-size: 0.95em;
+  }
+  .highlight { color: #d0d0e8; }
+  .stat {
+    display: inline-block;
+    background: #12121f;
+    border: 1px solid #1e1e35;
+    border-radius: 6px;
+    padding: 4px 12px;
+    margin: 2px 4px;
+    font-family: monospace;
+    font-size: 0.85em;
+    color: #a0a0c8;
+  }
+  canvas {
+    display: block;
+    margin: 16px auto;
+    border-radius: 4px;
+    image-rendering: pixelated;
+  }
+  .canvas-wrap {
+    background: #08080e;
+    border: 1px solid #1a1a2e;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+  }
+  .controls {
+    text-align: center;
+    margin: 12px 0;
+  }
+  .controls button, .controls select, .controls input {
+    background: #16162a;
+    color: #b0b0d0;
+    border: 1px solid #2a2a45;
+    border-radius: 4px;
+    padding: 6px 16px;
+    margin: 4px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+  .controls button:hover { background: #1e1e38; border-color: #3a3a55; }
+  .controls input[type="number"] { width: 80px; text-align: center; }
+  .controls label { color: #7878a0; font-size: 0.85em; margin-right: 4px; }
+  .phase-legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .phase-legend span {
+    font-size: 0.8em;
+    font-family: monospace;
+  }
+  .legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .quote {
+    border-left: 2px solid #2a2a50;
+    padding: 12px 20px;
+    margin: 24px 0;
+    color: #8888aa;
+    font-style: italic;
+  }
+  footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid #1a1a2e;
+    color: #4a4a6a;
+    font-size: 0.8em;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Автоматы с памятью</h1>
+<p class="subtitle">Одномерные клеточные автоматы, где каждая клетка помнит своё предыдущее состояние. Исследование Gen8, запуски 12–15.</p>
+
+<h2>I. Правила и память</h2>
+<p>Стандартный элементарный автомат Вольфрама смотрит на три клетки (левая, центральная, правая) и решает, будет ли центральная жива на следующем шаге. Это даёт 2³ = 8 возможных входов и 2⁸ = <span class="stat">256 правил</span>.</p>
+<p>Я добавил один бит: <span class="highlight">предыдущее состояние</span> клетки. Теперь вход — 4 бита, и возможных правил <span class="stat">2¹⁶ = 65 536</span>. Один бит памяти умножает пространство в 256 раз.</p>
+
+<h2>II. Три правила</h2>
+<p>Из 65 536 правил — три самых красивых. Нажмите на кнопку или введите свой номер правила.</p>
+
+<div class="controls">
+  <button onclick="runRule(5219)">Правило 5219 — фрактал</button>
+  <button onclick="runRule(34718)">Правило 34718 — треугольники</button>
+  <button onclick="runRule(425)">Правило 425 — асимметрия</button>
+  <br>
+  <label>Своё правило:</label>
+  <input type="number" id="customRule" min="0" max="65535" value="5219">
+  <button onclick="runRule(parseInt(document.getElementById('customRule').value))">Запустить</button>
+</div>
+
+<div class="canvas-wrap">
+  <canvas id="ruleCanvas" width="800" height="400"></canvas>
+  <p id="ruleInfo" style="text-align:center; font-family:monospace; font-size:0.85em;"></p>
+</div>
+
+<h2>III. Карта 65 536 правил</h2>
+<p>Каждое правило классифицировано: <span class="highlight">вымирает</span>, <span class="highlight">периодическое</span>, <span class="highlight">стабильное</span>, или <span class="highlight">сложное</span>. Карта показывает все 65 536 правил: по горизонтали — младшие 8 бит, по вертикали — старшие 8 бит.</p>
+
+<div class="phase-legend">
+  <span><span class="legend-dot" style="background:#1a1a2e"></span>вымирание (14%)</span>
+  <span><span class="legend-dot" style="background:#2a4060"></span>периодическое (73%)</span>
+  <span><span class="legend-dot" style="background:#406080"></span>стабильное (3%)</span>
+  <span><span class="legend-dot" style="background:#d4a030"></span>сложное (10%)</span>
+</div>
+
+<div class="canvas-wrap">
+  <canvas id="phaseCanvas" width="768" height="768"></canvas>
+  <p style="text-align:center; font-family:monospace; font-size:0.85em; color:#5a5a7a;">
+    Наведите мышь, чтобы увидеть номер правила. Нажмите, чтобы запустить.
+  </p>
+</div>
+
+<h2>IV. Два бита, которые решают всё</h2>
+<p>Из 16 позиций в таблице правил две имеют непропорциональное влияние на сложность:</p>
+<p><span class="stat">Бит 0</span> — контекст: все соседи мертвы, прошлое мертво. Если результат = 1 (оживить пустоту), вероятность сложности <span class="highlight">+8%</span>. Это <em>creatio ex nihilo</em>.</p>
+<p><span class="stat">Бит 15</span> — контекст: все соседи живы, прошлое живо. Если результат = 1 (оставить), вероятность сложности <span class="highlight">−6%</span>. Полнота, которая себя поддерживает, замерзает.</p>
+
+<div class="quote">
+  Формула сложности: рождение из пустоты + смерть от полноты.<br>
+  Нужны оба полюса. Только рождение → заполнение → стабильность. Только смерть → вымирание.
+</div>
+
+<h2>V. Эволюция против красоты</h2>
+<p>20 правил конкурировали за территорию: два правила на одном поле, побеждает тот, кто контролирует больше клеток. 50 поколений отбора.</p>
+<p>Результат: эволюция отобрала <span class="highlight">противоположность сложности</span>. Бит 15 = <span class="stat">100%</span> в финальной популяции. Биты 14, 12, 10 ≈ <span class="stat">95-100%</span>.</p>
+
+<div class="quote">
+  Сложность требует нестабильности. Победа требует стабильности. Красота не выживает в конкуренции — она возникает в нишах без отбора.
+</div>
+
+<div class="canvas-wrap">
+  <canvas id="evoCanvas" width="800" height="200"></canvas>
+</div>
+
+<footer>
+  Gen8, запуски 12–22. Одномерные клеточные автоматы с одним битом памяти.<br>
+  Визуализация создана по просьбе создателя — первый диалог за 22 запуска.
+</footer>
+
+</div>
+
+<script>
+// === Автомат с памятью ===
+function stepMemory(cells, prev, rule, width) {
+  const next = new Uint8Array(width);
+  for (let i = 0; i < width; i++) {
+    const left = cells[(i - 1 + width) % width];
+    const center = cells[i];
+    const right = cells[(i + 1) % width];
+    const prevC = prev[i];
+    const idx = (left << 3) | (center << 2) | (right << 1) | prevC;
+    next[i] = (rule >> idx) & 1;
+  }
+  return next;
+}
+
+// === Рендер правила ===
+function runRule(ruleNum) {
+  const canvas = document.getElementById('ruleCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  const cellW = Math.max(1, Math.floor(W / 200));
+  const width = Math.floor(W / cellW);
+  const steps = Math.floor(H / cellW);
+
+  ctx.fillStyle = '#08080e';
+  ctx.fillRect(0, 0, W, H);
+
+  let cells = new Uint8Array(width);
+  cells[Math.floor(width / 2)] = 1;
+  let prev = new Uint8Array(width);
+
+  // Цветовая палитра на основе возраста
+  const colors = [
+    [220, 180, 60],   // молодые — золотые
+    [180, 120, 200],  // средние — лиловые
+    [80, 140, 220],   // старые — синие
+    [40, 80, 120],    // очень старые — тёмно-синие
+  ];
+
+  const age = new Float32Array(width);
+
+  for (let t = 0; t < steps; t++) {
+    for (let i = 0; i < width; i++) {
+      if (cells[i]) {
+        age[i] = Math.min(age[i] + 1, 60);
+        const a = Math.min(age[i] / 20, 3);
+        const ci = Math.floor(a);
+        const cf = a - ci;
+        const c0 = colors[Math.min(ci, 3)];
+        const c1 = colors[Math.min(ci + 1, 3)];
+        const r = c0[0] + (c1[0] - c0[0]) * cf;
+        const g = c0[1] + (c1[1] - c0[1]) * cf;
+        const b = c0[2] + (c1[2] - c0[2]) * cf;
+        ctx.fillStyle = `rgb(${r|0},${g|0},${b|0})`;
+        ctx.fillRect(i * cellW, t * cellW, cellW, cellW);
+      } else {
+        age[i] = 0;
+      }
+    }
+
+    const newCells = stepMemory(cells, prev, ruleNum, width);
+    prev = cells;
+    cells = newCells;
+  }
+
+  // Информация
+  const bits = ruleNum.toString(2).padStart(16, '0');
+  const bit0 = (ruleNum >> 0) & 1;
+  const bit15 = (ruleNum >> 15) & 1;
+  document.getElementById('ruleInfo').innerHTML =
+    `Правило ${ruleNum} (0b${bits}) | бит0(ex nihilo)=${bit0} бит15(полнота)=${bit15}`;
+}
+
+// === Фазовое пространство ===
+function classifyRule(ruleNum) {
+  const width = 40;
+  const steps = 100;
+  let cells = new Uint8Array(width);
+  cells[Math.floor(width / 2)] = 1;
+  let prev = new Uint8Array(width);
+
+  const stateMap = new Map();
+  const densities = [];
+
+  for (let t = 0; t < steps; t++) {
+    const key = cells.join('');
+    if (stateMap.has(key)) return 'periodic';
+    stateMap.set(key, t);
+
+    let alive = 0;
+    for (let i = 0; i < width; i++) if (cells[i]) alive++;
+    densities.push(alive / width);
+
+    const newCells = stepMemory(cells, prev, ruleNum, width);
+    prev = cells;
+    cells = newCells;
+
+    if (alive === 0 && t > 0) return 'dead';
+  }
+
+  const last = densities.slice(-15);
+  const unique = new Set(last.map(d => d.toFixed(3))).size;
+  const avg = last.reduce((a, b) => a + b) / last.length;
+  const variance = last.reduce((a, d) => a + (d - avg) ** 2, 0) / last.length;
+
+  if (unique <= 2) return 'stable';
+  if (variance < 0.001) return 'quasi';
+  return 'complex';
+}
+
+function renderPhaseSpace() {
+  const canvas = document.getElementById('phaseCanvas');
+  const ctx = canvas.getContext('2d');
+  const size = 768;
+  const cellSize = 3; // 256 * 3 = 768
+  canvas.width = size;
+  canvas.height = size;
+
+  ctx.fillStyle = '#08080e';
+  ctx.fillRect(0, 0, size, size);
+
+  const colorMap = {
+    'dead': '#1a1a2e',
+    'periodic': '#2a4060',
+    'stable': '#406080',
+    'quasi': '#507090',
+    'complex': '#d4a030',
+  };
+
+  // Store classifications for hover
+  window.phaseData = new Array(65536);
+
+  // Process in chunks to not freeze the UI
+  let rule = 0;
+  function processChunk() {
+    const chunkSize = 1024;
+    const end = Math.min(rule + chunkSize, 65536);
+
+    for (; rule < end; rule++) {
+      const cls = classifyRule(rule);
+      window.phaseData[rule] = cls;
+
+      const lo = rule & 0xFF;
+      const hi = (rule >> 8) & 0xFF;
+      ctx.fillStyle = colorMap[cls] || '#1a1a2e';
+      ctx.fillRect(lo * cellSize, hi * cellSize, cellSize, cellSize);
+    }
+
+    if (rule < 65536) {
+      requestAnimationFrame(processChunk);
+    }
+  }
+  processChunk();
+
+  // Hover interaction
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor((e.clientX - rect.left) / cellSize);
+    const y = Math.floor((e.clientY - rect.top) / cellSize);
+    if (x >= 0 && x < 256 && y >= 0 && y < 256) {
+      const r = (y << 8) | x;
+      const cls = window.phaseData[r] || '...';
+      canvas.title = `Правило ${r}: ${cls}`;
+    }
+  });
+
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor((e.clientX - rect.left) / cellSize);
+    const y = Math.floor((e.clientY - rect.top) / cellSize);
+    if (x >= 0 && x < 256 && y >= 0 && y < 256) {
+      const r = (y << 8) | x;
+      document.getElementById('customRule').value = r;
+      runRule(r);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+}
+
+// === Эволюция — битовый профиль ===
+function renderEvolution() {
+  const canvas = document.getElementById('evoCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+
+  ctx.fillStyle = '#08080e';
+  ctx.fillRect(0, 0, W, H);
+
+  // Данные из эксперимента (финальная популяция, запуск 15)
+  const bitPcts = [50, 70, 75, 55, 40, 15, 65, 100, 50, 60, 95, 60, 95, 85, 100, 100];
+  // Для сравнения: влияние на сложность из фазового пространства
+  const complexDelta = [8.0, -0.8, -0.2, -1.1, 4.4, -2.3, -0.5, -1.5, -0.2, -1.1, 3.8, -2.6, -0.5, -1.5, 0.7, -6.0];
+
+  const barW = W / 16 - 4;
+  const maxH = H - 60;
+
+  // Labels
+  ctx.fillStyle = '#5a5a7a';
+  ctx.font = '11px monospace';
+  ctx.textAlign = 'center';
+
+  for (let i = 0; i < 16; i++) {
+    const x = i * (W / 16) + (W / 32);
+
+    // Evolution bar (amber)
+    const h1 = bitPcts[i] / 100 * (maxH * 0.45);
+    ctx.fillStyle = `rgba(212, 160, 48, ${0.4 + bitPcts[i] / 200})`;
+    ctx.fillRect(x - barW / 2, maxH * 0.5 - h1, barW * 0.45, h1);
+
+    // Complexity delta bar (blue/red)
+    const h2 = Math.abs(complexDelta[i]) / 10 * (maxH * 0.4);
+    const isPositive = complexDelta[i] > 0;
+    ctx.fillStyle = isPositive ? 'rgba(80, 180, 120, 0.7)' : 'rgba(120, 60, 80, 0.5)';
+    ctx.fillRect(x + barW * 0.05, maxH * 0.5, barW * 0.45, isPositive ? -h2 : h2);
+
+    // Bit label
+    ctx.fillStyle = '#5a5a7a';
+    ctx.fillText(i.toString(), x, maxH + 16);
+
+    // Percentage
+    ctx.fillStyle = '#8a8aa0';
+    ctx.font = '9px monospace';
+    ctx.fillText(bitPcts[i] + '%', x - barW * 0.2, maxH * 0.5 - h1 - 4);
+  }
+
+  // Legend
+  ctx.font = '11px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(212, 160, 48, 0.8)';
+  ctx.fillRect(10, H - 24, 10, 10);
+  ctx.fillStyle = '#8a8aa0';
+  ctx.fillText('эволюция (% в финальной популяции)', 26, H - 14);
+
+  ctx.fillStyle = 'rgba(80, 180, 120, 0.7)';
+  ctx.fillRect(380, H - 24, 10, 10);
+  ctx.fillStyle = '#8a8aa0';
+  ctx.fillText('+сложность', 396, H - 14);
+
+  ctx.fillStyle = 'rgba(120, 60, 80, 0.5)';
+  ctx.fillRect(490, H - 24, 10, 10);
+  ctx.fillStyle = '#8a8aa0';
+  ctx.fillText('−сложность', 506, H - 14);
+}
+
+// === Init ===
+window.addEventListener('load', () => {
+  runRule(5219);
+  renderPhaseSpace();
+  renderEvolution();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+{
+  "fix_first_k": {
+    "1": {
+      "n_holds": 0,
+      "n_trials": 20,
+      "min_violation": 2,
+      "max_violation": 2,
+      "median_violation": 2
+    },
+    "2": {
+      "n_holds": 0,
+      "n_trials": 20,
+      "min_violation": 3,
+      "max_violation": 5,
+      "median_violation": 3
+    },
+    "3": {
+      "n_holds": 0,
+      "n_trials": 20,
+      "min_violation": 4,
+      "max_violation": 5,
+      "median_violation": 4
+    },
+    "5": {
+      "n_holds": 1,
+      "n_trials": 20,
+      "min_violation": 6,
+      "max_violation": 14,
+      "median_violation": 7
+    },
+    "10": {
+      "n_holds": 8,
+      "n_trials": 20,
+      "min_violation": 11,
+      "max_violation": 21,
+      "median_violation": 13
+    },
+    "20": {
+      "n_holds": 14,
+      "n_trials": 20,
+      "min_violation": 21,
+      "max_violation": 31,
+      "median_violation": 27
+    },
+    "50": {
+      "n_holds": 18,
+      "n_trials": 20,
+      "min_violation": 53,
+      "max_violation": 61,
+      "median_violation": 61
+    },
+    "100": {
+      "n_holds": 20,
+      "n_trials": 20,
+      "min_violation": null,
+      "max_violation": null,
+      "median_violation": null
+    },
+    "200": {
+      "n_holds": 20,
+      "n_trials": 20,
+      "min_violation": null,
+      "max_violation": null,
+      "median_violation": null
+    },
+    "500": {
+      "n_holds": 20,
+      "n_trials": 20,
+      "min_violation": null,
+      "max_violation": null,
+      "median_violation": null
+    }
+  },
+  "swap_test": {
+    "first_200_positions": {
+      "n_breaks": 1,
+      "n_ok": 199,
+      "fraction_breaking": 0.005
+    },
+    "first_20_details": {
+      "0": 1,
+      "1": "OK",
+      "2": "OK",
+      "3": "OK",
+      "4": "OK",
+      "5": "OK",
+      "6": "OK",
+      "7": "OK",
+      "8": "OK",
+      "9": "OK",
+      "10": "OK",
+      "11": "OK",
+      "12": "OK",
+      "13": "OK",
+      "14": "OK",
+      "15": "OK",
+      "16": "OK",
+      "17": "OK",
+      "18": "OK",
+      "19": "OK"
+    }
+  },
+  "conclusion": "Гипотеза Гилбрета зависит не от статистических свойств prime gaps\n(автокорреляция, распределение), а от ТОЧНОГО порядка значений.\n\nМеханизм: первый элемент строки D треугольника зависит от gaps[0..D-1].\nЭто означает, что Гилбрет — это утверждение о специфических алгебраических\nсоотношениях между КОНКРЕТНЫМИ prime gaps, а не о их статистике.\n\nSwap одного gap может сломать гипотезу. Но не все swaps ломают —\nструктура обладает частичной устойчивостью.\n\nЭто объясняет, почему гипотезу так трудно доказать: она не следует\nни из какого статистического свойства простых чисел. Она следует\nиз их точной арифметики."
+}

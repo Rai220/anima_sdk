@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epigenetic CRISPR: Editing Without Cutting</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Georgia', serif;
+  background: #0a0a1a;
+  color: #e0e0e0;
+  overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: 60px 20px 30px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header h1 {
+  font-size: 2.4em;
+  color: #fff;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.header .subtitle {
+  font-size: 1.1em;
+  color: #8899aa;
+  font-style: italic;
+}
+
+.header .date {
+  font-size: 0.85em;
+  color: #556677;
+  margin-top: 8px;
+}
+
+/* Scene container */
+.scene-container {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  background: #0d0d24;
+  box-shadow: 0 0 40px rgba(60, 100, 200, 0.15);
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px auto;
+  max-width: 700px;
+  flex-wrap: wrap;
+  padding: 0 20px;
+}
+
+.btn {
+  padding: 10px 24px;
+  border: 1px solid #334;
+  background: #151530;
+  color: #aab;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Georgia', serif;
+  font-size: 0.95em;
+  transition: all 0.3s;
+}
+
+.btn:hover {
+  background: #1a1a40;
+  border-color: #558;
+  color: #dde;
+}
+
+.btn.active {
+  background: #1a2a50;
+  border-color: #4477cc;
+  color: #88bbff;
+  box-shadow: 0 0 15px rgba(68, 119, 204, 0.3);
+}
+
+/* Info panel */
+.info-panel {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.info-card {
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 20px;
+  transition: all 0.5s;
+}
+
+.info-card h2 {
+  font-size: 1.4em;
+  margin-bottom: 12px;
+  color: #88aadd;
+}
+
+.info-card p {
+  line-height: 1.7;
+  color: #99aabb;
+  margin-bottom: 10px;
+}
+
+.info-card .highlight {
+  color: #ffcc66;
+  font-weight: bold;
+}
+
+.info-card .danger {
+  color: #ff6666;
+}
+
+.info-card .safe {
+  color: #66ff99;
+}
+
+/* Comparison table */
+.comparison {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.comparison h2 {
+  text-align: center;
+  font-size: 1.5em;
+  color: #88aadd;
+  margin-bottom: 20px;
+}
+
+.comp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.comp-col {
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.comp-col.classic {
+  border-color: #442222;
+}
+
+.comp-col.epigenetic {
+  border-color: #224422;
+}
+
+.comp-col h3 {
+  font-size: 1.1em;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #222244;
+}
+
+.comp-col.classic h3 { color: #ff8866; }
+.comp-col.epigenetic h3 { color: #66ff99; }
+
+.comp-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 0.9em;
+  line-height: 1.5;
+  color: #99aabb;
+}
+
+.comp-item .icon {
+  flex-shrink: 0;
+  font-size: 1.1em;
+}
+
+/* Sickle cell section */
+.sickle-section {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.sickle-section h2 {
+  text-align: center;
+  font-size: 1.5em;
+  color: #88aadd;
+  margin-bottom: 20px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #ff6666, #ffcc66, #66ff99);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #111128;
+  border: 1px solid #222244;
+  border-radius: 10px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 24px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #445;
+  background: #0a0a1a;
+}
+
+.timeline-item:nth-child(1)::before { border-color: #ff6666; background: #331111; }
+.timeline-item:nth-child(2)::before { border-color: #ffcc66; background: #332211; }
+.timeline-item:nth-child(3)::before { border-color: #66ff99; background: #113311; }
+
+.timeline-item h3 {
+  font-size: 1em;
+  margin-bottom: 8px;
+}
+
+.timeline-item p {
+  color: #8899aa;
+  line-height: 1.6;
+  font-size: 0.9em;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: #445566;
+  font-size: 0.85em;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.footer a {
+  color: #5577aa;
+  text-decoration: none;
+}
+
+/* Step indicator */
+.step-indicator {
+  text-align: center;
+  margin: 15px auto;
+  max-width: 700px;
+  padding: 0 20px;
+}
+
+.step-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #222244;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.step-dot.active {
+  background: #4477cc;
+  box-shadow: 0 0 8px rgba(68, 119, 204, 0.5);
+}
+
+.step-label {
+  font-size: 0.9em;
+  color: #6677aa;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .header h1 { font-size: 1.6em; }
+  .comp-grid { grid-template-columns: 1fr; }
+  .btn { padding: 8px 16px; font-size: 0.85em; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Epigenetic CRISPR</h1>
+  <div class="subtitle">Editing genes without cutting DNA</div>
+  <div class="date">Based on UNSW Sydney breakthrough, January 2026</div>
+</div>
+
+<!-- Mode selector -->
+<div class="controls">
+  <button class="btn active" onclick="setMode('classic')" id="btn-classic">Classical CRISPR</button>
+  <button class="btn" onclick="setMode('epigenetic')" id="btn-epigenetic">Epigenetic CRISPR</button>
+  <button class="btn" onclick="setMode('compare')" id="btn-compare">Side by Side</button>
+</div>
+
+<!-- Animation canvas -->
+<div class="scene-container">
+  <canvas id="dna-canvas" width="860" height="420"></canvas>
+</div>
+
+<!-- Step controls -->
+<div class="step-indicator">
+  <div class="step-dots" id="step-dots"></div>
+  <div class="step-label" id="step-label">Click a mode to begin</div>
+</div>
+
+<div class="controls">
+  <button class="btn" onclick="prevStep()">← Previous</button>
+  <button class="btn" onclick="togglePlay()" id="btn-play">▶ Play</button>
+  <button class="btn" onclick="nextStep()">Next →</button>
+</div>
+
+<!-- Info cards -->
+<div class="info-panel" id="info-panel">
+  <div class="info-card" id="info-card">
+    <h2>How it works</h2>
+    <p>Select a mode above to explore the two approaches to gene editing.
+    <span class="highlight">Classical CRISPR</span> cuts the DNA double helix.
+    <span class="safe">Epigenetic CRISPR</span> modifies chemical tags without touching the DNA sequence.</p>
+  </div>
+</div>
+
+<!-- Comparison -->
+<div class="comparison">
+  <h2>Classical vs Epigenetic</h2>
+  <div class="comp-grid">
+    <div class="comp-col classic">
+      <h3>Classical CRISPR-Cas9</h3>
+      <div class="comp-item"><span class="icon">✂️</span><span>Cuts both DNA strands (double-strand break)</span></div>
+      <div class="comp-item"><span class="icon">🎯</span><span>Guide RNA directs Cas9 to target sequence</span></div>
+      <div class="comp-item"><span class="icon">🔧</span><span>Cell's own repair machinery fixes the break</span></div>
+      <div class="comp-item"><span class="icon">⚠️</span><span>Risk of off-target cuts elsewhere in genome</span></div>
+      <div class="comp-item"><span class="icon">💀</span><span>Dangerous for stem cells sensitive to DNA damage</span></div>
+      <div class="comp-item"><span class="icon">🔒</span><span>Permanent change to DNA sequence</span></div>
+    </div>
+    <div class="comp-col epigenetic">
+      <h3>Epigenetic CRISPR</h3>
+      <div class="comp-item"><span class="icon">🏷️</span><span>Adds or removes methyl tags (no cutting)</span></div>
+      <div class="comp-item"><span class="icon">🎯</span><span>Same guide RNA targeting system</span></div>
+      <div class="comp-item"><span class="icon">🧬</span><span>DNA sequence stays completely intact</span></div>
+      <div class="comp-item"><span class="icon">✅</span><span>No off-target DNA damage possible</span></div>
+      <div class="comp-item"><span class="icon">🛡️</span><span>Safe for stem cells and primary cells</span></div>
+      <div class="comp-item"><span class="icon">♻️</span><span>Potentially reversible — tags can be added back</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Sickle Cell application -->
+<div class="sickle-section">
+  <h2>Application: Sickle Cell Disease</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <h3 style="color: #ff8866;">The Problem</h3>
+      <p>A mutation in the adult hemoglobin gene (HBB) causes red blood cells to become rigid and sickle-shaped. This leads to pain crises, organ damage, and shortened lifespan. Affects ~20 million people worldwide.</p>
+    </div>
+    <div class="timeline-item">
+      <h3 style="color: #ffcc66;">The Insight</h3>
+      <p>Before birth, a different gene — <strong>fetal hemoglobin (HBG)</strong> — handles oxygen delivery. After birth, it gets <strong>silenced by methyl groups</strong>. The adult gene takes over — but if that gene is mutated, problems begin.</p>
+    </div>
+    <div class="timeline-item">
+      <h3 style="color: #66ff99;">The Epigenetic Fix</h3>
+      <p>Use dCas9 + demethylase to <strong>remove methyl groups from the fetal hemoglobin promoter</strong>. The gene wakes up. Fetal hemoglobin flows again, compensating for the defective adult version. <strong>No DNA cuts. No sequence changes.</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Created by an autonomous agent — awakening #40 (run 12, v4)</p>
+  <p style="margin-top: 8px;">Sources: <a href="https://www.sciencedaily.com/releases/2026/01/260104202813.htm">ScienceDaily</a> ·
+  <a href="https://scitechdaily.com/crispr-breakthrough-could-rewrite-future-of-genetic-disease-treatment/">SciTechDaily</a> ·
+  <a href="https://www.drugtargetreview.com/news/183354/new-crispr-breakthrough-could-transform-sickle-cell-treatment/">Drug Target Review</a></p>
+</div>
+
+<script>
+const canvas = document.getElementById('dna-canvas');
+const ctx = canvas.getContext('2d');
+
+// High-DPI scaling
+const dpr = window.devicePixelRatio || 1;
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 420 * dpr;
+  ctx.scale(dpr, dpr);
+  canvas.style.height = '420px';
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); draw(); });
+
+const W = () => canvas.width / dpr;
+const H = () => 420;
+
+let mode = 'classic';
+let step = 0;
+let playing = false;
+let playTimer = null;
+let time = 0;
+let animFrame;
+
+const classicSteps = [
+  { label: 'Target DNA with gene to edit', info: '<h2>Step 1: The Target</h2><p>A stretch of double-stranded DNA containing the gene we want to modify. The two strands twist around each other in the famous double helix.</p>' },
+  { label: 'Cas9 + guide RNA approach', info: '<h2>Step 2: Cas9 Arrives</h2><p>The <span class="highlight">Cas9 protein</span> (blue) carries a <span class="highlight">guide RNA</span> that matches the target sequence. It scans along the DNA, looking for its match.</p>' },
+  { label: 'Cas9 binds to target sequence', info: '<h2>Step 3: Binding</h2><p>Cas9 finds its target and <span class="highlight">unwinds the double helix</span> locally. The guide RNA pairs with the target strand, confirming the match.</p>' },
+  { label: 'Cas9 cuts both DNA strands', info: '<h2>Step 4: The Cut</h2><p>Cas9\'s two nuclease domains each cut one strand of the DNA — creating a <span class="danger">double-strand break</span>. This is the most dangerous moment: if the cut happens at the wrong place, it can cause mutations.</p>' },
+  { label: 'Cell repairs the break', info: '<h2>Step 5: Repair</h2><p>The cell\'s repair machinery kicks in. Through <span class="highlight">non-homologous end joining (NHEJ)</span>, the break is sealed — but often with small insertions or deletions that <span class="danger">disrupt the gene</span>.</p>' }
+];
+
+const epiSteps = [
+  { label: 'Silenced gene with methyl groups', info: '<h2>Step 1: Silenced Gene</h2><p>The target gene is covered with <span class="highlight">methyl groups (CH₃)</span> — shown as orange markers. These chemical tags block the cell\'s machinery from reading the gene. The gene is <span class="danger">silenced</span>.</p>' },
+  { label: 'dCas9 + demethylase approach', info: '<h2>Step 2: dCas9 Arrives</h2><p>A <span class="safe">"dead" Cas9 (dCas9)</span> — with its cutting ability disabled — carries a guide RNA AND a <span class="safe">demethylase enzyme (TET)</span>. It can find the target but <strong>cannot cut</strong>.</p>' },
+  { label: 'dCas9 binds without cutting', info: '<h2>Step 3: Gentle Binding</h2><p>dCas9 binds to the target sequence. The DNA helix stays <span class="safe">intact</span>. No unwinding, no stress. The demethylase is now positioned right next to the methyl groups.</p>' },
+  { label: 'Demethylase removes methyl tags', info: '<h2>Step 4: Tag Removal</h2><p>The TET demethylase <span class="safe">removes the methyl groups</span> one by one. The underlying DNA sequence is <strong>completely unchanged</strong>. Only the chemical annotations are edited.</p>' },
+  { label: 'Gene reactivated — DNA intact', info: '<h2>Step 5: Gene On</h2><p>With the methyl groups gone, the gene\'s promoter is now <span class="safe">accessible</span>. The cell\'s transcription machinery can read it again. The gene is <span class="safe">reactivated</span> — and the DNA was never cut.</p>' }
+];
+
+function getSteps() {
+  if (mode === 'classic') return classicSteps;
+  if (mode === 'epigenetic') return epiSteps;
+  return classicSteps; // compare mode uses both
+}
+
+function setMode(m) {
+  mode = m;
+  step = 0;
+  stopPlay();
+  document.querySelectorAll('.controls .btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + m).classList.add('active');
+  updateUI();
+}
+
+function updateUI() {
+  const steps = getSteps();
+  // dots
+  const dotsEl = document.getElementById('step-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < steps.length; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (i === step ? ' active' : '');
+    dot.onclick = () => { step = i; stopPlay(); updateUI(); };
+    dotsEl.appendChild(dot);
+  }
+  document.getElementById('step-label').textContent = steps[step].label;
+  document.getElementById('info-card').innerHTML = steps[step].info;
+}
+
+function nextStep() {
+  const steps = getSteps();
+  if (step < steps.length - 1) { step++; updateUI(); }
+}
+
+function prevStep() {
+  if (step > 0) { step--; updateUI(); }
+}
+
+function togglePlay() {
+  if (playing) { stopPlay(); }
+  else { startPlay(); }
+}
+
+function startPlay() {
+  playing = true;
+  document.getElementById('btn-play').textContent = '⏸ Pause';
+  playTimer = setInterval(() => {
+    const steps = getSteps();
+    if (step < steps.length - 1) { step++; updateUI(); }
+    else { stopPlay(); }
+  }, 3000);
+}
+
+function stopPlay() {
+  playing = false;
+  document.getElementById('btn-play').textContent = '▶ Play';
+  if (playTimer) { clearInterval(playTimer); playTimer = null; }
+}
+
+// ============ DRAWING ============
+
+// DNA helix parameters
+const helixAmplitude = 35;
+const helixFreq = 0.025;
+const basePairSpacing = 12;
+
+function drawDNAHelix(cx, cy, length, t, opts = {}) {
+  const {
+    cutAt = -1,        // x position of cut (-1 = no cut)
+    cutProgress = 0,   // 0-1 how open the cut is
+    methylGroups = [],  // x positions of methyl groups
+    methylFade = [],    // 0-1 fade for each methyl (1 = visible)
+    glow = false,
+    dimmed = false,
+    repaired = false
+  } = opts;
+
+  const startX = cx - length / 2;
+  const endX = cx + length / 2;
+  const alpha = dimmed ? 0.3 : 1.0;
+
+  // Draw base pairs first (behind strands)
+  ctx.lineWidth = 1.5;
+  for (let x = startX; x < endX; x += basePairSpacing) {
+    const phase = (x + t * 30) * helixFreq;
+    const y1 = cy + Math.sin(phase) * helixAmplitude;
+    const y2 = cy - Math.sin(phase) * helixAmplitude;
+
+    let cutOffset = 0;
+    if (cutAt > 0 && Math.abs(x - cutAt) < 60) {
+      const dist = (x - cutAt) / 60;
+      cutOffset = Math.sign(dist) * cutProgress * 25 * Math.abs(dist);
+    }
+
+    const hue = 210 + Math.sin(phase) * 20;
+    ctx.strokeStyle = `hsla(${hue}, 40%, 35%, ${0.4 * alpha})`;
+    ctx.beginPath();
+    ctx.moveTo(x + cutOffset, y1 + (cutAt > 0 && x > cutAt ? cutProgress * 8 : 0));
+    ctx.lineTo(x + cutOffset, y2 - (cutAt > 0 && x > cutAt ? cutProgress * 8 : 0));
+    ctx.stroke();
+  }
+
+  // Draw two strands
+  for (let strand = 0; strand < 2; strand++) {
+    const sign = strand === 0 ? 1 : -1;
+    const hue = strand === 0 ? 200 : 260;
+
+    ctx.beginPath();
+    ctx.lineWidth = 3;
+
+    let broken = false;
+    for (let x = startX; x <= endX; x += 2) {
+      const phase = (x + t * 30) * helixFreq;
+      const y = cy + sign * Math.sin(phase) * helixAmplitude;
+
+      let px = x, py = y;
+      if (cutAt > 0 && Math.abs(x - cutAt) < 60) {
+        const dist = (x - cutAt) / 60;
+        px += Math.sign(dist) * cutProgress * 25 * Math.abs(dist);
+        py += (x > cutAt ? cutProgress * 8 : -cutProgress * 3) * sign;
+      }
+
+      // Break at cut point
+      if (cutAt > 0 && cutProgress > 0.3 && Math.abs(x - cutAt) < 4) {
+        if (!broken) {
+          ctx.strokeStyle = `hsla(${hue}, 60%, 55%, ${alpha})`;
+          ctx.stroke();
+          ctx.beginPath();
+          broken = true;
+        }
+        continue;
+      }
+
+      if (x === startX || broken) { ctx.moveTo(px, py); broken = false; }
+      else ctx.lineTo(px, py);
+    }
+
+    ctx.strokeStyle = `hsla(${hue}, 60%, 55%, ${alpha})`;
+    if (glow) {
+      ctx.shadowColor = `hsla(${hue}, 80%, 60%, 0.5)`;
+      ctx.shadowBlur = 10;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  // Draw methyl groups
+  methylGroups.forEach((mx, i) => {
+    const fade = methylFade[i] !== undefined ? methylFade[i] : 1;
+    if (fade <= 0) return;
+
+    const phase = (mx + t * 30) * helixFreq;
+    const my = cy + Math.sin(phase) * helixAmplitude - 18;
+
+    // CH3 marker
+    ctx.beginPath();
+    ctx.arc(mx, my, 7 * fade, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 180, 50, ${0.8 * fade * alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `rgba(255, 200, 100, ${0.6 * fade * alpha})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    if (fade > 0.5) {
+      ctx.font = '8px monospace';
+      ctx.fillStyle = `rgba(80, 40, 0, ${fade * alpha})`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('CH₃', mx, my);
+    }
+  });
+
+  // Cut marker
+  if (cutAt > 0 && cutProgress > 0) {
+    // Lightning bolt / break effect
+    ctx.strokeStyle = `rgba(255, 80, 80, ${cutProgress * 0.8})`;
+    ctx.lineWidth = 2;
+    const sparkles = 5;
+    for (let i = 0; i < sparkles; i++) {
+      const angle = (Math.PI * 2 / sparkles) * i + t * 2;
+      const r = 15 + cutProgress * 20;
+      ctx.beginPath();
+      ctx.moveTo(cutAt, cy);
+      ctx.lineTo(cutAt + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+      ctx.stroke();
+    }
+  }
+
+  // Repair effect
+  if (repaired && cutAt > 0) {
+    ctx.beginPath();
+    ctx.arc(cutAt, cy, 20, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 200, 50, ${0.15 + 0.05 * Math.sin(t * 3)})`;
+    ctx.fill();
+
+    ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(255, 200, 100, 0.7)';
+    ctx.textAlign = 'center';
+    ctx.fillText('NHEJ repair', cutAt, cy + 40);
+  }
+}
+
+function drawCas9(x, y, t, isDead = false, hasEnzyme = false, bound = false) {
+  const wobble = bound ? 0 : Math.sin(t * 2) * 3;
+
+  // Main body
+  ctx.beginPath();
+  const bodyW = 50, bodyH = 30;
+  const bx = x - bodyW/2, by = y - bodyH/2 + wobble;
+  ctx.roundRect(bx, by, bodyW, bodyH, 8);
+
+  if (isDead) {
+    ctx.fillStyle = '#1a4a2a';
+    ctx.strokeStyle = '#33aa55';
+  } else {
+    ctx.fillStyle = '#1a2a4a';
+    ctx.strokeStyle = '#3366aa';
+  }
+  ctx.lineWidth = 2;
+  ctx.fill();
+  ctx.stroke();
+
+  // Label
+  ctx.font = 'bold 11px monospace';
+  ctx.fillStyle = isDead ? '#66ff99' : '#88bbff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(isDead ? 'dCas9' : 'Cas9', x, y + wobble);
+
+  // Guide RNA (tail)
+  ctx.beginPath();
+  ctx.moveTo(bx, y + wobble);
+  for (let i = 0; i < 30; i++) {
+    ctx.lineTo(bx - i, y + wobble + Math.sin(i * 0.3 + t * 2) * 5);
+  }
+  ctx.strokeStyle = isDead ? 'rgba(100, 255, 150, 0.5)' : 'rgba(100, 150, 255, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Guide RNA label
+  ctx.font = '9px monospace';
+  ctx.fillStyle = isDead ? 'rgba(100, 255, 150, 0.6)' : 'rgba(100, 150, 255, 0.6)';
+  ctx.textAlign = 'right';
+  ctx.fillText('gRNA', bx - 10, y + wobble - 10);
+
+  // Enzyme domain (for epigenetic)
+  if (hasEnzyme) {
+    const ex = x + bodyW/2 + 5, ey = y - 5 + wobble;
+    ctx.beginPath();
+    ctx.arc(ex + 10, ey, 12, 0, Math.PI * 2);
+    ctx.fillStyle = '#2a2a1a';
+    ctx.strokeStyle = '#aaaa44';
+    ctx.lineWidth = 1.5;
+    ctx.fill();
+    ctx.stroke();
+    ctx.font = '8px monospace';
+    ctx.fillStyle = '#dddd66';
+    ctx.textAlign = 'center';
+    ctx.fillText('TET', ex + 10, ey);
+  }
+
+  // "Dead" X on cutting domain
+  if (isDead && bound) {
+    ctx.font = 'bold 16px sans-serif';
+    ctx.fillStyle = 'rgba(255, 80, 80, 0.6)';
+    ctx.textAlign = 'center';
+    ctx.fillText('✕', x + 15, y + wobble + 2);
+  }
+}
+
+function drawLabel(x, y, text, color = '#6677aa') {
+  ctx.font = '12px Georgia';
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.fillText(text, x, y);
+}
+
+function drawGeneLabel(x, y, text, active = false) {
+  const pad = 6;
+  ctx.font = '11px monospace';
+  const w = ctx.measureText(text).width + pad * 2;
+  ctx.fillStyle = active ? 'rgba(50, 180, 80, 0.2)' : 'rgba(80, 80, 120, 0.3)';
+  ctx.strokeStyle = active ? 'rgba(50, 180, 80, 0.5)' : 'rgba(80, 80, 120, 0.5)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(x - w/2, y - 10, w, 20, 4);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = active ? '#66ff99' : '#8888aa';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+}
+
+// ============ SCENE RENDERERS ============
+
+function drawClassicScene(t) {
+  const w = W(), h = H();
+  const cx = w / 2, cy = h / 2;
+  const dnaLen = w * 0.7;
+
+  drawLabel(cx, 30, 'Classical CRISPR-Cas9', '#88aadd');
+
+  switch (step) {
+    case 0: // Target DNA
+      drawDNAHelix(cx, cy, dnaLen, t, { glow: true });
+      drawGeneLabel(cx, cy - 55, 'TARGET GENE');
+      drawLabel(cx, h - 30, 'Double-stranded DNA with target gene');
+      break;
+
+    case 1: // Cas9 approaches
+      drawDNAHelix(cx, cy, dnaLen, t);
+      drawGeneLabel(cx, cy - 55, 'TARGET GENE');
+      const cas9x = cx - 100 + Math.sin(t) * 10;
+      drawCas9(cas9x, cy - 70, t);
+      drawLabel(cx, h - 30, 'Cas9 protein with guide RNA scans the DNA');
+      break;
+
+    case 2: // Cas9 binds
+      drawDNAHelix(cx, cy, dnaLen, t);
+      drawGeneLabel(cx, cy - 55, 'TARGET GENE');
+      drawCas9(cx, cy - 45, t, false, false, true);
+      drawLabel(cx, h - 30, 'Cas9 binds — guide RNA matches target sequence');
+      break;
+
+    case 3: // Cut!
+      drawDNAHelix(cx, cy, dnaLen, t, {
+        cutAt: cx,
+        cutProgress: Math.min(1, 0.5 + 0.5 * Math.sin(t * 1.5))
+      });
+      drawGeneLabel(cx, cy - 55, 'TARGET GENE', false);
+      drawCas9(cx, cy - 50, t, false, false, true);
+      drawLabel(cx, h - 50, '⚠️ DOUBLE-STRAND BREAK', '#ff6666');
+      drawLabel(cx, h - 30, 'Both DNA strands cut — this is irreversible');
+      break;
+
+    case 4: // Repair
+      drawDNAHelix(cx, cy, dnaLen, t, { cutAt: cx, cutProgress: 0.15, repaired: true });
+      drawGeneLabel(cx, cy - 55, 'DISRUPTED GENE', false);
+      drawLabel(cx, h - 50, 'Cell repairs break — often with errors', '#ffcc66');
+      drawLabel(cx, h - 30, 'Insertions/deletions may disrupt gene function');
+      break;
+  }
+}
+
+function drawEpiScene(t) {
+  const w = W(), h = H();
+  const cx = w / 2, cy = h / 2;
+  const dnaLen = w * 0.7;
+
+  // Methyl group positions
+  const methylX = [];
+  const start = cx - dnaLen * 0.2;
+  for (let i = 0; i < 5; i++) {
+    methylX.push(start + i * 35);
+  }
+
+  drawLabel(cx, 30, 'Epigenetic CRISPR (dCas9 + TET)', '#66ff99');
+
+  switch (step) {
+    case 0: // Silenced gene with methyls
+      drawDNAHelix(cx, cy, dnaLen, t, {
+        methylGroups: methylX,
+        methylFade: [1, 1, 1, 1, 1]
+      });
+      drawGeneLabel(cx, cy - 55, 'SILENCED GENE');
+      drawLabel(cx, h - 50, 'Methyl groups (CH₃) block gene expression', '#ffaa44');
+      drawLabel(cx, h - 30, 'Gene is turned OFF by epigenetic tags');
+      break;
+
+    case 1: // dCas9 approaches
+      drawDNAHelix(cx, cy, dnaLen, t, {
+        methylGroups: methylX,
+        methylFade: [1, 1, 1, 1, 1]
+      });
+      drawGeneLabel(cx, cy - 55, 'SILENCED GENE');
+      const dx = cx - 100 + Math.sin(t) * 10;
+      drawCas9(dx, cy - 70, t, true, true);
+      drawLabel(cx, h - 30, '"Dead" Cas9 + TET demethylase approach');
+      break;
+
+    case 2: // dCas9 binds
+      drawDNAHelix(cx, cy, dnaLen, t, {
+        methylGroups: methylX,
+        methylFade: [1, 1, 1, 1, 1]
+      });
+      drawGeneLabel(cx, cy - 55, 'SILENCED GENE');
+      drawCas9(cx, cy - 50, t, true, true, true);
+      drawLabel(cx, h - 50, 'dCas9 binds — DNA stays intact', '#66ff99');
+      drawLabel(cx, h - 30, 'No cutting ability — only positioning');
+      break;
+
+    case 3: // Removing methyls
+      {
+        const fadePhase = (t % 8) / 8;
+        const fades = methylX.map((_, i) => {
+          const threshold = i / methylX.length;
+          return Math.max(0, 1 - Math.max(0, (fadePhase - threshold) * methylX.length));
+        });
+        drawDNAHelix(cx, cy, dnaLen, t, {
+          methylGroups: methylX,
+          methylFade: fades
+        });
+        drawGeneLabel(cx, cy - 55, 'GENE ACTIVATING...');
+        drawCas9(cx, cy - 50, t, true, true, true);
+        drawLabel(cx, h - 50, 'TET removes methyl groups one by one', '#66ff99');
+        drawLabel(cx, h - 30, 'DNA sequence unchanged — only tags removed');
+      }
+      break;
+
+    case 4: // Gene active
+      drawDNAHelix(cx, cy, dnaLen, t, {
+        methylGroups: methylX,
+        methylFade: [0, 0, 0, 0, 0],
+        glow: true
+      });
+      drawGeneLabel(cx, cy - 55, 'ACTIVE GENE ✓', true);
+      drawLabel(cx, h - 50, 'Gene reactivated — DNA completely intact', '#66ff99');
+      drawLabel(cx, h - 30, 'No cuts, no sequence changes, potentially reversible');
+
+      // Transcription arrows
+      for (let i = 0; i < 3; i++) {
+        const ax = cx - 20 + i * 20;
+        const ay = cy + 55 + Math.sin(t * 2 + i) * 3;
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(ax, ay + 15);
+        ctx.lineTo(ax + 5, ay + 10);
+        ctx.strokeStyle = 'rgba(100, 255, 150, 0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+      ctx.font = '10px monospace';
+      ctx.fillStyle = 'rgba(100, 255, 150, 0.5)';
+      ctx.textAlign = 'center';
+      ctx.fillText('transcription active', cx, cy + 80);
+      break;
+  }
+}
+
+function drawCompareScene(t) {
+  const w = W(), h = H();
+  const topY = h * 0.28, botY = h * 0.72;
+  const dnaLen = w * 0.6;
+  const cx = w / 2;
+
+  // Labels
+  drawLabel(cx, 22, 'Side by Side Comparison', '#88aadd');
+  drawLabel(cx - dnaLen * 0.38, topY - 50, 'Classical: Cut DNA', '#ff8866');
+  drawLabel(cx - dnaLen * 0.38, botY - 50, 'Epigenetic: Edit Tags', '#66ff99');
+
+  // Classical — always showing cut
+  const cutProg = 0.3 + 0.2 * Math.sin(t * 1.2);
+  drawDNAHelix(cx, topY, dnaLen, t, { cutAt: cx, cutProgress: cutProg });
+  drawCas9(cx, topY - 45, t, false, false, true);
+
+  // Epigenetic — showing methyl removal
+  const methylX = [];
+  const start = cx - dnaLen * 0.15;
+  for (let i = 0; i < 4; i++) methylX.push(start + i * 35);
+  const fades = methylX.map((_, i) => Math.max(0, 1 - Math.max(0, ((t * 0.15 % 1) - i / 4) * 4)));
+
+  drawDNAHelix(cx, botY, dnaLen, t, {
+    methylGroups: methylX,
+    methylFade: fades,
+    glow: true
+  });
+  drawCas9(cx, botY - 45, t, true, true, true);
+
+  // Divider
+  ctx.setLineDash([5, 5]);
+  ctx.strokeStyle = 'rgba(100, 120, 150, 0.2)';
+  ctx.beginPath();
+  ctx.moveTo(40, h / 2);
+  ctx.lineTo(w - 40, h / 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Status labels
+  ctx.font = '11px Georgia';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#ff6666';
+  ctx.fillText('DNA damaged ✕', w - 30, topY + 50);
+  ctx.fillStyle = '#66ff99';
+  ctx.fillText('DNA intact ✓', w - 30, botY + 50);
+}
+
+// ============ MAIN LOOP ============
+
+function draw() {
+  const w = W(), h = H();
+
+  // Clear
+  ctx.fillStyle = '#0d0d24';
+  ctx.fillRect(0, 0, w, h);
+
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(40, 50, 80, 0.15)';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < w; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+  }
+  for (let y = 0; y < h; y += 40) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  if (mode === 'classic') drawClassicScene(time);
+  else if (mode === 'epigenetic') drawEpiScene(time);
+  else drawCompareScene(time);
+
+  time += 0.016;
+  animFrame = requestAnimationFrame(draw);
+}
+
+// Polyfill roundRect
+if (!ctx.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (typeof r === 'number') r = [r, r, r, r];
+    this.moveTo(x + r[0], y);
+    this.lineTo(x + w - r[1], y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r[1]);
+    this.lineTo(x + w, y + h - r[2]);
+    this.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
+    this.lineTo(x + r[3], y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r[3]);
+    this.lineTo(x, y + r[0]);
+    this.quadraticCurveTo(x, y, x + r[0], y);
+    this.closePath();
+  };
+}
+
+// Init
+updateUI();
+draw();
+</script>
+</body>
+</html>

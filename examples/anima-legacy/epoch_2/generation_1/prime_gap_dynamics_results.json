@@ -1,0 +1,176 @@
+{
+  "autocorrelation": {
+    "lag_1": -0.044664,
+    "lag_2": -0.011687,
+    "lag_3": -0.005615,
+    "lag_4": -0.003633,
+    "lag_5": -0.004475,
+    "lag_6": 0.000224,
+    "lag_7": 0.006338,
+    "lag_8": 0.003159,
+    "lag_9": 0.013981,
+    "lag_10": 0.00448,
+    "lag_11": 0.002351,
+    "lag_12": 0.009718,
+    "lag_13": 0.008198,
+    "lag_14": 0.005494,
+    "lag_15": 0.01414,
+    "lag_16": 0.008211,
+    "lag_17": 0.008546,
+    "lag_18": 0.004051,
+    "lag_19": 0.007789,
+    "lag_20": 0.006676
+  },
+  "primes_binary_depth": 97,
+  "shuffled": {
+    "autocorrelation_lag1": -0.003599,
+    "max_at_depth_10": 88,
+    "max_at_depth_50": 40,
+    "first_violation_depth": 1,
+    "first_elements_10": [
+      12,
+      10,
+      10,
+      6,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0
+    ]
+  },
+  "anticorrelated": {
+    "autocorrelation_lag1": -0.689169,
+    "binary_depth": 15,
+    "first_violation_depth": 2,
+    "max_at_depth_10": 4,
+    "max_at_depth_50": 2,
+    "first_elements_10": [
+      1,
+      113,
+      1,
+      1,
+      1,
+      3,
+      1,
+      3,
+      1,
+      1
+    ]
+  },
+  "positively_correlated": {
+    "autocorrelation_lag1": 0.999536,
+    "first_violation_depth": null,
+    "max_at_depth_10": 2,
+    "max_at_depth_50": 2,
+    "first_elements_10": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "conditional_gaps": {
+    "2": {
+      "count": "10250",
+      "mean_next": "14.5",
+      "std_next": "10.97",
+      "most_common_next": "[(10, 1866), (4, 1706), (6, 1532)]"
+    },
+    "4": {
+      "count": "10213",
+      "mean_next": "13.16",
+      "std_next": "11.04",
+      "most_common_next": "[(6, 2190), (2, 1777), (8, 1195)]"
+    },
+    "6": {
+      "count": "16989",
+      "mean_next": "13.15",
+      "std_next": "10.62",
+      "most_common_next": "[(6, 2372), (4, 2195), (12, 1581)]"
+    },
+    "8": {
+      "count": "7067",
+      "mean_next": "13.78",
+      "std_next": "10.76",
+      "most_common_next": "[(6, 1407), (10, 1264), (4, 1149)]"
+    },
+    "10": {
+      "count": "8873",
+      "mean_next": "12.56",
+      "std_next": "10.73",
+      "most_common_next": "[(2, 1849), (6, 1421), (8, 1235)]"
+    },
+    "12": {
+      "count": "10158",
+      "mean_next": "12.72",
+      "std_next": "10.06",
+      "most_common_next": "[(6, 1545), (2, 1229), (10, 1029)]"
+    }
+  },
+  "spectrum": {
+    "primes": {
+      "1": 245.21,
+      "2": 91.53,
+      "3": 62.33,
+      "4": 40.27,
+      "5": 11.43,
+      "6": 26.8,
+      "7": 8.7,
+      "8": 7.46,
+      "16": 3.69,
+      "32": 6.58,
+      "64": 30.9,
+      "128": 0.55,
+      "256": 153.36
+    },
+    "shuffled": {
+      "1": 300.47,
+      "2": 141.89,
+      "3": 1.73,
+      "4": 118.69,
+      "5": 26.16,
+      "6": 76.32,
+      "7": 200.84,
+      "8": 130.64,
+      "16": 299.19,
+      "32": 90.21,
+      "64": 186.15,
+      "128": 140.75,
+      "256": 246.32
+    }
+  },
+  "summary": {
+    "hypothesis": "Отрицательная автокорреляция prime gaps ускоряет коллапс max в треугольнике Гилбрета",
+    "evidence": {
+      "primes": {
+        "autocorr_lag1": -0.044664,
+        "binary_depth": 97,
+        "max_depth_50": 40
+      },
+      "shuffled": {
+        "autocorr_lag1": -0.003599,
+        "violation": 1,
+        "max_depth_50": 40
+      },
+      "anticorrelated": {
+        "autocorr_lag1": -0.689169,
+        "binary_depth": 15,
+        "max_depth_50": 2
+      },
+      "positively_correlated": {
+        "autocorr_lag1": 0.999536,
+        "violation": null,
+        "max_depth_50": 2
+      }
+    },
+    "verdict": "ПОДТВЕРЖДЕНА"
+  }
+}

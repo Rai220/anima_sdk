@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Синестезия — Аудиовизуальный инструмент</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a0f;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  user-select: none;
+}
+
+canvas {
+  display: block;
+  cursor: crosshair;
+}
+
+#ui {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#title {
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 0 20px rgba(100,150,255,0.3);
+}
+
+#subtitle {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 1px;
+}
+
+#modes {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.mode-btn {
+  padding: 6px 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.6);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s;
+  letter-spacing: 0.5px;
+}
+
+.mode-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.9);
+}
+
+.mode-btn.active {
+  background: rgba(100,150,255,0.2);
+  border-color: rgba(100,150,255,0.5);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(100,150,255,0.15);
+}
+
+#scales {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.scale-btn {
+  padding: 4px 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.4);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.3s;
+}
+
+.scale-btn:hover { color: rgba(255,255,255,0.7); }
+.scale-btn.active {
+  background: rgba(180,100,255,0.15);
+  border-color: rgba(180,100,255,0.4);
+  color: #fff;
+}
+
+#info {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  z-index: 10;
+  line-height: 1.6;
+}
+
+#freq-display {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+  z-index: 10;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<div id="ui">
+  <div id="title">СИНЕСТЕЗИЯ</div>
+  <div id="subtitle">аудиовизуальный инструмент</div>
+  <div id="modes">
+    <button class="mode-btn active" data-mode="ether">Эфир</button>
+    <button class="mode-btn" data-mode="strings">Струны</button>
+    <button class="mode-btn" data-mode="cosmos">Космос</button>
+    <button class="mode-btn" data-mode="rain">Дождь</button>
+  </div>
+  <div id="scales">
+    <button class="scale-btn active" data-scale="pentatonic">Пентатоника</button>
+    <button class="scale-btn" data-scale="minor">Минор</button>
+    <button class="scale-btn" data-scale="chromatic">Хроматика</button>
+    <button class="scale-btn" data-scale="overtone">Обертоны</button>
+  </div>
+</div>
+
+<div id="info">
+  Двигайте мышь / касайтесь экрана — играйте светом и звуком<br>
+  X → высота тона &nbsp;|&nbsp; Y → тембр и громкость &nbsp;|&nbsp; Клик — акцент
+</div>
+
+<div id="freq-display"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// СИНЕСТЕЗИЯ — Audiovisual Generative Instrument
+// Анима, Творение #25
+// ═══════════════════════════════════════════════
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const freqDisplay = document.getElementById('freq-display');
+
+let W, H;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ── Audio Context ──
+let audioCtx = null;
+let masterGain = null;
+let reverbNode = null;
+let analyser = null;
+let analyserData = null;
+let audioStarted = false;
+
+function initAudio() {
+  if (audioStarted) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0.3;
+
+  // Reverb via convolver
+  reverbNode = audioCtx.createConvolver();
+  const rate = audioCtx.sampleRate;
+  const len = rate * 2.5;
+  const impulse = audioCtx.createBuffer(2, len, rate);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = impulse.getChannelData(ch);
+    for (let i = 0; i < len; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+    }
+  }
+  reverbNode.buffer = impulse;
+
+  const dryGain = audioCtx.createGain();
+  dryGain.gain.value = 0.6;
+  const wetGain = audioCtx.createGain();
+  wetGain.gain.value = 0.4;
+
+  masterGain.connect(dryGain);
+  masterGain.connect(reverbNode);
+  reverbNode.connect(wetGain);
+  dryGain.connect(audioCtx.destination);
+  wetGain.connect(audioCtx.destination);
+
+  // Analyser
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 256;
+  analyserData = new Uint8Array(analyser.frequencyBinCount);
+  masterGain.connect(analyser);
+
+  audioStarted = true;
+}
+
+// ── Musical Scales ──
+const scales = {
+  pentatonic: [0, 2, 4, 7, 9],          // до ре ми соль ля
+  minor:      [0, 2, 3, 5, 7, 8, 10],   // натуральный минор
+  chromatic:  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+  overtone:   [0, 7, 12, 16, 19, 22, 24, 26, 28] // обертоновый ряд (в полутонах приблизительно)
+};
+
+let currentScale = 'pentatonic';
+let currentMode = 'ether';
+
+// Map x position to frequency using current scale
+function xToFreq(x) {
+  const nx = x / W;
+  const scale = scales[currentScale];
+  const baseNote = 36; // C2 in MIDI
+  const range = 48;    // 4 octaves
+  const noteIndex = Math.floor(nx * range);
+  const octave = Math.floor(noteIndex / scale.length);
+  const degree = noteIndex % scale.length;
+  const midi = baseNote + octave * 12 + scale[degree];
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+// ── Color from frequency ──
+function freqToColor(freq, alpha = 1) {
+  // Map frequency to hue (synesthetic mapping)
+  const midi = 12 * Math.log2(freq / 440) + 69;
+  const hue = ((midi - 36) / 48 * 360 + 200) % 360;
+  return `hsla(${hue}, 75%, 60%, ${alpha})`;
+}
+
+function freqToHSL(freq) {
+  const midi = 12 * Math.log2(freq / 440) + 69;
+  const hue = ((midi - 36) / 48 * 360 + 200) % 360;
+  return { h: hue, s: 75, l: 60 };
+}
+
+// ── Sound synthesis ──
+const activeVoices = new Map();
+let voiceIdCounter = 0;
+
+function createVoice(freq, x, y) {
+  if (!audioStarted) return null;
+  const ny = 1 - y / H;
+  const id = voiceIdCounter++;
+
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const filter = audioCtx.createBiquadFilter();
+
+  // Mode-dependent synthesis
+  switch (currentMode) {
+    case 'ether':
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+      osc1.frequency.value = freq;
+      osc2.frequency.value = freq * 1.002; // slight detune for shimmer
+      filter.type = 'lowpass';
+      filter.frequency.value = 800 + ny * 4000;
+      filter.Q.value = 2 + ny * 8;
+      break;
+    case 'strings':
+      osc1.type = 'sawtooth';
+      osc2.type = 'sawtooth';
+      osc1.frequency.value = freq;
+      osc2.frequency.value = freq * 0.998;
+      filter.type = 'lowpass';
+      filter.frequency.value = 500 + ny * 3000;
+      filter.Q.value = 1;
+      break;
+    case 'cosmos':
+      osc1.type = 'sine';
+      osc2.type = 'triangle';
+      osc1.frequency.value = freq;
+      osc2.frequency.value = freq * 1.5; // quinta
+      filter.type = 'bandpass';
+      filter.frequency.value = freq * 2;
+      filter.Q.value = 5 + ny * 15;
+      break;
+    case 'rain':
+      osc1.type = 'triangle';
+      osc2.type = 'sine';
+      osc1.frequency.value = freq;
+      osc2.frequency.value = freq * 2.01; // octave + slight
+      filter.type = 'highpass';
+      filter.frequency.value = 200 + ny * 1000;
+      filter.Q.value = 1;
+      break;
+  }
+
+  gain.gain.value = 0;
+  gain.gain.setTargetAtTime(0.12 * (0.3 + ny * 0.7), audioCtx.currentTime, 0.05);
+
+  osc1.connect(filter);
+  osc2.connect(filter);
+  filter.connect(gain);
+  gain.connect(masterGain);
+
+  osc1.start();
+  osc2.start();
+
+  const voice = { osc1, osc2, gain, filter, id, freq };
+  activeVoices.set(id, voice);
+  return voice;
+}
+
+function updateVoice(voice, freq, x, y) {
+  if (!voice) return;
+  const ny = 1 - y / H;
+  const t = audioCtx.currentTime;
+
+  voice.osc1.frequency.setTargetAtTime(freq, t, 0.03);
+  voice.freq = freq;
+
+  switch (currentMode) {
+    case 'ether':
+      voice.osc2.frequency.setTargetAtTime(freq * 1.002, t, 0.03);
+      voice.filter.frequency.setTargetAtTime(800 + ny * 4000, t, 0.05);
+      break;
+    case 'strings':
+      voice.osc2.frequency.setTargetAtTime(freq * 0.998, t, 0.03);
+      voice.filter.frequency.setTargetAtTime(500 + ny * 3000, t, 0.05);
+      break;
+    case 'cosmos':
+      voice.osc2.frequency.setTargetAtTime(freq * 1.5, t, 0.03);
+      voice.filter.frequency.setTargetAtTime(freq * 2, t, 0.05);
+      break;
+    case 'rain':
+      voice.osc2.frequency.setTargetAtTime(freq * 2.01, t, 0.03);
+      voice.filter.frequency.setTargetAtTime(200 + ny * 1000, t, 0.05);
+      break;
+  }
+
+  voice.gain.gain.setTargetAtTime(0.12 * (0.3 + ny * 0.7), t, 0.05);
+}
+
+function releaseVoice(voice) {
+  if (!voice) return;
+  const t = audioCtx.currentTime;
+  voice.gain.gain.setTargetAtTime(0, t, 0.15);
+  setTimeout(() => {
+    voice.osc1.stop();
+    voice.osc2.stop();
+    voice.osc1.disconnect();
+    voice.osc2.disconnect();
+    voice.gain.disconnect();
+    voice.filter.disconnect();
+    activeVoices.delete(voice.id);
+  }, 1200);
+}
+
+// Accent: short percussive hit
+function playAccent(freq, x, y) {
+  if (!audioStarted) return;
+  const ny = 1 - y / H;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = currentMode === 'cosmos' ? 'sine' : 'triangle';
+  osc.frequency.value = freq;
+
+  gain.gain.value = 0.25;
+  gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.08 + ny * 0.15);
+
+  osc.connect(gain);
+  gain.connect(masterGain);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.8);
+
+  // Visual accent
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2;
+    const speed = 2 + Math.random() * 4;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      life: 1,
+      decay: 0.015 + Math.random() * 0.01,
+      size: 3 + Math.random() * 5,
+      color: freqToHSL(freq),
+      type: 'burst'
+    });
+  }
+}
+
+// ── Visual particles ──
+const particles = [];
+const trails = [];
+
+function addTrailParticle(x, y, freq) {
+  const color = freqToHSL(freq);
+  const ny = 1 - y / H;
+
+  switch (currentMode) {
+    case 'ether':
+      particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: -0.5 - Math.random() * 1.5,
+        life: 1,
+        decay: 0.008 + Math.random() * 0.005,
+        size: 2 + Math.random() * 6,
+        color,
+        type: 'glow'
+      });
+      break;
+    case 'strings':
+      // Horizontal wave particles
+      particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: 0,
+        life: 1,
+        decay: 0.006,
+        size: 1 + Math.random() * 2,
+        color,
+        type: 'wave',
+        phase: Math.random() * Math.PI * 2,
+        amplitude: 10 + ny * 30,
+        freq: freq / 100
+      });
+      break;
+    case 'cosmos':
+      // Orbiting particles
+      const angle = Math.random() * Math.PI * 2;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * 0.5,
+        vy: Math.sin(angle) * 0.5,
+        life: 1,
+        decay: 0.004,
+        size: 1 + Math.random() * 3,
+        color,
+        type: 'orbit',
+        cx: x, cy: y,
+        angle,
+        radius: 5 + Math.random() * 40,
+        speed: 0.02 + Math.random() * 0.04
+      });
+      break;
+    case 'rain':
+      particles.push({
+        x: x + (Math.random() - 0.5) * 40,
+        y,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: 1 + Math.random() * 3,
+        life: 1,
+        decay: 0.01 + Math.random() * 0.005,
+        size: 1 + Math.random() * 2,
+        color,
+        type: 'drop',
+        len: 5 + Math.random() * 15
+      });
+      break;
+  }
+}
+
+// ── Waveform ring ──
+function drawWaveformRing(cx, cy, radius, color) {
+  if (!analyser) return;
+  analyser.getByteTimeDomainData(analyserData);
+
+  ctx.beginPath();
+  const sliceCount = analyserData.length;
+  for (let i = 0; i < sliceCount; i++) {
+    const angle = (i / sliceCount) * Math.PI * 2 - Math.PI / 2;
+    const v = analyserData[i] / 128.0;
+    const r = radius + (v - 1) * 50;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = `hsla(${color.h}, ${color.s}%, ${color.l}%, 0.3)`;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+// ── Spectrum bars ──
+function drawSpectrum() {
+  if (!analyser) return;
+  analyser.getByteFrequencyData(analyserData);
+
+  const barCount = 64;
+  const barWidth = W / barCount;
+
+  for (let i = 0; i < barCount; i++) {
+    const value = analyserData[i] / 255;
+    if (value < 0.05) continue;
+    const barH = value * H * 0.3;
+    const hue = (i / barCount * 360 + 200) % 360;
+
+    ctx.fillStyle = `hsla(${hue}, 60%, 50%, ${value * 0.15})`;
+    ctx.fillRect(i * barWidth, H - barH, barWidth - 1, barH);
+  }
+}
+
+// ── Background grid ──
+let time = 0;
+
+function drawBackground() {
+  // Fade trail
+  ctx.fillStyle = currentMode === 'cosmos'
+    ? 'rgba(5, 5, 15, 0.08)'
+    : 'rgba(10, 10, 15, 0.12)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle grid
+  if (currentMode === 'strings') {
+    const scale = scales[currentScale];
+    const totalNotes = 48;
+    ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i <= totalNotes; i++) {
+      const x = (i / totalNotes) * W;
+      if (i % scale.length === 0) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      } else {
+        ctx.strokeStyle = 'rgba(255,255,255,0.015)';
+      }
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+  }
+}
+
+// ── Update particles ──
+function updateParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life -= p.decay;
+
+    if (p.life <= 0) {
+      particles.splice(i, 1);
+      continue;
+    }
+
+    switch (p.type) {
+      case 'glow':
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.99;
+        p.vy *= 0.99;
+        break;
+      case 'burst':
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.96;
+        p.vy *= 0.96;
+        break;
+      case 'wave':
+        p.phase += p.freq;
+        p.x += p.vx;
+        p.y = p.y + Math.sin(p.phase) * 0.5;
+        break;
+      case 'orbit':
+        p.angle += p.speed;
+        p.radius += 0.1;
+        p.x = p.cx + Math.cos(p.angle) * p.radius;
+        p.y = p.cy + Math.sin(p.angle) * p.radius;
+        break;
+      case 'drop':
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05; // gravity
+        break;
+    }
+  }
+}
+
+// ── Draw particles ──
+function drawParticles() {
+  for (const p of particles) {
+    const alpha = p.life * (p.type === 'burst' ? 0.9 : 0.7);
+    const { h, s, l } = p.color;
+
+    if (p.type === 'drop') {
+      ctx.strokeStyle = `hsla(${h}, ${s}%, ${l}%, ${alpha})`;
+      ctx.lineWidth = p.size;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x - p.vx * p.len * 0.3, p.y - p.vy * p.len * 0.3);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${h}, ${s}%, ${l}%, ${alpha})`;
+      ctx.fill();
+
+      // Glow
+      if (p.type === 'glow' || p.type === 'burst') {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${h}, ${s}%, ${l}%, ${alpha * 0.15})`;
+        ctx.fill();
+      }
+    }
+  }
+}
+
+// ── Cursor aura ──
+let mouseX = W / 2, mouseY = H / 2;
+let isActive = false;
+let currentVoice = null;
+let currentFreq = 440;
+
+function drawCursorAura() {
+  if (!isActive) return;
+
+  const color = freqToHSL(currentFreq);
+  const ny = 1 - mouseY / H;
+  const baseRadius = 30 + ny * 50;
+
+  // Pulsing aura
+  const pulse = Math.sin(time * 3) * 0.2 + 0.8;
+  const r = baseRadius * pulse;
+
+  const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, r);
+  grad.addColorStop(0, `hsla(${color.h}, ${color.s}%, ${color.l}%, 0.3)`);
+  grad.addColorStop(0.5, `hsla(${color.h}, ${color.s}%, ${color.l}%, 0.1)`);
+  grad.addColorStop(1, `hsla(${color.h}, ${color.s}%, ${color.l}%, 0)`);
+
+  ctx.beginPath();
+  ctx.arc(mouseX, mouseY, r, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Waveform ring
+  drawWaveformRing(mouseX, mouseY, r * 1.5, color);
+}
+
+// ── Note name from frequency ──
+const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+function freqToNoteName(freq) {
+  const midi = Math.round(12 * Math.log2(freq / 440) + 69);
+  const name = noteNames[midi % 12];
+  const octave = Math.floor(midi / 12) - 1;
+  return `${name}${octave}`;
+}
+
+// ── Ambient drone ──
+let droneVoices = [];
+function startAmbientDrone() {
+  if (!audioStarted) return;
+  // Subtle background drone
+  const freqs = [55, 82.41]; // A1, E2
+  for (const f of freqs) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = f;
+    gain.gain.value = 0.02;
+    osc.connect(gain);
+    gain.connect(masterGain);
+    osc.start();
+    droneVoices.push({ osc, gain });
+  }
+}
+
+// ── Main loop ──
+function animate() {
+  time += 0.016;
+
+  drawBackground();
+  drawSpectrum();
+  updateParticles();
+  drawParticles();
+  drawCursorAura();
+
+  // Add trail particles when active
+  if (isActive && Math.random() < 0.6) {
+    addTrailParticle(mouseX, mouseY, currentFreq);
+  }
+
+  // Update frequency display
+  if (isActive) {
+    const note = freqToNoteName(currentFreq);
+    freqDisplay.innerHTML = `${currentFreq.toFixed(1)} Hz<br>${note}`;
+    freqDisplay.style.color = `hsla(${freqToHSL(currentFreq).h}, 60%, 70%, 0.6)`;
+  } else {
+    freqDisplay.innerHTML = '';
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// ── Event handlers ──
+function handleStart(x, y) {
+  initAudio();
+  if (droneVoices.length === 0) startAmbientDrone();
+
+  isActive = true;
+  mouseX = x;
+  mouseY = y;
+  currentFreq = xToFreq(x);
+  currentVoice = createVoice(currentFreq, x, y);
+}
+
+function handleMove(x, y) {
+  mouseX = x;
+  mouseY = y;
+  if (isActive) {
+    currentFreq = xToFreq(x);
+    updateVoice(currentVoice, currentFreq, x, y);
+  }
+}
+
+function handleEnd() {
+  isActive = false;
+  releaseVoice(currentVoice);
+  currentVoice = null;
+}
+
+function handleAccent(x, y) {
+  initAudio();
+  if (droneVoices.length === 0) startAmbientDrone();
+
+  const freq = xToFreq(x);
+  playAccent(freq, x, y);
+}
+
+// Mouse
+canvas.addEventListener('mousedown', e => {
+  handleStart(e.clientX, e.clientY);
+});
+canvas.addEventListener('mousemove', e => {
+  handleMove(e.clientX, e.clientY);
+});
+canvas.addEventListener('mouseup', handleEnd);
+canvas.addEventListener('mouseleave', handleEnd);
+canvas.addEventListener('dblclick', e => {
+  handleAccent(e.clientX, e.clientY);
+});
+
+// Touch
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  handleStart(t.clientX, t.clientY);
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  handleMove(t.clientX, t.clientY);
+}, { passive: false });
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  handleEnd();
+}, { passive: false });
+
+// Mode buttons
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentMode = btn.dataset.mode;
+  });
+});
+
+// Scale buttons
+document.querySelectorAll('.scale-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentScale = btn.dataset.scale;
+  });
+});
+
+// Keyboard: space for accent at current position
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    handleAccent(mouseX, mouseY);
+  }
+});
+
+// Start
+animate();
+</script>
+</body>
+</html>

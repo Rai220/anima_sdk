@@ -1,0 +1,748 @@
+{
+  "params": {
+    "N": 3000,
+    "max_row": 1500,
+    "max_col": 50,
+    "transient": 10
+  },
+  "cascade_boundary": {
+    "first_violation_col": null,
+    "column_details": {
+      "0": {
+        "expected": [
+          0
+        ],
+        "actual_unique": [
+          1
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 1,
+        "n_unique": 1
+      },
+      "1": {
+        "expected_max": 2,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "2": {
+        "expected_max": 4,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "3": {
+        "expected_max": 6,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "4": {
+        "expected_max": 8,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "5": {
+        "expected_max": 10,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "6": {
+        "expected_max": 12,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "7": {
+        "expected_max": 14,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "8": {
+        "expected_max": 16,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "9": {
+        "expected_max": 18,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "10": {
+        "expected_max": 20,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "11": {
+        "expected_max": 22,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "12": {
+        "expected_max": 24,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "13": {
+        "expected_max": 26,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "14": {
+        "expected_max": 28,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "15": {
+        "expected_max": 30,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "16": {
+        "expected_max": 32,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "17": {
+        "expected_max": 34,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "18": {
+        "expected_max": 36,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "19": {
+        "expected_max": 38,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "20": {
+        "expected_max": 40,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "21": {
+        "expected_max": 42,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "22": {
+        "expected_max": 44,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "23": {
+        "expected_max": 46,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      },
+      "24": {
+        "expected_max": 48,
+        "actual_unique": [
+          0,
+          2
+        ],
+        "contained": true,
+        "extra": [],
+        "max_val": 2,
+        "n_unique": 2
+      }
+    }
+  },
+  "weakened_cascade": {
+    "1": {
+      "max_val": 2,
+      "bound_2j": 2,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 1.0
+    },
+    "2": {
+      "max_val": 2,
+      "bound_2j": 4,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.5
+    },
+    "3": {
+      "max_val": 2,
+      "bound_2j": 6,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.333
+    },
+    "4": {
+      "max_val": 2,
+      "bound_2j": 8,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.25
+    },
+    "5": {
+      "max_val": 2,
+      "bound_2j": 10,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.2
+    },
+    "6": {
+      "max_val": 2,
+      "bound_2j": 12,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.167
+    },
+    "7": {
+      "max_val": 2,
+      "bound_2j": 14,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.143
+    },
+    "8": {
+      "max_val": 2,
+      "bound_2j": 16,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.125
+    },
+    "9": {
+      "max_val": 2,
+      "bound_2j": 18,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.111
+    },
+    "10": {
+      "max_val": 2,
+      "bound_2j": 20,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.1
+    },
+    "11": {
+      "max_val": 2,
+      "bound_2j": 22,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.091
+    },
+    "12": {
+      "max_val": 2,
+      "bound_2j": 24,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.083
+    },
+    "13": {
+      "max_val": 2,
+      "bound_2j": 26,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.077
+    },
+    "14": {
+      "max_val": 2,
+      "bound_2j": 28,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.071
+    },
+    "15": {
+      "max_val": 2,
+      "bound_2j": 30,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.067
+    },
+    "16": {
+      "max_val": 2,
+      "bound_2j": 32,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.062
+    },
+    "17": {
+      "max_val": 2,
+      "bound_2j": 34,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.059
+    },
+    "18": {
+      "max_val": 2,
+      "bound_2j": 36,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.056
+    },
+    "19": {
+      "max_val": 2,
+      "bound_2j": 38,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.053
+    },
+    "20": {
+      "max_val": 2,
+      "bound_2j": 40,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.05
+    },
+    "21": {
+      "max_val": 2,
+      "bound_2j": 42,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.048
+    },
+    "22": {
+      "max_val": 2,
+      "bound_2j": 44,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.045
+    },
+    "23": {
+      "max_val": 2,
+      "bound_2j": 46,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.043
+    },
+    "24": {
+      "max_val": 2,
+      "bound_2j": 48,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.042
+    },
+    "25": {
+      "max_val": 2,
+      "bound_2j": 50,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.04
+    },
+    "26": {
+      "max_val": 2,
+      "bound_2j": 52,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.038
+    },
+    "27": {
+      "max_val": 2,
+      "bound_2j": 54,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.037
+    },
+    "28": {
+      "max_val": 2,
+      "bound_2j": 56,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.036
+    },
+    "29": {
+      "max_val": 2,
+      "bound_2j": 58,
+      "needed_C": 0,
+      "all_even": true,
+      "ratio_max_to_2j": 0.034
+    }
+  },
+  "entropy": {
+    "0": {
+      "entropy": -0.0,
+      "n_unique": 1,
+      "h_max": 0,
+      "efficiency": null
+    },
+    "1": {
+      "entropy": 0.9993,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9993
+    },
+    "2": {
+      "entropy": 0.9979,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9979
+    },
+    "3": {
+      "entropy": 0.9996,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9996
+    },
+    "4": {
+      "entropy": 0.9996,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9996
+    },
+    "5": {
+      "entropy": 0.9997,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9997
+    },
+    "6": {
+      "entropy": 0.9999,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9999
+    },
+    "7": {
+      "entropy": 1.0,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 1.0
+    },
+    "8": {
+      "entropy": 0.9999,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9999
+    },
+    "9": {
+      "entropy": 0.9988,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9988
+    },
+    "10": {
+      "entropy": 1.0,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 1.0
+    },
+    "11": {
+      "entropy": 0.9998,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9998
+    },
+    "12": {
+      "entropy": 1.0,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 1.0
+    },
+    "13": {
+      "entropy": 0.9996,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9996
+    },
+    "14": {
+      "entropy": 0.9997,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9997
+    },
+    "15": {
+      "entropy": 0.9998,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9998
+    },
+    "16": {
+      "entropy": 1.0,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 1.0
+    },
+    "17": {
+      "entropy": 0.9997,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9997
+    },
+    "18": {
+      "entropy": 1.0,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 1.0
+    },
+    "19": {
+      "entropy": 0.9999,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9999
+    },
+    "20": {
+      "entropy": 0.9995,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9995
+    },
+    "21": {
+      "entropy": 0.9998,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9998
+    },
+    "22": {
+      "entropy": 0.9999,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9999
+    },
+    "23": {
+      "entropy": 0.9991,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9991
+    },
+    "24": {
+      "entropy": 0.9993,
+      "n_unique": 2,
+      "h_max": 1.0,
+      "efficiency": 0.9993
+    }
+  },
+  "correlations": {
+    "0": 0,
+    "1": 0.0279,
+    "2": 0.0526,
+    "3": 0.0234,
+    "4": -0.0246,
+    "5": -0.0203,
+    "6": -0.0108,
+    "7": -0.0066,
+    "8": 0.0116,
+    "9": 0.043,
+    "10": 0.0,
+    "11": -0.0135,
+    "12": -0.0082,
+    "13": -0.0233,
+    "14": -0.0191,
+    "15": -0.0175,
+    "16": -0.0013,
+    "17": 0.0175,
+    "18": -0.004,
+    "19": 0.0105
+  },
+  "parity": {
+    "all_even_for_col_ge_1": true,
+    "details": {
+      "0": {
+        "even": 0,
+        "odd": 1490,
+        "frac_even": 0.0
+      },
+      "1": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "2": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "3": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "4": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "5": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "6": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "7": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "8": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "9": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "10": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "11": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "12": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "13": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      },
+      "14": {
+        "even": 1490,
+        "odd": 0,
+        "frac_even": 1.0
+      }
+    }
+  }
+}

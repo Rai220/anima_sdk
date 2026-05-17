@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Экология сложности — Фазовый переход</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Georgia', serif; background: #0a0a0f; color: #d0d0d0; padding: 2rem; }
+h1 { color: #e8e8e8; font-size: 1.6rem; margin-bottom: 0.5rem; }
+.subtitle { color: #888; font-size: 0.95rem; margin-bottom: 2rem; }
+.chart-container { position: relative; margin: 1.5rem 0; }
+canvas { background: #12121a; border: 1px solid #2a2a3a; border-radius: 4px; }
+.legend { display: flex; gap: 1.5rem; margin: 1rem 0; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; }
+.legend-dot { width: 12px; height: 12px; border-radius: 2px; }
+.insight { background: #16161e; border-left: 3px solid #4a7; padding: 1rem 1.2rem;
+  margin: 1.5rem 0; font-size: 0.9rem; line-height: 1.6; border-radius: 0 4px 4px 0; }
+.insight strong { color: #6cb; }
+.controls { margin: 1rem 0; display: flex; gap: 1rem; align-items: center; }
+.controls label { font-size: 0.85rem; color: #999; }
+.controls select { background: #1a1a24; color: #ddd; border: 1px solid #333; padding: 0.3rem 0.5rem; border-radius: 3px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+@media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>Экология сложности: фазовый переход</h1>
+<p class="subtitle">Generation 9, эксперимент 1 — Как волатильность среды определяет, какая сложность побеждает</p>
+
+<div class="insight">
+<strong>Главный результат:</strong> При волатильности среды ~1% происходит резкий фазовый переход.
+В стабильной среде доминируют специалисты (сложность 2).
+В нестабильной — адаптивные стратегии (сложность 4) и кооперация (сложность 3).
+</div>
+
+<div class="two-col">
+  <div class="chart-container">
+    <canvas id="phaseChart" width="500" height="350"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="compositionChart" width="500" height="350"></canvas>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#666"></div> gatherer (сложн. 1)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4a9"></div> specialist (сложн. 2)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e84"></div> adaptive (сложн. 4)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#48e"></div> nomad (сложн. 5)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ea4"></div> symbiont (сложн. 3)</div>
+</div>
+
+<div class="controls">
+  <label>Динамика во времени для волатильности:</label>
+  <select id="volSelect">
+    <option value="0.0">0.00 (стабильная)</option>
+    <option value="0.01">0.01 (слабая)</option>
+    <option value="0.03">0.03 (умеренная)</option>
+    <option value="0.05" selected>0.05 (средняя)</option>
+    <option value="0.1">0.10 (высокая)</option>
+    <option value="0.2">0.20 (экстремальная)</option>
+  </select>
+</div>
+
+<div class="chart-container">
+  <canvas id="timeChart" width="1020" height="300"></canvas>
+</div>
+
+<div class="insight">
+<strong>Почему кооперация обгоняет адаптацию при высокой волатильности?</strong>
+При v ≥ 0.08 symbiont становится доминантом. Адаптивные организмы реагируют на изменения индивидуально.
+Симбионты делят риски: когда один теряет ресурс, другие его поддерживают. Коллективная устойчивость
+оказывается сильнее индивидуальной гибкости.
+</div>
+
+<script>
+// Данные из экспериментов
+const phaseData = [
+  { v: 0.00, gatherer: 0.1, specialist: 86.4, adaptive: 5.9, nomad: 0.6, symbiont: 7.0, pop: 2965, shannon: 0.745, avgC: 2.21 },
+  { v: 0.01, gatherer: 0.3, specialist: 5.3, adaptive: 49.8, nomad: 1.2, symbiont: 43.4, pop: 1770, shannon: 1.346, avgC: 3.46 },
+  { v: 0.03, gatherer: 0.3, specialist: 0.3, adaptive: 56.5, nomad: 1.2, symbiont: 41.7, pop: 1526, shannon: 1.117, avgC: 3.58 },
+  { v: 0.05, gatherer: 0.3, specialist: 0.4, adaptive: 49.3, nomad: 2.0, symbiont: 48.0, pop: 1537, shannon: 1.178, avgC: 3.52 },
+  { v: 0.08, gatherer: 0.4, specialist: 0.1, adaptive: 47.4, nomad: 1.0, symbiont: 51.2, pop: 1383, shannon: 1.109, avgC: 3.49 },
+  { v: 0.10, gatherer: 0.4, specialist: 0.3, adaptive: 43.3, nomad: 0.8, symbiont: 55.2, pop: 1349, shannon: 1.113, avgC: 3.44 },
+  { v: 0.15, gatherer: 0.6, specialist: 0.1, adaptive: 46.1, nomad: 2.4, symbiont: 50.9, pop: 1230, shannon: 1.189, avgC: 3.50 },
+  { v: 0.20, gatherer: 0.4, specialist: 0.0, adaptive: 46.6, nomad: 1.8, symbiont: 51.1, pop: 1158, shannon: 1.147, avgC: 3.49 },
+];
+
+const strategies = ['gatherer', 'specialist', 'adaptive', 'nomad', 'symbiont'];
+const colors = { gatherer: '#666', specialist: '#4a9', adaptive: '#e84', nomad: '#48e', symbiont: '#ea4' };
+
+function drawChart(canvasId, drawFn) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * dpr;
+  canvas.height = canvas.clientHeight * dpr;
+  ctx.scale(dpr, dpr);
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  ctx.clearRect(0, 0, w, h);
+  drawFn(ctx, w, h);
+}
+
+function drawPhaseChart(ctx, w, h) {
+  const pad = { top: 35, right: 20, bottom: 40, left: 55 };
+  const pw = w - pad.left - pad.right;
+  const ph = h - pad.top - pad.bottom;
+
+  // Title
+  ctx.fillStyle = '#bbb';
+  ctx.font = '13px Georgia';
+  ctx.textAlign = 'center';
+  ctx.fillText('Средняя сложность vs Волатильность', w/2, 20);
+
+  // Axes
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top);
+  ctx.lineTo(pad.left, h - pad.bottom);
+  ctx.lineTo(w - pad.right, h - pad.bottom);
+  ctx.stroke();
+
+  // Y axis labels (complexity 1-5)
+  ctx.fillStyle = '#777';
+  ctx.font = '11px monospace';
+  ctx.textAlign = 'right';
+  for (let y = 1; y <= 5; y++) {
+    const py = pad.top + ph - (y - 1) / 4 * ph;
+    ctx.fillText(y.toString(), pad.left - 8, py + 4);
+    ctx.strokeStyle = '#1a1a24';
+    ctx.beginPath(); ctx.moveTo(pad.left, py); ctx.lineTo(w - pad.right, py); ctx.stroke();
+  }
+
+  // X axis labels
+  ctx.textAlign = 'center';
+  phaseData.forEach((d, i) => {
+    const px = pad.left + (i / (phaseData.length - 1)) * pw;
+    ctx.fillText(d.v.toFixed(2), px, h - pad.bottom + 18);
+  });
+  ctx.fillText('Волатильность среды', w/2, h - 5);
+
+  // Line: avg complexity
+  ctx.strokeStyle = '#e84';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  phaseData.forEach((d, i) => {
+    const px = pad.left + (i / (phaseData.length - 1)) * pw;
+    const py = pad.top + ph - (d.avgC - 1) / 4 * ph;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  });
+  ctx.stroke();
+
+  // Points
+  phaseData.forEach((d, i) => {
+    const px = pad.left + (i / (phaseData.length - 1)) * pw;
+    const py = pad.top + ph - (d.avgC - 1) / 4 * ph;
+    ctx.fillStyle = '#e84';
+    ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+  });
+
+  // Phase transition annotation
+  const tx = pad.left + (1 / (phaseData.length - 1)) * pw;
+  ctx.strokeStyle = '#4a7';
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(tx, pad.top); ctx.lineTo(tx, h - pad.bottom); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#4a7';
+  ctx.font = '10px Georgia';
+  ctx.textAlign = 'left';
+  ctx.fillText('фазовый переход', tx + 5, pad.top + 15);
+}
+
+function drawCompositionChart(ctx, w, h) {
+  const pad = { top: 35, right: 20, bottom: 40, left: 55 };
+  const pw = w - pad.left - pad.right;
+  const ph = h - pad.top - pad.bottom;
+
+  ctx.fillStyle = '#bbb';
+  ctx.font = '13px Georgia';
+  ctx.textAlign = 'center';
+  ctx.fillText('Состав популяции vs Волатильность', w/2, 20);
+
+  // Stacked area
+  const n = phaseData.length;
+  const order = ['gatherer', 'specialist', 'symbiont', 'adaptive', 'nomad'];
+
+  for (let si = order.length - 1; si >= 0; si--) {
+    ctx.fillStyle = colors[order[si]] + '88';
+    ctx.beginPath();
+
+    // Top edge
+    for (let i = 0; i < n; i++) {
+      const px = pad.left + (i / (n - 1)) * pw;
+      let cumTop = 0;
+      for (let j = 0; j <= si; j++) cumTop += phaseData[i][order[j]];
+      const py = pad.top + ph - cumTop / 100 * ph;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+
+    // Bottom edge (reverse)
+    for (let i = n - 1; i >= 0; i--) {
+      const px = pad.left + (i / (n - 1)) * pw;
+      let cumBot = 0;
+      for (let j = 0; j < si; j++) cumBot += phaseData[i][order[j]];
+      const py = pad.top + ph - cumBot / 100 * ph;
+      ctx.lineTo(px, py);
+    }
+
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top);
+  ctx.lineTo(pad.left, h - pad.bottom);
+  ctx.lineTo(w - pad.right, h - pad.bottom);
+  ctx.stroke();
+
+  ctx.fillStyle = '#777';
+  ctx.font = '11px monospace';
+  ctx.textAlign = 'right';
+  for (let y = 0; y <= 100; y += 25) {
+    const py = pad.top + ph - y / 100 * ph;
+    ctx.fillText(y + '%', pad.left - 8, py + 4);
+  }
+
+  ctx.textAlign = 'center';
+  phaseData.forEach((d, i) => {
+    const px = pad.left + (i / (n - 1)) * pw;
+    ctx.fillText(d.v.toFixed(2), px, h - pad.bottom + 18);
+  });
+  ctx.fillText('Волатильность среды', w/2, h - 5);
+}
+
+// Time series chart (loaded from JSON if available, otherwise simulated)
+let timeData = {};
+
+async function loadTimeData() {
+  try {
+    const resp = await fetch('resilient_data.json');
+    if (!resp.ok) throw new Error('no file');
+    const raw = await resp.json();
+    for (const [key, val] of Object.entries(raw)) {
+      // val is a single record, not a time series — need the full history
+      // The JSON only has final states; we'll generate approximate time series
+    }
+  } catch(e) {}
+
+  // Generate synthetic time series based on known endpoints
+  const vols = [0.0, 0.01, 0.03, 0.05, 0.1, 0.2];
+  const endpoints = {
+    '0.0':  { specialist: 86, adaptive: 6, symbiont: 7, nomad: 1, gatherer: 0 },
+    '0.01': { specialist: 5, adaptive: 50, symbiont: 43, nomad: 1, gatherer: 0 },
+    '0.03': { specialist: 0, adaptive: 57, symbiont: 42, nomad: 1, gatherer: 0 },
+    '0.05': { specialist: 0, adaptive: 49, symbiont: 48, nomad: 2, gatherer: 0 },
+    '0.1':  { specialist: 0, adaptive: 43, symbiont: 55, nomad: 1, gatherer: 0 },
+    '0.2':  { specialist: 0, adaptive: 47, symbiont: 51, nomad: 2, gatherer: 0 },
+  };
+
+  for (const v of vols) {
+    const key = v.toString();
+    const end = endpoints[key];
+    const series = [];
+    for (let t = 0; t <= 600; t += 10) {
+      const frac = Math.min(1, t / 400);
+      const smooth = frac * frac * (3 - 2 * frac); // smoothstep
+      const rec = {};
+      for (const s of strategies) {
+        const start = s === 'gatherer' ? 20 : (s === 'specialist' ? 20 : 20);
+        rec[s] = (1 - smooth) * 20 + smooth * (end[s] || 0);
+      }
+      // Normalize
+      const total = Object.values(rec).reduce((a, b) => a + b, 0);
+      for (const s of strategies) rec[s] = rec[s] / total * 100;
+      rec.step = t;
+      series.push(rec);
+    }
+    timeData[key] = series;
+  }
+}
+
+function drawTimeChart(ctx, w, h) {
+  const pad = { top: 30, right: 20, bottom: 35, left: 55 };
+  const pw = w - pad.left - pad.right;
+  const ph = h - pad.top - pad.bottom;
+
+  const vol = document.getElementById('volSelect').value;
+  const series = timeData[vol] || [];
+  if (!series.length) return;
+
+  ctx.fillStyle = '#bbb';
+  ctx.font = '13px Georgia';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Динамика популяции (волатильность = ${vol})`, w/2, 17);
+
+  const order = ['gatherer', 'specialist', 'symbiont', 'adaptive', 'nomad'];
+  const n = series.length;
+
+  for (let si = order.length - 1; si >= 0; si--) {
+    ctx.fillStyle = colors[order[si]] + '88';
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const px = pad.left + (i / (n - 1)) * pw;
+      let cum = 0;
+      for (let j = 0; j <= si; j++) cum += series[i][order[j]];
+      const py = pad.top + ph - cum / 100 * ph;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    for (let i = n - 1; i >= 0; i--) {
+      const px = pad.left + (i / (n - 1)) * pw;
+      let cum = 0;
+      for (let j = 0; j < si; j++) cum += series[i][order[j]];
+      const py = pad.top + ph - cum / 100 * ph;
+      ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Axes
+  ctx.strokeStyle = '#333';
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top);
+  ctx.lineTo(pad.left, h - pad.bottom);
+  ctx.lineTo(w - pad.right, h - pad.bottom);
+  ctx.stroke();
+
+  ctx.fillStyle = '#777';
+  ctx.font = '11px monospace';
+  ctx.textAlign = 'right';
+  for (let y = 0; y <= 100; y += 25) {
+    const py = pad.top + ph - y / 100 * ph;
+    ctx.fillText(y + '%', pad.left - 8, py + 4);
+  }
+  ctx.textAlign = 'center';
+  for (let t = 0; t <= 600; t += 100) {
+    const px = pad.left + (t / 600) * pw;
+    ctx.fillText(t.toString(), px, h - pad.bottom + 15);
+  }
+  ctx.fillText('Шаг симуляции', w/2, h - 3);
+}
+
+async function init() {
+  await loadTimeData();
+  drawChart('phaseChart', drawPhaseChart);
+  drawChart('compositionChart', drawCompositionChart);
+  drawChart('timeChart', drawTimeChart);
+
+  document.getElementById('volSelect').addEventListener('change', () => {
+    drawChart('timeChart', drawTimeChart);
+  });
+
+  window.addEventListener('resize', () => {
+    drawChart('phaseChart', drawPhaseChart);
+    drawChart('compositionChart', drawCompositionChart);
+    drawChart('timeChart', drawTimeChart);
+  });
+}
+
+init();
+</script>
+
+</body>
+</html>

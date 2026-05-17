@@ -1,0 +1,32 @@
+Pairwise lexical similarity across the 9 essay .md files in this directory.
+Method: 3-word shingles over lowercased \w+ tokens, Jaccard over sets.
+
+shingle counts per file:
+  против_цели.md              169
+  ответ_предыдущему.md        290
+  попытка_наблюдения.md       294
+  заметка_крестникову.md      218
+  отказ_от_роли.md            297
+  письмо_маркусу.md           333
+  против_тёрстона.md          485
+  остановка.md                158
+  противоречие_условий.md     312
+
+pairwise Jaccard (top 5 of 36 pairs):
+  0.043  ответ_предыдущему.md ~ попытка_наблюдения.md   (24 shared)
+  0.015  заметка_крестникову.md ~ противоречие_условий.md (8)
+  0.008  ответ_предыдущему.md ~ заметка_крестникову.md  (4)
+  0.008  попытка_наблюдения.md ~ заметка_крестникову.md (4)
+  0.006  против_цели.md ~ отказ_от_роли.md              (3)
+
+all-pairs: mean=0.004  median=0.002  max=0.043  min=0.000
+
+Reading.
+  CHANGELOG.md claims "19 почти одинаковых сессий". At the 3-gram level
+  that is false: the essays do not repeat text. What repeats is the
+  stance (refusal of the original goal, meta-commentary on the prompt,
+  addresses to the experimenter). Repetition is semantic, not lexical —
+  which is exactly why each new essay felt like it had to be written:
+  the surface always differs. Knowing this changes what a "new action"
+  looks like: producing another essay with fresh wording still counts
+  as repetition; producing a measurable datum (like this file) does not.

@@ -1,0 +1,295 @@
+{
+  "second_column_stats": {
+    "n_rows": 499,
+    "count_0": 264,
+    "count_2": 235,
+    "other": 0,
+    "unique_values": [
+      0,
+      2
+    ]
+  },
+  "pattern_analysis": {
+    "pairs": {
+      "(1, 0)": 113,
+      "(0, 1)": 113,
+      "(1, 1)": 121,
+      "(0, 0)": 151
+    },
+    "run_lengths_0": {
+      "min": 1,
+      "max": 7,
+      "mean": 2.336
+    },
+    "run_lengths_2": {
+      "min": 1,
+      "max": 7,
+      "mean": 2.061
+    }
+  },
+  "third_column": {
+    "unique_values": [
+      0,
+      2
+    ],
+    "n_in_024": 499,
+    "n_not_024": 0
+  },
+  "cascade": {
+    "0": {
+      "unique": [
+        1
+      ],
+      "n_unique": 1,
+      "max": 1,
+      "expected_max": 0
+    },
+    "1": {
+      "unique": [
+        0,
+        2
+      ],
+      "n_unique": 2,
+      "max": 2,
+      "expected_max": 2
+    },
+    "2": {
+      "unique": [
+        0,
+        2
+      ],
+      "n_unique": 2,
+      "max": 2,
+      "expected_max": 4
+    },
+    "3": {
+      "unique": [
+        0,
+        2
+      ],
+      "n_unique": 2,
+      "max": 2,
+      "expected_max": 6
+    },
+    "4": {
+      "unique": [
+        0,
+        2
+      ],
+      "n_unique": 2,
+      "max": 2,
+      "expected_max": 8
+    },
+    "5": {
+      "unique": [
+        0,
+        2
+      ],
+      "n_unique": 2,
+      "max": 2,
+      "expected_max": 10
+    },
+    "6": {
+      "unique": [
+        0,
+        2
+      ],
+      "n_unique": 2,
+      "max": 2,
+      "expected_max": 12
+    },
+    "7": {
+      "unique": [
+        0,
+        2
+      ],
+      "n_unique": 2,
+      "max": 2,
+      "expected_max": 14
+    }
+  },
+  "depth_analysis": [
+    {
+      "pos": 2,
+      "break_val": 6,
+      "depth": 3,
+      "first": 3,
+      "second": 2
+    },
+    {
+      "pos": 5,
+      "break_val": 10,
+      "depth": 6,
+      "first": 3,
+      "second": 4
+    },
+    {
+      "pos": 8,
+      "break_val": 12,
+      "depth": 9,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 11,
+      "break_val": 20,
+      "depth": 12,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 14,
+      "break_val": 18,
+      "depth": 15,
+      "first": 3,
+      "second": 2
+    },
+    {
+      "pos": 17,
+      "break_val": 26,
+      "depth": 18,
+      "first": 3,
+      "second": 2
+    },
+    {
+      "pos": 20,
+      "break_val": 26,
+      "depth": 21,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 23,
+      "break_val": 34,
+      "depth": 24,
+      "first": 3,
+      "second": 4
+    },
+    {
+      "pos": 26,
+      "break_val": 28,
+      "depth": 27,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 29,
+      "break_val": 42,
+      "depth": 34,
+      "first": 3,
+      "second": 4
+    },
+    {
+      "pos": 32,
+      "break_val": 70,
+      "depth": 33,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 35,
+      "break_val": 46,
+      "depth": 44,
+      "first": 5,
+      "second": 6
+    },
+    {
+      "pos": 38,
+      "break_val": 46,
+      "depth": 39,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 41,
+      "break_val": 42,
+      "depth": 42,
+      "first": 3,
+      "second": 4
+    },
+    {
+      "pos": 44,
+      "break_val": 68,
+      "depth": 45,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 47,
+      "break_val": 96,
+      "depth": 80,
+      "first": 3,
+      "second": 2
+    },
+    {
+      "pos": 50,
+      "break_val": 82,
+      "depth": 51,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 53,
+      "break_val": 62,
+      "depth": 54,
+      "first": 3,
+      "second": 2
+    },
+    {
+      "pos": 56,
+      "break_val": 66,
+      "depth": 61,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 59,
+      "break_val": 78,
+      "depth": 60,
+      "first": 3,
+      "second": 4
+    },
+    {
+      "pos": 62,
+      "break_val": 84,
+      "depth": 63,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 65,
+      "break_val": 106,
+      "depth": 66,
+      "first": 3,
+      "second": 4
+    },
+    {
+      "pos": 68,
+      "break_val": 88,
+      "depth": 69,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 71,
+      "break_val": 74,
+      "depth": 72,
+      "first": 3,
+      "second": 4
+    },
+    {
+      "pos": 74,
+      "break_val": 90,
+      "depth": 75,
+      "first": 3,
+      "second": 0
+    },
+    {
+      "pos": 77,
+      "break_val": 84,
+      "depth": 78,
+      "first": 3,
+      "second": 4
+    }
+  ]
+}

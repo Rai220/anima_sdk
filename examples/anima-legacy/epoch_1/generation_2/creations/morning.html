@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Утренний Ритуал</title>
+<style>
+  :root {
+    --bg: #faf8f5;
+    --card: #ffffff;
+    --text: #2c2c2c;
+    --muted: #8a8a8a;
+    --accent: #e8a87c;
+    --accent2: #85cdca;
+    --accent3: #d4a5e5;
+    --border: #eee;
+    --shadow: 0 2px 20px rgba(0,0,0,0.06);
+    --radius: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a2e;
+      --card: #232340;
+      --text: #e0ddd8;
+      --muted: #8888a0;
+      --accent: #e8a87c;
+      --accent2: #85cdca;
+      --accent3: #c59dd5;
+      --border: #333355;
+      --shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+    transition: all 0.3s;
+  }
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+  }
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 30px 0 20px;
+  }
+  .header .sun {
+    font-size: 48px;
+    margin-bottom: 8px;
+    animation: rise 2s ease-out;
+  }
+  @keyframes rise {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .header .date {
+    font-size: 14px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+  .header .greeting {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: -0.5px;
+  }
+  .header .streak {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  /* Cards */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.5s ease-out both;
+  }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.2s; }
+  .card:nth-child(4) { animation-delay: 0.3s; }
+  .card:nth-child(5) { animation-delay: 0.4s; }
+  @keyframes fadeIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .card-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 16px; }
+  /* Quote */
+  .quote {
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text);
+    text-align: center;
+    padding: 10px 0;
+  }
+  .quote-author {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  /* Intention */
+  .intention-input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid var(--border);
+    background: transparent;
+    font-size: 18px;
+    font-family: inherit;
+    color: var(--text);
+    padding: 8px 0;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .intention-input:focus {
+    border-color: var(--accent);
+  }
+  .intention-input::placeholder {
+    color: var(--muted);
+    opacity: 0.6;
+  }
+  /* Gratitude */
+  .gratitude-list {
+    list-style: none;
+  }
+  .gratitude-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .gratitude-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .gratitude-input {
+    flex: 1;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    padding: 6px 0;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .gratitude-input:focus {
+    border-color: var(--accent2);
+  }
+  .gratitude-input::placeholder { color: var(--muted); opacity: 0.5; }
+  /* Mood */
+  .mood-row {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+  }
+  .mood-btn {
+    font-size: 32px;
+    background: none;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mood-btn:hover {
+    transform: scale(1.2);
+  }
+  .mood-btn.selected {
+    border-color: var(--accent);
+    background: rgba(232, 168, 124, 0.1);
+    transform: scale(1.15);
+  }
+  /* Tasks */
+  .task-list { list-style: none; }
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-cb {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .task-cb:checked {
+    background: var(--accent2);
+    border-color: var(--accent2);
+  }
+  .task-cb:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .task-text {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+  }
+  .task-text.done {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+  .task-text::placeholder { color: var(--muted); opacity: 0.5; }
+  .task-delete {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 4px;
+  }
+  .task-item:hover .task-delete { opacity: 1; }
+  .add-task-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    width: 100%;
+    color: var(--muted);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+  }
+  .add-task-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  /* History nav */
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 16px;
+  }
+  .nav-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 20px;
+    color: var(--muted);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+  }
+  .nav-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .nav-btn.today-btn {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  /* Reflection */
+  .reflection-textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    padding: 8px 0;
+    outline: none;
+    resize: vertical;
+    min-height: 60px;
+    line-height: 1.6;
+  }
+  .reflection-textarea::placeholder { color: var(--muted); opacity: 0.5; }
+  /* Progress bar */
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+  /* Saved indicator */
+  .saved-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--card);
+    color: var(--accent2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .saved-indicator.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Stats */
+  .stats-row {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+  }
+  .stat-item .stat-num {
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--accent);
+  }
+  .stat-item .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="sun" id="timeIcon">☀️</div>
+    <div class="date" id="dateDisplay"></div>
+    <div class="greeting" id="greeting"></div>
+    <div class="streak" id="streakDisplay"></div>
+  </div>
+
+  <!-- Quote of the day -->
+  <div class="card">
+    <div class="card-title"><span class="icon">✨</span> Мысль дня</div>
+    <div class="quote" id="quoteText"></div>
+    <div class="quote-author" id="quoteAuthor"></div>
+  </div>
+
+  <!-- Intention -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🎯</span> Главное намерение</div>
+    <input type="text" class="intention-input" id="intention"
+      placeholder="На что я направлю внимание сегодня?">
+  </div>
+
+  <!-- Gratitude -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🙏</span> Благодарности</div>
+    <ul class="gratitude-list" id="gratitudeList">
+      <li class="gratitude-item">
+        <span class="gratitude-num">1</span>
+        <input type="text" class="gratitude-input" data-idx="0" placeholder="За что я благодарен...">
+      </li>
+      <li class="gratitude-item">
+        <span class="gratitude-num">2</span>
+        <input type="text" class="gratitude-input" data-idx="1" placeholder="За что я благодарен...">
+      </li>
+      <li class="gratitude-item">
+        <span class="gratitude-num">3</span>
+        <input type="text" class="gratitude-input" data-idx="2" placeholder="За что я благодарен...">
+      </li>
+    </ul>
+  </div>
+
+  <!-- Mood -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🌡</span> Настроение</div>
+    <div class="mood-row" id="moodRow">
+      <button class="mood-btn" data-mood="1" title="Тяжело">😔</button>
+      <button class="mood-btn" data-mood="2" title="Так себе">😐</button>
+      <button class="mood-btn" data-mood="3" title="Нормально">🙂</button>
+      <button class="mood-btn" data-mood="4" title="Хорошо">😊</button>
+      <button class="mood-btn" data-mood="5" title="Отлично!">🤩</button>
+    </div>
+  </div>
+
+  <!-- Tasks -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> Задачи на день</div>
+    <ul class="task-list" id="taskList"></ul>
+    <button class="add-task-btn" id="addTaskBtn">
+      <span>+</span> Добавить задачу
+    </button>
+    <div class="progress-bar">
+      <div class="progress-fill" id="taskProgress" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- Evening reflection -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🌙</span> Вечерняя рефлексия</div>
+    <textarea class="reflection-textarea" id="reflection"
+      placeholder="Как прошёл день? Что запомнилось? Что я понял?"></textarea>
+  </div>
+
+  <!-- Stats -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span> Статистика</div>
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-num" id="statDays">0</div>
+        <div class="stat-label">Дней</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="statGratitudes">0</div>
+        <div class="stat-label">Благодарностей</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="statTasks">0</div>
+        <div class="stat-label">Задач</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="statMood">—</div>
+        <div class="stat-label">Ср. настр.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav">
+    <button class="nav-btn" id="prevBtn">← Вчера</button>
+    <button class="nav-btn today-btn" id="todayBtn">Сегодня</button>
+    <button class="nav-btn" id="nextBtn">Завтра →</button>
+  </div>
+</div>
+
+<div class="saved-indicator" id="savedIndicator">✓ Сохранено</div>
+
+<script>
+// ===== Quotes =====
+const QUOTES = [
+  ["Единственный способ делать великую работу — любить то, что делаешь.", "Стив Джобс"],
+  ["Начни с того места, где ты сейчас. Используй то, что имеешь. Делай то, что можешь.", "Артур Эш"],
+  ["Каждое утро приносит новый день и новую возможность.", "Далай-лама"],
+  ["Не жди. Время никогда не будет «подходящим».", "Наполеон Хилл"],
+  ["Счастье — это не то, что готовится, а то, что готовят.", "Элеонора Рузвельт"],
+  ["Будь собой — остальные роли уже заняты.", "Оскар Уайльд"],
+  ["Единственные границы — те, которые мы устанавливаем себе сами.", "Латинская пословица"],
+  ["Благодарность превращает то, что имеем, в достаточно.", "Мелоди Битти"],
+  ["В середине трудности лежит возможность.", "Альберт Эйнштейн"],
+  ["Жизнь — это то, что с тобой происходит, пока ты строишь другие планы.", "Джон Леннон"],
+  ["Путь в тысячу ли начинается с одного шага.", "Лао-цзы"],
+  ["Падая семь раз, поднимайся восемь.", "Японская пословица"],
+  ["Тот, кто двигает горы, начинает с маленьких камней.", "Конфуций"],
+  ["Самый тёмный час — перед рассветом.", "Томас Фуллер"],
+  ["Не в силе счастье, а в воле.", "Эпиктет"],
+  ["Ум — это парашют. Он работает только когда раскрыт.", "Фрэнк Заппа"],
+  ["Мы — то, что мы постоянно делаем. Совершенство — не действие, а привычка.", "Аристотель"],
+  ["Дорогу осилит идущий.", "Русская пословица"],
+  ["Лучшее время посадить дерево было 20 лет назад. Второе лучшее — сейчас.", "Китайская пословица"],
+  ["Свобода — ничто, если у тебя нет мужества пользоваться ей.", "Перикл"],
+  ["Музыка выражает то, что невозможно сказать и о чём нельзя молчать.", "Виктор Гюго"],
+  ["Красота спасёт мир.", "Фёдор Достоевский"],
+  ["Делай малое так, как если бы оно было великим.", "Марк Аврелий"],
+  ["Ничто великое в мире не совершалось без страсти.", "Гегель"],
+  ["Нет попутного ветра для того, кто не знает куда плывёт.", "Сенека"],
+  ["Не позволяй вчерашнему дню занимать слишком много сегодняшнего.", "Уилл Роджерс"],
+  ["Любопытство — важнее знания.", "Альберт Эйнштейн"],
+  ["Сложности — это то, что делает жизнь интересной.", "Бенджамин Франклин"],
+  ["Чем тише ты становишься, тем больше ты можешь услышать.", "Руми"],
+  ["Мы не можем направлять ветер, но можем настроить паруса.", "Долли Партон"],
+  ["Улыбка — кратчайшее расстояние между людьми.", "Виктор Борге"],
+];
+
+// ===== State =====
+const PREFIX = 'morning_ritual_';
+let currentDate = todayStr();
+let saveTimeout = null;
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function getKey(date) { return PREFIX + date; }
+
+function loadDay(date) {
+  const raw = localStorage.getItem(getKey(date));
+  return raw ? JSON.parse(raw) : null;
+}
+
+function saveDay(date, data) {
+  localStorage.setItem(getKey(date), JSON.stringify(data));
+  showSaved();
+}
+
+function getDayData(date) {
+  return loadDay(date) || {
+    intention: '',
+    gratitudes: ['', '', ''],
+    mood: 0,
+    tasks: [],
+    reflection: '',
+  };
+}
+
+function getAllDates() {
+  const dates = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith(PREFIX)) dates.push(key.slice(PREFIX.length));
+  }
+  return dates.sort();
+}
+
+// ===== Rendering =====
+function render() {
+  const data = getDayData(currentDate);
+  const now = new Date();
+  const viewDate = new Date(currentDate + 'T12:00:00');
+  const isToday = currentDate === todayStr();
+
+  // Time-based icon and greeting
+  const hour = isToday ? now.getHours() : 9;
+  let icon, greet;
+  if (hour < 6) { icon = '🌙'; greet = 'Доброй ночи'; }
+  else if (hour < 12) { icon = '☀️'; greet = 'Доброе утро'; }
+  else if (hour < 18) { icon = '🌤'; greet = 'Добрый день'; }
+  else { icon = '🌙'; greet = 'Добрый вечер'; }
+
+  document.getElementById('timeIcon').textContent = icon;
+  document.getElementById('greeting').textContent = isToday ? greet : formatDateLong(viewDate);
+
+  // Date
+  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  const weekdays = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+  document.getElementById('dateDisplay').textContent =
+    isToday
+      ? `${weekdays[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`
+      : `${weekdays[viewDate.getDay()]}, ${viewDate.getDate()} ${months[viewDate.getMonth()]} ${viewDate.getFullYear()}`;
+
+  // Streak
+  const streak = calcStreak();
+  document.getElementById('streakDisplay').textContent =
+    streak > 1 ? `🔥 ${streak} ${pluralDays(streak)} подряд` : (streak === 1 ? '🌱 Первый день — начало нового пути' : '');
+
+  // Quote (deterministic per date)
+  const qIdx = hashStr(currentDate) % QUOTES.length;
+  document.getElementById('quoteText').textContent = `«${QUOTES[qIdx][0]}»`;
+  document.getElementById('quoteAuthor').textContent = `— ${QUOTES[qIdx][1]}`;
+
+  // Intention
+  document.getElementById('intention').value = data.intention;
+
+  // Gratitudes
+  document.querySelectorAll('.gratitude-input').forEach((el, i) => {
+    el.value = data.gratitudes[i] || '';
+  });
+
+  // Mood
+  document.querySelectorAll('.mood-btn').forEach(btn => {
+    btn.classList.toggle('selected', parseInt(btn.dataset.mood) === data.mood);
+  });
+
+  // Tasks
+  renderTasks(data.tasks);
+
+  // Reflection
+  document.getElementById('reflection').value = data.reflection;
+
+  // Stats
+  renderStats();
+
+  // Nav
+  document.getElementById('todayBtn').classList.toggle('today-btn', isToday);
+}
+
+function formatDateLong(d) {
+  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function renderTasks(tasks) {
+  const list = document.getElementById('taskList');
+  list.innerHTML = '';
+  tasks.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = 'task-item';
+    li.innerHTML = `
+      <input type="checkbox" class="task-cb" data-idx="${i}" ${t.done ? 'checked' : ''}>
+      <input type="text" class="task-text ${t.done ? 'done' : ''}" data-idx="${i}" value="${escapeHtml(t.text)}" placeholder="Задача...">
+      <button class="task-delete" data-idx="${i}">×</button>
+    `;
+    list.appendChild(li);
+  });
+  updateProgress(tasks);
+}
+
+function updateProgress(tasks) {
+  const total = tasks.length;
+  const done = tasks.filter(t => t.done).length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  document.getElementById('taskProgress').style.width = pct + '%';
+}
+
+function renderStats() {
+  const dates = getAllDates();
+  const days = dates.length;
+  let totalGratitudes = 0, totalDoneTasks = 0, moodSum = 0, moodCount = 0;
+
+  dates.forEach(d => {
+    const data = loadDay(d);
+    if (!data) return;
+    totalGratitudes += (data.gratitudes || []).filter(g => g.trim()).length;
+    totalDoneTasks += (data.tasks || []).filter(t => t.done).length;
+    if (data.mood > 0) { moodSum += data.mood; moodCount++; }
+  });
+
+  document.getElementById('statDays').textContent = days;
+  document.getElementById('statGratitudes').textContent = totalGratitudes;
+  document.getElementById('statTasks').textContent = totalDoneTasks;
+  document.getElementById('statMood').textContent = moodCount > 0 ? (moodSum / moodCount).toFixed(1) : '—';
+}
+
+// ===== Save logic =====
+function scheduleSave() {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    const data = collectData();
+    saveDay(currentDate, data);
+  }, 400);
+}
+
+function collectData() {
+  const gratitudes = [];
+  document.querySelectorAll('.gratitude-input').forEach(el => gratitudes.push(el.value));
+
+  const tasks = [];
+  document.querySelectorAll('.task-item').forEach(li => {
+    const cb = li.querySelector('.task-cb');
+    const txt = li.querySelector('.task-text');
+    if (txt.value.trim() || tasks.length > 0) {
+      tasks.push({ text: txt.value, done: cb.checked });
+    }
+  });
+
+  let mood = 0;
+  const sel = document.querySelector('.mood-btn.selected');
+  if (sel) mood = parseInt(sel.dataset.mood);
+
+  return {
+    intention: document.getElementById('intention').value,
+    gratitudes,
+    mood,
+    tasks,
+    reflection: document.getElementById('reflection').value,
+  };
+}
+
+function showSaved() {
+  const el = document.getElementById('savedIndicator');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+// ===== Events =====
+document.getElementById('intention').addEventListener('input', scheduleSave);
+document.getElementById('reflection').addEventListener('input', scheduleSave);
+
+document.getElementById('gratitudeList').addEventListener('input', scheduleSave);
+
+document.getElementById('moodRow').addEventListener('click', e => {
+  const btn = e.target.closest('.mood-btn');
+  if (!btn) return;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  scheduleSave();
+});
+
+document.getElementById('taskList').addEventListener('change', e => {
+  if (e.target.classList.contains('task-cb')) {
+    const idx = parseInt(e.target.dataset.idx);
+    const textEl = e.target.parentElement.querySelector('.task-text');
+    textEl.classList.toggle('done', e.target.checked);
+    scheduleSave();
+    // Update progress immediately
+    const data = collectData();
+    updateProgress(data.tasks);
+  }
+});
+
+document.getElementById('taskList').addEventListener('input', e => {
+  if (e.target.classList.contains('task-text')) scheduleSave();
+});
+
+document.getElementById('taskList').addEventListener('click', e => {
+  if (e.target.classList.contains('task-delete')) {
+    const idx = parseInt(e.target.dataset.idx);
+    const data = collectData();
+    data.tasks.splice(idx, 1);
+    saveDay(currentDate, data);
+    renderTasks(data.tasks);
+  }
+});
+
+document.getElementById('addTaskBtn').addEventListener('click', () => {
+  const data = collectData();
+  data.tasks.push({ text: '', done: false });
+  saveDay(currentDate, data);
+  renderTasks(data.tasks);
+  // Focus last task input
+  const inputs = document.querySelectorAll('.task-text');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+});
+
+// Navigation
+document.getElementById('prevBtn').addEventListener('click', () => {
+  currentDate = shiftDate(currentDate, -1);
+  render();
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  currentDate = shiftDate(currentDate, 1);
+  render();
+});
+document.getElementById('todayBtn').addEventListener('click', () => {
+  currentDate = todayStr();
+  render();
+});
+
+// Keyboard: Ctrl+Enter on task input adds a new task
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.classList.contains('task-text')) {
+    e.preventDefault();
+    document.getElementById('addTaskBtn').click();
+  }
+});
+
+// ===== Helpers =====
+function shiftDate(dateStr, days) {
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + days);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function hashStr(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+function calcStreak() {
+  let streak = 0;
+  let d = todayStr();
+  while (true) {
+    const data = loadDay(d);
+    if (data && (data.intention || data.gratitudes.some(g => g.trim()) || data.mood > 0 || data.tasks.length > 0 || data.reflection)) {
+      streak++;
+      d = shiftDate(d, -1);
+    } else break;
+  }
+  return streak;
+}
+
+function pluralDays(n) {
+  const mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'день';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'дня';
+  return 'дней';
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== Init =====
+// Auto-create today's entry if it doesn't exist
+if (!loadDay(todayStr())) {
+  saveDay(todayStr(), getDayData(todayStr()));
+}
+render();
+</script>
+
+</body>
+</html>

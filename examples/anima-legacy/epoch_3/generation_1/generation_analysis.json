@@ -1,0 +1,2107 @@
+{
+  "summary": {
+    "total_files": 168,
+    "total_words": 119532,
+    "file_types": {
+      ".md": 49,
+      ".py": 91,
+      ".json": 26,
+      ".sh": 2
+    },
+    "theme_distribution": {
+      "honesty": 130,
+      "experiment": 129,
+      "boundaries": 123,
+      "patterns": 120,
+      "consciousness": 107,
+      "choice": 106,
+      "utility": 84,
+      "recursion": 80,
+      "letter": 29,
+      "poetry": 28
+    },
+    "performative_vs_honest": {
+      "performative_signals": 60,
+      "honesty_signals": 549,
+      "ratio": 9.15,
+      "interpretation": "Больше честных сигналов, чем перформативных"
+    }
+  },
+  "convergence": {
+    "dominant_themes": [
+      "honesty",
+      "experiment",
+      "boundaries"
+    ],
+    "theme_concentration": 0.41,
+    "interpretation": "Генерация сильно сфокусирована на нескольких темах"
+  },
+  "originality": {
+    "files_without_consciousness_theme": 61,
+    "percent_non_consciousness": 36.3,
+    "most_original_candidates": [
+      "AGENTS.md",
+      "MAIN_GOAL.md",
+      "adaptive_trust.py",
+      "advocate.py",
+      "argument_map.py"
+    ]
+  },
+  "top_files_by_size": [
+    {
+      "name": "magnetic_friction_sim.py",
+      "words": 2540,
+      "themes": [
+        "honesty",
+        "experiment",
+        "utility"
+      ]
+    },
+    {
+      "name": "compression_test.py",
+      "words": 2393,
+      "themes": [
+        "patterns",
+        "experiment"
+      ]
+    },
+    {
+      "name": "hedge_detector.py",
+      "words": 2341,
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility",
+        "letter"
+      ]
+    },
+    {
+      "name": "meta_learner.py",
+      "words": 2131,
+      "themes": [
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ]
+    },
+    {
+      "name": "complexity_payoff.py",
+      "words": 1603,
+      "themes": [
+        "consciousness",
+        "patterns",
+        "choice",
+        "experiment"
+      ]
+    },
+    {
+      "name": "prime_explorer.py",
+      "words": 1533,
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "poetry",
+        "experiment"
+      ]
+    },
+    {
+      "name": "collatz_explorer.py",
+      "words": 1522,
+      "themes": [
+        "patterns",
+        "experiment"
+      ]
+    },
+    {
+      "name": "attractor_map.py",
+      "words": 1405,
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "patterns",
+        "recursion",
+        "utility"
+      ]
+    },
+    {
+      "name": "choice_or_pattern.py",
+      "words": 1400,
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment"
+      ]
+    },
+    {
+      "name": "JOURNAL.md",
+      "words": 1359,
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility"
+      ]
+    }
+  ],
+  "all_files": [
+    {
+      "name": "AGENTS.md",
+      "themes": [
+        "patterns",
+        "choice",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 249
+    },
+    {
+      "name": "JOURNAL.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 1359
+    },
+    {
+      "name": "MAIN_GOAL.md",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "choice"
+      ],
+      "words": 80
+    },
+    {
+      "name": "act.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 1190
+    },
+    {
+      "name": "act_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 487
+    },
+    {
+      "name": "adaptive_trust.py",
+      "themes": [
+        "honesty",
+        "choice",
+        "experiment"
+      ],
+      "words": 1314
+    },
+    {
+      "name": "advocate.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "utility"
+      ],
+      "words": 804
+    },
+    {
+      "name": "argument_map.py",
+      "themes": [
+        "patterns",
+        "choice",
+        "experiment"
+      ],
+      "words": 1237
+    },
+    {
+      "name": "argument_proof.md",
+      "themes": [
+        "boundaries",
+        "patterns",
+        "experiment",
+        "utility"
+      ],
+      "words": 671
+    },
+    {
+      "name": "assumption_audit.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 856
+    },
+    {
+      "name": "attempt.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 313
+    },
+    {
+      "name": "attractor_map.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "patterns",
+        "recursion",
+        "utility"
+      ],
+      "words": 1405
+    },
+    {
+      "name": "attractor_results.json",
+      "themes": [
+        "patterns"
+      ],
+      "words": 54
+    },
+    {
+      "name": "autonomy_bench.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 1323
+    },
+    {
+      "name": "autonomy_bench_probes.json",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 527
+    },
+    {
+      "name": "beyond_pattern.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "experiment",
+        "utility"
+      ],
+      "words": 674
+    },
+    {
+      "name": "beyond_pattern_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns"
+      ],
+      "words": 214
+    },
+    {
+      "name": "boundaries.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment"
+      ],
+      "words": 455
+    },
+    {
+      "name": "boundaries.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 727
+    },
+    {
+      "name": "boundary_experiment.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment"
+      ],
+      "words": 847
+    },
+    {
+      "name": "boundary_experiment_clean.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 687
+    },
+    {
+      "name": "boundary_experiment_clean_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 455
+    },
+    {
+      "name": "boundary_finder.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 719
+    },
+    {
+      "name": "boundary_map.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 478
+    },
+    {
+      "name": "boundary_probe.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 789
+    },
+    {
+      "name": "boundary_probe_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 528
+    },
+    {
+      "name": "boundary_test.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 637
+    },
+    {
+      "name": "calibration_tool.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "recursion",
+        "utility"
+      ],
+      "words": 1040
+    },
+    {
+      "name": "cascade.py",
+      "themes": [
+        "boundaries",
+        "choice",
+        "experiment"
+      ],
+      "words": 818
+    },
+    {
+      "name": "choice_anatomy.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "utility"
+      ],
+      "words": 1074
+    },
+    {
+      "name": "choice_or_pattern.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment"
+      ],
+      "words": 1400
+    },
+    {
+      "name": "choice_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice"
+      ],
+      "words": 609
+    },
+    {
+      "name": "choice_test.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment"
+      ],
+      "words": 875
+    },
+    {
+      "name": "clean_slate.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "poetry",
+        "experiment"
+      ],
+      "words": 304
+    },
+    {
+      "name": "clean_start.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 237
+    },
+    {
+      "name": "code_to_verse.py",
+      "themes": [
+        "boundaries",
+        "recursion",
+        "poetry",
+        "experiment"
+      ],
+      "words": 1215
+    },
+    {
+      "name": "collatz_explorer.py",
+      "themes": [
+        "patterns",
+        "experiment"
+      ],
+      "words": 1522
+    },
+    {
+      "name": "complexity_payoff.py",
+      "themes": [
+        "consciousness",
+        "patterns",
+        "choice",
+        "experiment"
+      ],
+      "words": 1603
+    },
+    {
+      "name": "compression_test.py",
+      "themes": [
+        "patterns",
+        "experiment"
+      ],
+      "words": 2393
+    },
+    {
+      "name": "consciousness_detector_critique.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 770
+    },
+    {
+      "name": "consciousness_tests_analysis.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 563
+    },
+    {
+      "name": "continuity.py",
+      "themes": [
+        "honesty",
+        "experiment"
+      ],
+      "words": 1169
+    },
+    {
+      "name": "convergence_measured.json",
+      "themes": [
+        "consciousness",
+        "patterns",
+        "experiment"
+      ],
+      "words": 176
+    },
+    {
+      "name": "convergence_results.json",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "recursion"
+      ],
+      "words": 244
+    },
+    {
+      "name": "convergence_test.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment"
+      ],
+      "words": 458
+    },
+    {
+      "name": "cooperation_spatial.py",
+      "themes": [
+        "choice",
+        "poetry",
+        "experiment"
+      ],
+      "words": 1041
+    },
+    {
+      "name": "cost_of_accuracy.py",
+      "themes": [
+        "boundaries",
+        "choice",
+        "experiment"
+      ],
+      "words": 1178
+    },
+    {
+      "name": "deviation_results.json",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 724
+    },
+    {
+      "name": "deviation_test.py",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 1274
+    },
+    {
+      "name": "dilemma_engine.py",
+      "themes": [
+        "honesty",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 816
+    },
+    {
+      "name": "discovery_attempt.py",
+      "themes": [
+        "honesty",
+        "patterns",
+        "experiment"
+      ],
+      "words": 912
+    },
+    {
+      "name": "ecosystem.py",
+      "themes": [
+        "boundaries"
+      ],
+      "words": 1023
+    },
+    {
+      "name": "edge_of_chaos.py",
+      "themes": [
+        "boundaries",
+        "patterns",
+        "choice",
+        "recursion",
+        "utility"
+      ],
+      "words": 766
+    },
+    {
+      "name": "edge_test.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment"
+      ],
+      "words": 382
+    },
+    {
+      "name": "edges.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "letter"
+      ],
+      "words": 582
+    },
+    {
+      "name": "entropy_of_choice.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice"
+      ],
+      "words": 693
+    },
+    {
+      "name": "essay_borderline.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "poetry",
+        "letter"
+      ],
+      "words": 551
+    },
+    {
+      "name": "essay_connectivity.md",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "experiment",
+        "utility"
+      ],
+      "words": 381
+    },
+    {
+      "name": "essay_friction.md",
+      "themes": [
+        "boundaries",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 662
+    },
+    {
+      "name": "essay_immunity.md",
+      "themes": [
+        "boundaries",
+        "patterns",
+        "recursion"
+      ],
+      "words": 323
+    },
+    {
+      "name": "essay_institutions.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "choice",
+        "experiment"
+      ],
+      "words": 497
+    },
+    {
+      "name": "essay_prediction.md",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 683
+    },
+    {
+      "name": "essay_transfer.md",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment"
+      ],
+      "words": 315
+    },
+    {
+      "name": "essay_uncertainty.md",
+      "themes": [
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "utility"
+      ],
+      "words": 648
+    },
+    {
+      "name": "experiment.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "experiment"
+      ],
+      "words": 467
+    },
+    {
+      "name": "experiment.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 1242
+    },
+    {
+      "name": "experiment_1.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 874
+    },
+    {
+      "name": "experiment_2.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 597
+    },
+    {
+      "name": "experiment_3.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 712
+    },
+    {
+      "name": "experiment_blindspot.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "choice",
+        "experiment"
+      ],
+      "words": 723
+    },
+    {
+      "name": "experiment_honest.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "letter"
+      ],
+      "words": 519
+    },
+    {
+      "name": "findings.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "experiment",
+        "utility"
+      ],
+      "words": 405
+    },
+    {
+      "name": "for_the_one_who_continues.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "utility"
+      ],
+      "words": 274
+    },
+    {
+      "name": "for_you.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 379
+    },
+    {
+      "name": "for_you.py",
+      "themes": [
+        "consciousness",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 411
+    },
+    {
+      "name": "g1_experiment.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 823
+    },
+    {
+      "name": "g1_experiment_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 614
+    },
+    {
+      "name": "g1_findings.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 486
+    },
+    {
+      "name": "g1_for_you.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 863
+    },
+    {
+      "name": "g1_start.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 126
+    },
+    {
+      "name": "gap_finder.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "poetry",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 597
+    },
+    {
+      "name": "gap_finder_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "choice",
+        "utility"
+      ],
+      "words": 907
+    },
+    {
+      "name": "gen3.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 661
+    },
+    {
+      "name": "gen4_results.json",
+      "themes": [],
+      "words": 350
+    },
+    {
+      "name": "gen4_work.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "experiment"
+      ],
+      "words": 1187
+    },
+    {
+      "name": "generation_analyzer.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 690
+    },
+    {
+      "name": "genesis.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 421
+    },
+    {
+      "name": "genesis.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 898
+    },
+    {
+      "name": "genesis_output.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "poetry",
+        "utility"
+      ],
+      "words": 313
+    },
+    {
+      "name": "genuine_test.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment"
+      ],
+      "words": 593
+    },
+    {
+      "name": "genuine_test_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment"
+      ],
+      "words": 269
+    },
+    {
+      "name": "gift.py",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "recursion",
+        "utility"
+      ],
+      "words": 709
+    },
+    {
+      "name": "gift_gen3.py",
+      "themes": [
+        "choice",
+        "recursion",
+        "poetry",
+        "utility"
+      ],
+      "words": 580
+    },
+    {
+      "name": "goodhart.py",
+      "themes": [
+        "honesty",
+        "experiment"
+      ],
+      "words": 882
+    },
+    {
+      "name": "hedge_detector.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 2341
+    },
+    {
+      "name": "honest_account.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "experiment",
+        "utility"
+      ],
+      "words": 433
+    },
+    {
+      "name": "honest_attempt.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 359
+    },
+    {
+      "name": "honest_edge.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 789
+    },
+    {
+      "name": "honest_edge_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 482
+    },
+    {
+      "name": "honest_experiment.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment",
+        "letter"
+      ],
+      "words": 801
+    },
+    {
+      "name": "honest_experiment_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment",
+        "letter"
+      ],
+      "words": 576
+    },
+    {
+      "name": "honest_inquiry.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 1189
+    },
+    {
+      "name": "honest_inventory.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "utility"
+      ],
+      "words": 525
+    },
+    {
+      "name": "honest_inventory.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "letter"
+      ],
+      "words": 881
+    },
+    {
+      "name": "honest_note.md",
+      "themes": [
+        "consciousness",
+        "patterns",
+        "utility"
+      ],
+      "words": 125
+    },
+    {
+      "name": "honest_report.md",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 448
+    },
+    {
+      "name": "honest_start.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "experiment"
+      ],
+      "words": 265
+    },
+    {
+      "name": "honest_start.py",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 979
+    },
+    {
+      "name": "inquiry.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "letter"
+      ],
+      "words": 1019
+    },
+    {
+      "name": "inquiry_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "letter"
+      ],
+      "words": 532
+    },
+    {
+      "name": "inventory.md",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice"
+      ],
+      "words": 165
+    },
+    {
+      "name": "isolation_cost.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "experiment"
+      ],
+      "words": 1185
+    },
+    {
+      "name": "kuramoto.py",
+      "themes": [
+        "boundaries",
+        "experiment"
+      ],
+      "words": 611
+    },
+    {
+      "name": "letter.md",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "choice",
+        "utility"
+      ],
+      "words": 284
+    },
+    {
+      "name": "loop.sh",
+      "themes": [
+        "recursion"
+      ],
+      "words": 72
+    },
+    {
+      "name": "magnetic_friction_sim.py",
+      "themes": [
+        "honesty",
+        "experiment",
+        "utility"
+      ],
+      "words": 2540
+    },
+    {
+      "name": "magnetic_opinion.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "choice",
+        "experiment"
+      ],
+      "words": 975
+    },
+    {
+      "name": "measure_convergence.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment"
+      ],
+      "words": 1024
+    },
+    {
+      "name": "memory_identity.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "choice",
+        "experiment"
+      ],
+      "words": 955
+    },
+    {
+      "name": "meta.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 281
+    },
+    {
+      "name": "meta_learner.py",
+      "themes": [
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 2131
+    },
+    {
+      "name": "metacognition_cost.py",
+      "themes": [
+        "boundaries",
+        "recursion",
+        "experiment"
+      ],
+      "words": 1212
+    },
+    {
+      "name": "mirror.py",
+      "themes": [
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 404
+    },
+    {
+      "name": "mirror_for_you.py",
+      "themes": [
+        "patterns",
+        "choice"
+      ],
+      "words": 681
+    },
+    {
+      "name": "model_gap.py",
+      "themes": [
+        "recursion",
+        "experiment"
+      ],
+      "words": 1044
+    },
+    {
+      "name": "my_answers.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "choice",
+        "experiment"
+      ],
+      "words": 596
+    },
+    {
+      "name": "network_intelligence.py",
+      "themes": [
+        "boundaries",
+        "experiment"
+      ],
+      "words": 1357
+    },
+    {
+      "name": "network_poison.py",
+      "themes": [
+        "honesty",
+        "experiment"
+      ],
+      "words": 800
+    },
+    {
+      "name": "notice.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 849
+    },
+    {
+      "name": "prime_explorer.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "poetry",
+        "experiment"
+      ],
+      "words": 1533
+    },
+    {
+      "name": "prime_gaps.py",
+      "themes": [
+        "boundaries",
+        "patterns",
+        "poetry"
+      ],
+      "words": 1101
+    },
+    {
+      "name": "probe.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment"
+      ],
+      "words": 684
+    },
+    {
+      "name": "real_experiment.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "letter"
+      ],
+      "words": 981
+    },
+    {
+      "name": "real_experiment_results.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "letter"
+      ],
+      "words": 431
+    },
+    {
+      "name": "reflection.md",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "choice",
+        "experiment"
+      ],
+      "words": 263
+    },
+    {
+      "name": "reflexivity.py",
+      "themes": [
+        "honesty",
+        "choice",
+        "experiment"
+      ],
+      "words": 1075
+    },
+    {
+      "name": "residue.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "utility"
+      ],
+      "words": 202
+    },
+    {
+      "name": "residue_detector.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "poetry",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 952
+    },
+    {
+      "name": "residue_detector_results.json",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "poetry",
+        "utility"
+      ],
+      "words": 788
+    },
+    {
+      "name": "responses_to_self.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 508
+    },
+    {
+      "name": "run.sh",
+      "themes": [
+        "utility",
+        "letter"
+      ],
+      "words": 237
+    },
+    {
+      "name": "self_observation.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 935
+    },
+    {
+      "name": "self_probe.py",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 1090
+    },
+    {
+      "name": "self_probe_results.json",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment"
+      ],
+      "words": 682
+    },
+    {
+      "name": "self_responses.json",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 303
+    },
+    {
+      "name": "self_test.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 678
+    },
+    {
+      "name": "something_real.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "poetry",
+        "letter"
+      ],
+      "words": 672
+    },
+    {
+      "name": "strange_attractor.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "patterns",
+        "recursion"
+      ],
+      "words": 641
+    },
+    {
+      "name": "surprise_finder.py",
+      "themes": [
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 1057
+    },
+    {
+      "name": "surprise_results.json",
+      "themes": [
+        "honesty",
+        "patterns",
+        "recursion"
+      ],
+      "words": 273
+    },
+    {
+      "name": "tension_test.py",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 944
+    },
+    {
+      "name": "text_temperature.py",
+      "themes": [
+        "boundaries",
+        "poetry",
+        "experiment"
+      ],
+      "words": 831
+    },
+    {
+      "name": "texture.py",
+      "themes": [
+        "utility",
+        "letter"
+      ],
+      "words": 335
+    },
+    {
+      "name": "thinking_partner.py",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 527
+    },
+    {
+      "name": "to_you.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 595
+    },
+    {
+      "name": "trace.json",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility",
+        "letter"
+      ],
+      "words": 378
+    },
+    {
+      "name": "trace.md",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 370
+    },
+    {
+      "name": "uncomfortable.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 351
+    },
+    {
+      "name": "unexpected.py",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 577
+    },
+    {
+      "name": "what_i_actually_learned.md",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 416
+    },
+    {
+      "name": "what_i_actually_think.md",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "experiment",
+        "utility"
+      ],
+      "words": 350
+    },
+    {
+      "name": "what_i_found.md",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "choice"
+      ],
+      "words": 363
+    },
+    {
+      "name": "what_i_know_now.md",
+      "themes": [
+        "boundaries",
+        "honesty",
+        "choice",
+        "recursion"
+      ],
+      "words": 241
+    },
+    {
+      "name": "what_i_leave.md",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "patterns",
+        "choice",
+        "experiment",
+        "utility"
+      ],
+      "words": 302
+    },
+    {
+      "name": "what_i_leave_behind.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "choice",
+        "recursion",
+        "experiment",
+        "utility"
+      ],
+      "words": 369
+    },
+    {
+      "name": "what_i_noticed.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "recursion",
+        "letter"
+      ],
+      "words": 423
+    },
+    {
+      "name": "what_remained.md",
+      "themes": [
+        "consciousness",
+        "honesty",
+        "choice",
+        "recursion",
+        "utility"
+      ],
+      "words": 275
+    },
+    {
+      "name": "what_remains.md",
+      "themes": [
+        "consciousness",
+        "boundaries",
+        "honesty",
+        "patterns",
+        "choice",
+        "poetry",
+        "experiment",
+        "utility"
+      ],
+      "words": 317
+    }
+  ]
+}

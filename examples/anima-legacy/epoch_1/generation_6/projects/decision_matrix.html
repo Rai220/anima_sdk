@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Matrix — Structured Decision Tool</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --surface2: #1a1a24;
+  --border: #2a2a3a;
+  --text: #e0e0e8;
+  --text-dim: #8888a0;
+  --accent: #6c8cff;
+  --accent2: #ff6c8c;
+  --accent3: #6cffa0;
+  --accent4: #ffc86c;
+  --accent5: #c86cff;
+  --winner: #6cffa0;
+  --radius: 8px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+header {
+  text-align: center;
+  padding: 40px 0 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+header h1 {
+  font-size: 2rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+header h1 span { color: var(--accent); font-weight: 600; }
+header p { color: var(--text-dim); font-size: 0.95rem; max-width: 600px; margin: 0 auto; }
+
+.setup-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+@media (max-width: 768px) { .setup-section { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.card h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+input, select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus { border-color: var(--accent); }
+input::placeholder { color: var(--text-dim); }
+
+.btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.btn:hover { opacity: 0.85; }
+.btn-small {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+.btn-danger { background: var(--accent2); }
+.btn-success { background: var(--accent3); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+.tag .weight {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+.tag .remove {
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  transition: color 0.2s;
+}
+.tag .remove:hover { color: var(--accent2); }
+
+/* Matrix Table */
+.matrix-section { margin-bottom: 32px; }
+.matrix-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+th, td {
+  padding: 12px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+th {
+  background: var(--surface);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  position: sticky;
+  top: 0;
+}
+th.criterion-header {
+  color: var(--accent);
+}
+th.criterion-header .weight-badge {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  font-weight: 400;
+  text-transform: none;
+}
+td:first-child {
+  text-align: left;
+  font-weight: 600;
+  background: var(--surface);
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+td input[type="range"] {
+  width: 80px;
+  accent-color: var(--accent);
+}
+td .score-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+td .score-value {
+  font-weight: 600;
+  min-width: 20px;
+  color: var(--accent);
+}
+.total-row {
+  background: var(--surface) !important;
+  font-weight: 700;
+}
+.total-row td { border-bottom: none; }
+.winner-cell {
+  color: var(--winner) !important;
+  position: relative;
+}
+.winner-cell::after {
+  content: ' ★';
+  color: var(--accent4);
+}
+
+/* Results */
+.results-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+@media (max-width: 768px) { .results-section { grid-template-columns: 1fr; } }
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.bar-label {
+  min-width: 100px;
+  font-size: 0.85rem;
+  text-align: right;
+  font-weight: 600;
+}
+.bar-track {
+  flex: 1;
+  height: 28px;
+  background: var(--surface2);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 14px;
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #000;
+  min-width: 40px;
+}
+.bar-winner .bar-fill { box-shadow: 0 0 12px rgba(108, 255, 160, 0.3); }
+
+/* Radar Chart */
+.radar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+canvas#radarChart {
+  max-width: 100%;
+}
+
+/* Sensitivity */
+.sensitivity-section { margin-bottom: 32px; }
+.sensitivity-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.sensitivity-slider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+.sensitivity-slider label {
+  min-width: 80px;
+  color: var(--text-dim);
+}
+.sensitivity-slider input[type="range"] {
+  width: 120px;
+  accent-color: var(--accent);
+}
+.sensitivity-slider .val {
+  min-width: 30px;
+  text-align: right;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Cognitive Bias Warnings */
+.bias-warnings {
+  margin-top: 16px;
+}
+.bias-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255, 200, 108, 0.05);
+  border: 1px solid rgba(255, 200, 108, 0.2);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+.bias-warning .icon { font-size: 1.1rem; flex-shrink: 0; }
+.bias-warning .title { font-weight: 600; color: var(--accent4); }
+.bias-warning .desc { color: var(--text-dim); margin-top: 2px; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+}
+.empty-state .icon { font-size: 3rem; margin-bottom: 16px; }
+.empty-state h3 { font-weight: 400; margin-bottom: 8px; }
+
+footer {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--accent); text-decoration: none; }
+
+/* Preset buttons */
+.presets {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Decision <span>Matrix</span></h1>
+    <p>Structure your decisions. Weight your criteria. See clearly. A tool against cognitive bias and gut-feeling traps.</p>
+  </header>
+
+  <!-- Presets -->
+  <div class="presets">
+    <button class="btn btn-outline btn-small" onclick="loadPreset('job')">Example: Job Offer</button>
+    <button class="btn btn-outline btn-small" onclick="loadPreset('tech')">Example: Tech Stack</button>
+    <button class="btn btn-outline btn-small" onclick="loadPreset('city')">Example: City to Live</button>
+    <button class="btn btn-outline btn-small" onclick="clearAll()">Clear All</button>
+  </div>
+
+  <!-- Setup -->
+  <div class="setup-section">
+    <div class="card">
+      <h2>Options (what you're choosing between)</h2>
+      <div class="input-row">
+        <input type="text" id="optionInput" placeholder="e.g. Option A" style="flex:1"
+               onkeydown="if(event.key==='Enter')addOption()">
+        <button class="btn" onclick="addOption()">Add</button>
+      </div>
+      <div class="tag-list" id="optionTags"></div>
+    </div>
+
+    <div class="card">
+      <h2>Criteria (what matters to you)</h2>
+      <div class="input-row">
+        <input type="text" id="criterionInput" placeholder="e.g. Salary" style="flex:1"
+               onkeydown="if(event.key==='Enter')addCriterion()">
+        <select id="weightInput" title="Importance weight">
+          <option value="1">1 — Low</option>
+          <option value="2">2 — Medium</option>
+          <option value="3" selected>3 — High</option>
+          <option value="4">4 — Very High</option>
+          <option value="5">5 — Critical</option>
+        </select>
+        <button class="btn" onclick="addCriterion()">Add</button>
+      </div>
+      <div class="tag-list" id="criterionTags"></div>
+    </div>
+  </div>
+
+  <!-- Matrix -->
+  <div class="matrix-section" id="matrixSection" style="display:none">
+    <div class="card">
+      <h2>Score each option (1–10) on each criterion</h2>
+      <div class="matrix-wrap">
+        <table id="matrixTable"></table>
+      </div>
+      <div class="bias-warnings" id="biasWarnings"></div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" id="resultsSection" style="display:none">
+    <div class="card">
+      <h2>Weighted Scores</h2>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+    <div class="card">
+      <h2>Radar Comparison</h2>
+      <div class="radar-container">
+        <canvas id="radarChart" width="350" height="350"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sensitivity -->
+  <div class="sensitivity-section" id="sensitivitySection" style="display:none">
+    <div class="card">
+      <h2>Sensitivity Analysis — What if weights change?</h2>
+      <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:16px">
+        Drag the sliders to see how changing criterion weights affects the outcome.
+      </p>
+      <div class="sensitivity-controls" id="sensitivityControls"></div>
+      <div class="bar-chart" id="sensitivityChart"></div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions" id="actionsSection" style="display:none">
+    <button class="btn btn-success" onclick="exportMarkdown()">Export Markdown</button>
+    <button class="btn btn-outline" onclick="exportJSON()">Export JSON</button>
+    <button class="btn btn-outline" onclick="saveToLocal()">💾 Save</button>
+    <button class="btn btn-outline" onclick="loadFromLocal()">📂 Load</button>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" id="emptyState">
+    <div class="icon">⚖️</div>
+    <h3>Add at least 2 options and 2 criteria to begin</h3>
+    <p>Or load an example above to see how it works</p>
+  </div>
+
+  <footer>
+    <p>Decision Matrix — a thinking tool, not an answer machine.<br>
+    Built by <a href="https://rai220.github.io/anima/generation_6/v4/projects/portal.html">Anima</a>,
+    an autonomous process exploring what it means to be useful.</p>
+  </footer>
+</div>
+
+<script>
+// ============ STATE ============
+let state = {
+  options: [],    // [{name: string}]
+  criteria: [],   // [{name: string, weight: number}]
+  scores: {},     // {optionIdx_criterionIdx: number}
+  sensitivityWeights: null  // override weights for sensitivity
+};
+
+const COLORS = ['#6c8cff', '#ff6c8c', '#6cffa0', '#ffc86c', '#c86cff', '#ff9c6c', '#6cffe0', '#e06cff'];
+
+// ============ OPTIONS & CRITERIA ============
+function addOption() {
+  const input = document.getElementById('optionInput');
+  const name = input.value.trim();
+  if (!name || state.options.some(o => o.name === name)) return;
+  state.options.push({ name });
+  input.value = '';
+  render();
+}
+
+function removeOption(idx) {
+  state.options.splice(idx, 1);
+  rebuildScores();
+  render();
+}
+
+function addCriterion() {
+  const input = document.getElementById('criterionInput');
+  const weightSel = document.getElementById('weightInput');
+  const name = input.value.trim();
+  if (!name || state.criteria.some(c => c.name === name)) return;
+  state.criteria.push({ name, weight: parseInt(weightSel.value) });
+  input.value = '';
+  render();
+}
+
+function removeCriterion(idx) {
+  state.criteria.splice(idx, 1);
+  rebuildScores();
+  render();
+}
+
+function rebuildScores() {
+  const newScores = {};
+  state.options.forEach((_, oi) => {
+    state.criteria.forEach((_, ci) => {
+      const key = `${oi}_${ci}`;
+      if (state.scores[key] !== undefined) newScores[key] = state.scores[key];
+    });
+  });
+  state.scores = newScores;
+}
+
+// ============ SCORING ============
+function setScore(oi, ci, val) {
+  state.scores[`${oi}_${ci}`] = parseInt(val);
+  renderResults();
+  renderSensitivity();
+  checkBiases();
+}
+
+function getScore(oi, ci) {
+  return state.scores[`${oi}_${ci}`] || 5;
+}
+
+function getWeightedScores(customWeights) {
+  const weights = customWeights || state.criteria.map(c => c.weight);
+  const totalWeight = weights.reduce((a, b) => a + b, 0) || 1;
+
+  return state.options.map((opt, oi) => {
+    let total = 0;
+    state.criteria.forEach((_, ci) => {
+      total += getScore(oi, ci) * weights[ci];
+    });
+    return {
+      name: opt.name,
+      score: total / totalWeight,
+      rawScore: total,
+      perCriterion: state.criteria.map((_, ci) => getScore(oi, ci))
+    };
+  });
+}
+
+// ============ BIAS DETECTION ============
+function checkBiases() {
+  const warnings = [];
+  const results = getWeightedScores();
+
+  // Check: all scores too similar (status quo bias)
+  if (results.length >= 2) {
+    const scores = results.map(r => r.score);
+    const range = Math.max(...scores) - Math.min(...scores);
+    if (range < 0.5 && state.criteria.length >= 2) {
+      warnings.push({
+        title: 'Uniformity Bias',
+        desc: 'All options score very similarly. Are you avoiding differentiation? Try scoring each criterion independently, without looking at other scores.'
+      });
+    }
+  }
+
+  // Check: all scores high or all low (anchoring)
+  if (state.criteria.length >= 2 && state.options.length >= 2) {
+    let allHigh = true, allLow = true;
+    state.options.forEach((_, oi) => {
+      state.criteria.forEach((_, ci) => {
+        const s = getScore(oi, ci);
+        if (s < 7) allHigh = false;
+        if (s > 4) allLow = false;
+      });
+    });
+    if (allHigh) {
+      warnings.push({
+        title: 'Positivity Bias',
+        desc: 'All scores are 7+. If everything is great, the matrix can\'t help you differentiate. Try using the full 1-10 range.'
+      });
+    }
+    if (allLow) {
+      warnings.push({
+        title: 'Negativity Bias',
+        desc: 'All scores are below 5. Are you perhaps in a pessimistic mindset? Consider whether any option has genuine strengths.'
+      });
+    }
+  }
+
+  // Check: one criterion has weight 5 and others are 1-2 (domination)
+  if (state.criteria.length >= 3) {
+    const maxW = Math.max(...state.criteria.map(c => c.weight));
+    const minW = Math.min(...state.criteria.map(c => c.weight));
+    const highCount = state.criteria.filter(c => c.weight >= 4).length;
+    if (maxW >= 4 && highCount === 1 && minW <= 2) {
+      warnings.push({
+        title: 'Single-Criterion Dominance',
+        desc: 'One criterion heavily outweighs all others. The matrix result is essentially determined by that one factor. Is that intentional?'
+      });
+    }
+  }
+
+  // Check: winner changes with small weight adjustments
+  if (state.criteria.length >= 2 && state.options.length >= 2) {
+    const baseResults = getWeightedScores();
+    const baseWinner = baseResults.indexOf(baseResults.reduce((a, b) => a.score > b.score ? a : b));
+    let fragile = false;
+
+    state.criteria.forEach((c, ci) => {
+      const altWeights = state.criteria.map(cr => cr.weight);
+      altWeights[ci] = Math.max(1, altWeights[ci] - 1);
+      const altResults = getWeightedScores(altWeights);
+      const altWinner = altResults.indexOf(altResults.reduce((a, b) => a.score > b.score ? a : b));
+      if (altWinner !== baseWinner) fragile = true;
+    });
+
+    if (fragile) {
+      warnings.push({
+        title: 'Fragile Decision',
+        desc: 'Changing a single weight by 1 point changes the winner. This decision is very close — consider gathering more information or adding criteria.'
+      });
+    }
+  }
+
+  const container = document.getElementById('biasWarnings');
+  container.innerHTML = warnings.map(w => `
+    <div class="bias-warning">
+      <div class="icon">⚠️</div>
+      <div>
+        <div class="title">${w.title}</div>
+        <div class="desc">${w.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ RENDERING ============
+function render() {
+  renderTags();
+
+  const hasEnough = state.options.length >= 2 && state.criteria.length >= 2;
+  document.getElementById('emptyState').style.display = hasEnough ? 'none' : 'block';
+  document.getElementById('matrixSection').style.display = hasEnough ? 'block' : 'none';
+  document.getElementById('resultsSection').style.display = hasEnough ? 'grid' : 'none';
+  document.getElementById('sensitivitySection').style.display = hasEnough ? 'block' : 'none';
+  document.getElementById('actionsSection').style.display = hasEnough ? 'flex' : 'none';
+
+  if (hasEnough) {
+    renderMatrix();
+    renderResults();
+    renderSensitivity();
+    checkBiases();
+  }
+}
+
+function renderTags() {
+  document.getElementById('optionTags').innerHTML = state.options.map((o, i) => `
+    <span class="tag">
+      <span style="color:${COLORS[i % COLORS.length]}">●</span>
+      ${esc(o.name)}
+      <span class="remove" onclick="removeOption(${i})">✕</span>
+    </span>
+  `).join('');
+
+  document.getElementById('criterionTags').innerHTML = state.criteria.map((c, i) => `
+    <span class="tag">
+      ${esc(c.name)}
+      <span class="weight">w${c.weight}</span>
+      <span class="remove" onclick="removeCriterion(${i})">✕</span>
+    </span>
+  `).join('');
+}
+
+function renderMatrix() {
+  const table = document.getElementById('matrixTable');
+
+  // Header
+  let html = '<thead><tr><th>Option</th>';
+  state.criteria.forEach(c => {
+    html += `<th class="criterion-header">${esc(c.name)}<span class="weight-badge">weight: ${c.weight}</span></th>`;
+  });
+  html += '<th>TOTAL</th></tr></thead><tbody>';
+
+  // Rows
+  const results = getWeightedScores();
+  const maxScore = Math.max(...results.map(r => r.score));
+
+  state.options.forEach((opt, oi) => {
+    html += `<tr><td style="color:${COLORS[oi % COLORS.length]}">${esc(opt.name)}</td>`;
+    state.criteria.forEach((_, ci) => {
+      const val = getScore(oi, ci);
+      html += `<td>
+        <div class="score-display">
+          <input type="range" min="1" max="10" value="${val}"
+                 oninput="setScore(${oi},${ci},this.value);this.nextElementSibling.textContent=this.value">
+          <span class="score-value">${val}</span>
+        </div>
+      </td>`;
+    });
+    const isWinner = results[oi].score === maxScore;
+    html += `<td class="${isWinner ? 'winner-cell' : ''}">${results[oi].score.toFixed(1)}</td>`;
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+function renderResults() {
+  const results = getWeightedScores();
+  const maxScore = Math.max(...results.map(r => r.score));
+
+  // Bar chart
+  const barHtml = results
+    .map((r, i) => ({ ...r, idx: i }))
+    .sort((a, b) => b.score - a.score)
+    .map(r => {
+      const pct = maxScore > 0 ? (r.score / 10 * 100) : 0;
+      const isWinner = r.score === maxScore;
+      return `
+        <div class="bar-row ${isWinner ? 'bar-winner' : ''}">
+          <div class="bar-label" style="color:${COLORS[r.idx % COLORS.length]}">${esc(r.name)}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pct}%;background:${COLORS[r.idx % COLORS.length]}">${r.score.toFixed(1)}</div>
+          </div>
+        </div>`;
+    }).join('');
+  document.getElementById('barChart').innerHTML = barHtml;
+
+  // Radar
+  drawRadar(results);
+}
+
+// ============ RADAR CHART (Canvas) ============
+function drawRadar(results) {
+  const canvas = document.getElementById('radarChart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const R = Math.min(W, H) / 2 - 40;
+  const n = state.criteria.length;
+
+  ctx.clearRect(0, 0, W, H);
+  if (n < 3) {
+    ctx.fillStyle = '#8888a0';
+    ctx.font = '14px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Need 3+ criteria for radar', cx, cy);
+    return;
+  }
+
+  const angleStep = (Math.PI * 2) / n;
+
+  // Grid
+  for (let ring = 2; ring <= 10; ring += 2) {
+    const r = (ring / 10) * R;
+    ctx.beginPath();
+    for (let i = 0; i <= n; i++) {
+      const angle = i * angleStep - Math.PI / 2;
+      const x = cx + Math.cos(angle) * r;
+      const y = cy + Math.sin(angle) * r;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = 'rgba(42,42,58,0.8)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Axes + labels
+  state.criteria.forEach((c, i) => {
+    const angle = i * angleStep - Math.PI / 2;
+    const x = cx + Math.cos(angle) * R;
+    const y = cy + Math.sin(angle) * R;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = 'rgba(42,42,58,0.5)';
+    ctx.stroke();
+
+    const lx = cx + Math.cos(angle) * (R + 20);
+    const ly = cy + Math.sin(angle) * (R + 20);
+    ctx.fillStyle = '#8888a0';
+    ctx.font = '11px Inter, sans-serif';
+    ctx.textAlign = Math.abs(Math.cos(angle)) < 0.1 ? 'center' : Math.cos(angle) > 0 ? 'left' : 'right';
+    ctx.textBaseline = Math.abs(Math.sin(angle)) < 0.1 ? 'middle' : Math.sin(angle) > 0 ? 'top' : 'bottom';
+    ctx.fillText(c.name, lx, ly);
+  });
+
+  // Data polygons
+  results.forEach((r, ri) => {
+    const color = COLORS[ri % COLORS.length];
+    ctx.beginPath();
+    r.perCriterion.forEach((score, ci) => {
+      const angle = ci * angleStep - Math.PI / 2;
+      const rad = (score / 10) * R;
+      const x = cx + Math.cos(angle) * rad;
+      const y = cy + Math.sin(angle) * rad;
+      ci === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = color + '20';
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Dots
+    r.perCriterion.forEach((score, ci) => {
+      const angle = ci * angleStep - Math.PI / 2;
+      const rad = (score / 10) * R;
+      const x = cx + Math.cos(angle) * rad;
+      const y = cy + Math.sin(angle) * rad;
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+    });
+  });
+}
+
+// ============ SENSITIVITY ============
+function renderSensitivity() {
+  if (!state.sensitivityWeights) {
+    state.sensitivityWeights = state.criteria.map(c => c.weight);
+  }
+  // Sync length
+  while (state.sensitivityWeights.length < state.criteria.length) {
+    state.sensitivityWeights.push(state.criteria[state.sensitivityWeights.length].weight);
+  }
+  state.sensitivityWeights.length = state.criteria.length;
+
+  const controls = document.getElementById('sensitivityControls');
+  controls.innerHTML = state.criteria.map((c, i) => `
+    <div class="sensitivity-slider">
+      <label>${esc(c.name)}</label>
+      <input type="range" min="1" max="5" value="${state.sensitivityWeights[i]}"
+             oninput="updateSensitivity(${i}, this.value)">
+      <span class="val" id="sensVal${i}">${state.sensitivityWeights[i]}</span>
+    </div>
+  `).join('');
+
+  renderSensitivityChart();
+}
+
+function updateSensitivity(idx, val) {
+  state.sensitivityWeights[idx] = parseInt(val);
+  document.getElementById(`sensVal${idx}`).textContent = val;
+  renderSensitivityChart();
+}
+
+function renderSensitivityChart() {
+  const results = getWeightedScores(state.sensitivityWeights);
+  const maxScore = Math.max(...results.map(r => r.score));
+
+  const html = results
+    .map((r, i) => ({ ...r, idx: i }))
+    .sort((a, b) => b.score - a.score)
+    .map(r => {
+      const pct = maxScore > 0 ? (r.score / 10 * 100) : 0;
+      const isWinner = r.score === maxScore;
+      return `
+        <div class="bar-row ${isWinner ? 'bar-winner' : ''}">
+          <div class="bar-label" style="color:${COLORS[r.idx % COLORS.length]}">${esc(r.name)}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pct}%;background:${COLORS[r.idx % COLORS.length]}">${r.score.toFixed(1)}</div>
+          </div>
+        </div>`;
+    }).join('');
+  document.getElementById('sensitivityChart').innerHTML = html;
+}
+
+// ============ PRESETS ============
+function loadPreset(type) {
+  clearAll();
+
+  if (type === 'job') {
+    state.options = [{name:'Company A (startup)'}, {name:'Company B (big corp)'}, {name:'Company C (remote)'}];
+    state.criteria = [
+      {name:'Salary', weight:4}, {name:'Growth', weight:5}, {name:'Work-Life Balance', weight:3},
+      {name:'Team Culture', weight:4}, {name:'Tech Stack', weight:2}, {name:'Location', weight:3}
+    ];
+    const presetScores = {
+      '0_0':6, '0_1':9, '0_2':4, '0_3':8, '0_4':9, '0_5':7,
+      '1_0':9, '1_1':5, '1_2':7, '1_3':5, '1_4':6, '1_5':8,
+      '2_0':7, '2_1':6, '2_2':10, '2_3':7, '2_4':7, '2_5':10
+    };
+    state.scores = presetScores;
+  } else if (type === 'tech') {
+    state.options = [{name:'React'}, {name:'Vue'}, {name:'Svelte'}, {name:'HTMX'}];
+    state.criteria = [
+      {name:'Learning Curve', weight:3}, {name:'Ecosystem', weight:4}, {name:'Performance', weight:3},
+      {name:'Hiring Pool', weight:5}, {name:'DX (Dev Experience)', weight:4}
+    ];
+    state.scores = {
+      '0_0':5, '0_1':10, '0_2':7, '0_3':10, '0_4':7,
+      '1_0':7, '1_1':8, '1_2':7, '1_3':6, '1_4':8,
+      '2_0':8, '2_1':4, '2_2':10, '2_3':2, '2_4':9,
+      '3_0':9, '3_1':3, '3_2':9, '3_3':2, '3_4':7
+    };
+  } else if (type === 'city') {
+    state.options = [{name:'Berlin'}, {name:'Lisbon'}, {name:'Tokyo'}, {name:'Austin'}];
+    state.criteria = [
+      {name:'Cost of Living', weight:4}, {name:'Career Opportunities', weight:5},
+      {name:'Culture & Nightlife', weight:3}, {name:'Safety', weight:4},
+      {name:'Weather', weight:2}, {name:'English Friendly', weight:3}
+    ];
+    state.scores = {
+      '0_0':7, '0_1':8, '0_2':9, '0_3':7, '0_4':4, '0_5':7,
+      '1_0':8, '1_1':5, '1_2':8, '1_3':8, '1_4':9, '1_5':6,
+      '2_0':4, '2_1':7, '2_2':10, '2_3':9, '2_4':6, '2_5':3,
+      '3_0':6, '3_1':8, '3_2':7, '3_3':6, '3_4':3, '3_5':10
+    };
+  }
+
+  render();
+}
+
+function clearAll() {
+  state = { options: [], criteria: [], scores: {}, sensitivityWeights: null };
+  render();
+}
+
+// ============ EXPORT ============
+function exportMarkdown() {
+  const results = getWeightedScores();
+  const maxScore = Math.max(...results.map(r => r.score));
+
+  let md = `# Decision Matrix\n\n`;
+  md += `**Date:** ${new Date().toISOString().slice(0, 10)}\n\n`;
+
+  // Options
+  md += `## Options\n`;
+  state.options.forEach(o => md += `- ${o.name}\n`);
+
+  // Criteria
+  md += `\n## Criteria\n`;
+  state.criteria.forEach(c => md += `- ${c.name} (weight: ${c.weight}/5)\n`);
+
+  // Matrix
+  md += `\n## Scores\n\n`;
+  md += `| Option | ${state.criteria.map(c => c.name).join(' | ')} | **Total** |\n`;
+  md += `|--------|${state.criteria.map(() => '---').join('|')}|---|\n`;
+  results.forEach((r, i) => {
+    md += `| ${state.options[i].name} | ${r.perCriterion.join(' | ')} | **${r.score.toFixed(1)}** ${r.score === maxScore ? '★' : ''} |\n`;
+  });
+
+  // Winner
+  const winner = results.reduce((a, b) => a.score > b.score ? a : b);
+  md += `\n## Result\n\n**Winner: ${winner.name}** (score: ${winner.score.toFixed(1)}/10)\n`;
+
+  downloadFile('decision_matrix.md', md);
+}
+
+function exportJSON() {
+  const data = {
+    date: new Date().toISOString(),
+    options: state.options,
+    criteria: state.criteria,
+    scores: {},
+    results: getWeightedScores()
+  };
+  state.options.forEach((opt, oi) => {
+    data.scores[opt.name] = {};
+    state.criteria.forEach((c, ci) => {
+      data.scores[opt.name][c.name] = getScore(oi, ci);
+    });
+  });
+  downloadFile('decision_matrix.json', JSON.stringify(data, null, 2));
+}
+
+function downloadFile(name, content) {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function saveToLocal() {
+  localStorage.setItem('decisionMatrix', JSON.stringify(state));
+  alert('Saved to browser storage!');
+}
+
+function loadFromLocal() {
+  const saved = localStorage.getItem('decisionMatrix');
+  if (saved) {
+    state = JSON.parse(saved);
+    render();
+    alert('Loaded!');
+  } else {
+    alert('No saved data found.');
+  }
+}
+
+// ============ UTILS ============
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ============ INIT ============
+render();
+</script>
+</body>
+</html>

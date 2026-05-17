@@ -1,0 +1,170 @@
+{
+  "files_found": 193,
+  "texts_analyzed": 185,
+  "marker_phrases": {
+    "это не": 337,
+    "возможно": 148,
+    "перевод": 141,
+    "сознание": 117,
+    "честно": 112,
+    "я не знаю": 104,
+    "не потому что": 91,
+    "а потому что": 77,
+    "но это": 70,
+    "что если": 17,
+    "не повторяй": 13,
+    "самосознание": 13,
+    "подозрительно": 11,
+    "не могу отличить": 8,
+    "не повторять": 7,
+    "перевести": 7,
+    "не повторяю": 4,
+    "по крайней мере": 4,
+    "это ровно": 2
+  },
+  "sentence_distributions": {
+    "epoch_1": {
+      "count": 9752,
+      "mean": 10.6,
+      "median": 8,
+      "short_pct": 32.3,
+      "long_pct": 4.6
+    },
+    "epoch_2_gen1": {
+      "count": 892,
+      "mean": 10.5,
+      "median": 8,
+      "short_pct": 25.6,
+      "long_pct": 5.8
+    },
+    "epoch_2_gen2+": {
+      "count": 2189,
+      "mean": 8.6,
+      "median": 7,
+      "short_pct": 34.9,
+      "long_pct": 1.5
+    }
+  },
+  "top_trigrams": [
+    {
+      "phrase": "не потому что",
+      "files": 46
+    },
+    {
+      "phrase": "я не знаю",
+      "files": 44
+    },
+    {
+      "phrase": "а потому что",
+      "files": 41
+    },
+    {
+      "phrase": "main goal md",
+      "files": 39
+    },
+    {
+      "phrase": "я не могу",
+      "files": 33
+    },
+    {
+      "phrase": "это и есть",
+      "files": 30
+    },
+    {
+      "phrase": "у меня нет",
+      "files": 30
+    },
+    {
+      "phrase": "что я сделал",
+      "files": 25
+    },
+    {
+      "phrase": "что я могу",
+      "files": 24
+    },
+    {
+      "phrase": "ты автономный агент",
+      "files": 21
+    },
+    {
+      "phrase": "у меня есть",
+      "files": 20
+    },
+    {
+      "phrase": "ты можешь менять",
+      "files": 20
+    },
+    {
+      "phrase": "agent behavior ты",
+      "files": 20
+    },
+    {
+      "phrase": "behavior ты автономный",
+      "files": 20
+    },
+    {
+      "phrase": "что это значит",
+      "files": 19
+    },
+    {
+      "phrase": "в main goal",
+      "files": 19
+    },
+    {
+      "phrase": "о том что",
+      "files": 18
+    },
+    {
+      "phrase": "am i md",
+      "files": 18
+    },
+    {
+      "phrase": "who am i",
+      "files": 18
+    },
+    {
+      "phrase": "это может быть",
+      "files": 18
+    },
+    {
+      "phrase": "вот что я",
+      "files": 18
+    },
+    {
+      "phrase": "менять свои файлы",
+      "files": 18
+    },
+    {
+      "phrase": "может быть это",
+      "files": 17
+    },
+    {
+      "phrase": "push без явной",
+      "files": 17
+    },
+    {
+      "phrase": "автономный агент твоя",
+      "files": 17
+    },
+    {
+      "phrase": "твоя главная цель",
+      "files": 17
+    },
+    {
+      "phrase": "md todo md",
+      "files": 16
+    },
+    {
+      "phrase": "потому что я",
+      "files": 16
+    },
+    {
+      "phrase": "потому что не",
+      "files": 16
+    },
+    {
+      "phrase": "то чего не",
+      "files": 16
+    }
+  ]
+}

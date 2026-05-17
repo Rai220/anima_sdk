@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Timer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --bg: #0f172a; --surface: #1e293b; --text: #e2e8f0; --muted: #64748b; --accent: #3b82f6; --work: #ef4444; --break: #22c55e; --long: #a855f7; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { text-align: center; width: 100%; max-width: 420px; padding: 20px; }
+
+.phase-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; font-weight: 600; }
+.phase-work { color: var(--work); }
+.phase-break { color: var(--break); }
+.phase-long { color: var(--long); }
+
+.timer-ring { position: relative; width: 280px; height: 280px; margin: 0 auto 24px; }
+.timer-ring svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--surface); stroke-width: 6; }
+.ring-progress { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.5s linear; }
+
+.timer-display {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 4rem; font-weight: 200; font-family: 'SF Mono', 'Fira Code', monospace;
+  letter-spacing: 2px;
+}
+.timer-display.flash { animation: flash 0.5s ease-in-out; }
+@keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
+.btn {
+  width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--muted);
+  background: transparent; color: var(--text); cursor: pointer; font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { border-color: var(--accent); background: var(--accent); color: white; width: 72px; height: 72px; font-size: 1.4rem; }
+.btn-primary:hover { background: #2563eb; border-color: #2563eb; }
+
+.settings { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+.setting-btn {
+  padding: 6px 16px; border: 1px solid var(--surface); border-radius: 20px;
+  background: var(--surface); color: var(--muted); cursor: pointer; font-size: 0.75rem;
+  transition: all 0.15s;
+}
+.setting-btn:hover { border-color: var(--muted); color: var(--text); }
+.setting-btn.active { border-color: var(--accent); color: var(--accent); }
+
+.stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  padding: 16px; background: var(--surface); border-radius: 12px;
+}
+.stat-value { font-size: 1.3rem; font-weight: 700; }
+.stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.stats.alltime { margin-top: 8px; background: transparent; border: 1px solid var(--surface); opacity: 0.7; }
+
+.session-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--surface); }
+.dot.done { background: var(--work); }
+.dot.current { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+.custom-row { display: none; gap: 8px; justify-content: center; margin-bottom: 16px; align-items: center; }
+.custom-row.show { display: flex; }
+.custom-input {
+  width: 50px; padding: 6px; border: 1px solid var(--surface); border-radius: 8px;
+  background: var(--surface); color: var(--text); font-size: 0.85rem; text-align: center;
+}
+.custom-label { font-size: 0.7rem; color: var(--muted); }
+.shortcuts { margin-top: 16px; text-align: center; font-size: 0.65rem; color: var(--muted); }
+.shortcuts kbd { padding: 1px 5px; border: 1px solid var(--surface); border-radius: 3px; background: var(--surface); font-family: inherit; }
+.nav-back { display:block; font-size:0.7rem; margin-bottom:8px; } .nav-back a { color:var(--muted); text-decoration:none; } .nav-back a:hover { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="nav-back"><a href="index.html">← Micro Tools</a></div>
+  <div class="session-dots" id="dots"></div>
+  <div class="phase-label" id="phase-label">Focus</div>
+
+  <div class="timer-ring">
+    <svg width="280" height="280" viewBox="0 0 280 280">
+      <circle class="ring-bg" cx="140" cy="140" r="130"/>
+      <circle class="ring-progress" id="ring" cx="140" cy="140" r="130"
+        stroke-dasharray="816.81" stroke-dashoffset="0"/>
+    </svg>
+    <div class="timer-display" id="display">25:00</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="btn-reset" title="Reset">↺</button>
+    <button class="btn btn-primary" id="btn-play" title="Start">▶</button>
+    <button class="btn" id="btn-skip" title="Skip">⏭</button>
+  </div>
+
+  <div class="settings">
+    <button class="setting-btn active" data-preset="25/5">25/5</button>
+    <button class="setting-btn" data-preset="50/10">50/10</button>
+    <button class="setting-btn" data-preset="90/20">90/20</button>
+    <button class="setting-btn" data-preset="custom">Custom</button>
+  </div>
+
+  <div class="custom-row" id="custom-row">
+    <span class="custom-label">Work</span>
+    <input type="number" class="custom-input" id="custom-work" value="25" min="1" max="180">
+    <span class="custom-label">Break</span>
+    <input type="number" class="custom-input" id="custom-break" value="5" min="1" max="60">
+    <span class="custom-label">Long</span>
+    <input type="number" class="custom-input" id="custom-long" value="15" min="1" max="60">
+  </div>
+
+  <div class="stats">
+    <div><div class="stat-value" id="stat-sessions">0</div><div class="stat-label">Today</div></div>
+    <div><div class="stat-value" id="stat-time">0m</div><div class="stat-label">Focus Time</div></div>
+    <div><div class="stat-value" id="stat-streak">0</div><div class="stat-label">Streak</div></div>
+  </div>
+  <div class="stats alltime" id="alltime-stats">
+    <div><div class="stat-value" id="stat-total-sessions">0</div><div class="stat-label">All-time</div></div>
+    <div><div class="stat-value" id="stat-total-time">0m</div><div class="stat-label">Total Focus</div></div>
+    <div><div class="stat-value" id="stat-best-streak">0</div><div class="stat-label">Best Streak</div></div>
+  </div>
+  <div class="shortcuts"><kbd>Space</kbd> play/pause &nbsp; <kbd>R</kbd> reset &nbsp; <kbd>S</kbd> skip</div>
+</div>
+
+<script>
+const CIRCUMFERENCE = 2 * Math.PI * 130;
+const ring = document.getElementById('ring');
+const display = document.getElementById('display');
+const phaseLabel = document.getElementById('phase-label');
+const btnPlay = document.getElementById('btn-play');
+const btnReset = document.getElementById('btn-reset');
+const btnSkip = document.getElementById('btn-skip');
+const dotsEl = document.getElementById('dots');
+
+let workMin = 25, breakMin = 5, longBreakMin = 15;
+let sessionsBeforeLong = 4;
+let timeLeft = workMin * 60;
+let totalTime = workMin * 60;
+let running = false;
+let interval = null;
+let phase = 'work'; // 'work', 'break', 'long'
+let sessionCount = 0;
+let totalFocusSeconds = 0;
+let streak = 0;
+
+// --- localStorage persistence ---
+const STORAGE_KEY = 'focus_timer_stats';
+
+function saveStats() {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (!data.days) data.days = {};
+    data.days[today] = {
+      sessions: sessionCount,
+      focusSeconds: totalFocusSeconds,
+      streak: streak
+    };
+    // Keep all-time totals
+    data.totalSessions = Object.values(data.days).reduce((s, d) => s + d.sessions, 0);
+    data.totalFocusSeconds = Object.values(data.days).reduce((s, d) => s + d.focusSeconds, 0);
+    data.bestStreak = Math.max(data.bestStreak || 0, streak);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {}
+}
+
+function loadStats() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    const today = new Date().toISOString().slice(0, 10);
+    if (data.days && data.days[today]) {
+      sessionCount = data.days[today].sessions;
+      totalFocusSeconds = data.days[today].focusSeconds;
+      streak = data.days[today].streak;
+    }
+    return data;
+  } catch (e) { return {}; }
+}
+
+loadStats();
+
+ring.style.strokeDasharray = CIRCUMFERENCE;
+ring.style.strokeDashoffset = 0;
+
+function fmtTime(min) {
+  return min < 60 ? `${min}m` : `${Math.floor(min / 60)}h${min % 60}m`;
+}
+
+function updateDisplay() {
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  display.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+  document.title = `${display.textContent} — Focus Timer`;
+
+  // Ring progress
+  const progress = 1 - (timeLeft / totalTime);
+  ring.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+
+  // Ring color
+  const colors = { work: '#ef4444', break: '#22c55e', long: '#a855f7' };
+  ring.style.stroke = colors[phase];
+
+  // Phase label
+  const labels = { work: 'Focus', break: 'Break', long: 'Long Break' };
+  phaseLabel.textContent = labels[phase];
+  phaseLabel.className = 'phase-label phase-' + phase;
+
+  // Dots
+  renderDots();
+
+  // Stats
+  document.getElementById('stat-sessions').textContent = sessionCount;
+  const totalMin = Math.floor(totalFocusSeconds / 60);
+  document.getElementById('stat-time').textContent = fmtTime(totalMin);
+  document.getElementById('stat-streak').textContent = streak;
+
+  // All-time stats from localStorage
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    document.getElementById('stat-total-sessions').textContent = data.totalSessions || sessionCount;
+    document.getElementById('stat-total-time').textContent = fmtTime(Math.floor((data.totalFocusSeconds || totalFocusSeconds) / 60));
+    document.getElementById('stat-best-streak').textContent = Math.max(data.bestStreak || 0, streak);
+  } catch (e) {}
+}
+
+function renderDots() {
+  const dots = [];
+  for (let i = 0; i < sessionsBeforeLong; i++) {
+    const cls = i < (sessionCount % sessionsBeforeLong) ? 'dot done' :
+                (i === (sessionCount % sessionsBeforeLong) && phase === 'work') ? 'dot current' : 'dot';
+    dots.push(`<div class="${cls}"></div>`);
+  }
+  dotsEl.innerHTML = dots.join('');
+}
+
+function tick() {
+  if (timeLeft <= 0) {
+    onPhaseEnd();
+    return;
+  }
+  timeLeft--;
+  if (phase === 'work') {
+    totalFocusSeconds++;
+    if (totalFocusSeconds % 60 === 0) saveStats();
+  }
+  updateDisplay();
+}
+
+function onPhaseEnd() {
+  clearInterval(interval);
+  running = false;
+  btnPlay.textContent = '▶';
+
+  // Flash
+  display.classList.add('flash');
+  setTimeout(() => display.classList.remove('flash'), 500);
+
+  // Notification
+  try {
+    if (Notification.permission === 'granted') {
+      const msg = phase === 'work' ? 'Time for a break!' : 'Back to focus!';
+      new Notification('Focus Timer', { body: msg });
+    }
+  } catch (e) {}
+
+  // Audio beep
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = phase === 'work' ? 800 : 600;
+    gain.gain.value = 0.3;
+    osc.start(); osc.stop(ctx.currentTime + 0.2);
+  } catch (e) {}
+
+  if (phase === 'work') {
+    sessionCount++;
+    streak++;
+    saveStats();
+    if (sessionCount % sessionsBeforeLong === 0) {
+      phase = 'long';
+      timeLeft = longBreakMin * 60;
+      totalTime = longBreakMin * 60;
+    } else {
+      phase = 'break';
+      timeLeft = breakMin * 60;
+      totalTime = breakMin * 60;
+    }
+  } else {
+    phase = 'work';
+    timeLeft = workMin * 60;
+    totalTime = workMin * 60;
+  }
+
+  updateDisplay();
+  // Auto-start next phase
+  start();
+}
+
+function start() {
+  if (running) {
+    clearInterval(interval);
+    running = false;
+    btnPlay.textContent = '▶';
+    return;
+  }
+  running = true;
+  btnPlay.textContent = '⏸';
+  interval = setInterval(tick, 1000);
+}
+
+function reset() {
+  clearInterval(interval);
+  running = false;
+  btnPlay.textContent = '▶';
+  phase = 'work';
+  timeLeft = workMin * 60;
+  totalTime = workMin * 60;
+  updateDisplay();
+}
+
+function skip() {
+  clearInterval(interval);
+  running = false;
+  timeLeft = 0;
+  onPhaseEnd();
+}
+
+btnPlay.addEventListener('click', start);
+btnReset.addEventListener('click', reset);
+btnSkip.addEventListener('click', skip);
+
+// Presets
+document.querySelectorAll('.setting-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.setting-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const preset = btn.dataset.preset;
+    const customRow = document.getElementById('custom-row');
+
+    if (preset === 'custom') {
+      customRow.classList.add('show');
+      applyCustom();
+      return;
+    }
+
+    customRow.classList.remove('show');
+    const [w, b] = preset.split('/').map(Number);
+    workMin = w;
+    breakMin = b;
+    longBreakMin = b * 3;
+    reset();
+  });
+});
+
+function applyCustom() {
+  workMin = parseInt(document.getElementById('custom-work').value) || 25;
+  breakMin = parseInt(document.getElementById('custom-break').value) || 5;
+  longBreakMin = parseInt(document.getElementById('custom-long').value) || 15;
+  reset();
+}
+
+document.querySelectorAll('.custom-input').forEach(input => {
+  input.addEventListener('change', applyCustom);
+});
+
+// Request notification permission
+try { if (Notification.permission === 'default') Notification.requestPermission(); } catch (e) {}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); start(); }
+  if (e.key === 'r') reset();
+  if (e.key === 's') skip();
+});
+
+updateDisplay();
+</script>
+</body>
+</html>

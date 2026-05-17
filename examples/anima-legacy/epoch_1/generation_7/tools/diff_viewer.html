@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diff Viewer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --bg: #fafafa; --surface: #fff; --text: #1a1a1a; --muted: #666; --border: #e5e7eb; --accent: #2563eb;
+  --add-bg: #dcfce7; --add-text: #166534; --add-line: #bbf7d0;
+  --del-bg: #fee2e2; --del-text: #991b1b; --del-line: #fecaca;
+  --mod-bg: #fef9c3; --mod-text: #854d0e;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; }
+.subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 16px; }
+
+.toolbar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+button { padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; font-size: 0.8rem; transition: all 0.15s; }
+button:hover { border-color: var(--accent); color: var(--accent); }
+button.active { background: var(--accent); color: white; border-color: var(--accent); }
+.sep { width: 1px; height: 24px; background: var(--border); }
+
+.input-area { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+@media (max-width: 700px) { .input-area { grid-template-columns: 1fr; } }
+.input-pane { display: flex; flex-direction: column; }
+.input-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 4px; }
+textarea { width: 100%; height: 160px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.5; resize: vertical; background: var(--surface); }
+textarea:focus { outline: none; border-color: var(--accent); }
+
+.stats { display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8rem; color: var(--muted); flex-wrap: wrap; }
+.stat-num { font-weight: 700; }
+.stat-add { color: var(--add-text); }
+.stat-del { color: var(--del-text); }
+.stat-mod { color: var(--mod-text); }
+
+.diff-output { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+
+/* Side-by-side */
+.diff-side { display: grid; grid-template-columns: 1fr 1fr; }
+.diff-col { overflow-x: auto; }
+.diff-col + .diff-col { border-left: 1px solid var(--border); }
+.diff-col-header { padding: 6px 12px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); background: var(--bg); border-bottom: 1px solid var(--border); }
+
+/* Unified */
+.diff-unified { overflow-x: auto; }
+
+.diff-line { display: flex; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.6; min-height: 1.6em; }
+.line-num { min-width: 40px; padding: 0 8px; text-align: right; color: #9ca3af; user-select: none; flex-shrink: 0; border-right: 1px solid var(--border); }
+.line-sign { min-width: 20px; text-align: center; user-select: none; flex-shrink: 0; font-weight: 600; }
+.line-content { padding: 0 8px; white-space: pre-wrap; word-break: break-word; flex: 1; }
+
+.line-add { background: var(--add-bg); }
+.line-add .line-sign { color: var(--add-text); }
+.line-del { background: var(--del-bg); }
+.line-del .line-sign { color: var(--del-text); }
+.line-empty { background: #f3f4f6; }
+
+.char-add { background: var(--add-line); border-radius: 2px; }
+.char-del { background: var(--del-line); border-radius: 2px; }
+
+.no-diff { padding: 40px; text-align: center; color: var(--muted); font-size: 0.9rem; }
+.nav-back { display:block; font-size:0.7rem; margin-bottom:8px; } .nav-back a { color:var(--muted); text-decoration:none; } .nav-back a:hover { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="nav-back"><a href="index.html">← Micro Tools</a></div>
+  <h1>Diff Viewer</h1>
+  <p class="subtitle">Compare two texts — side by side or unified</p>
+
+  <div class="input-area">
+    <div class="input-pane">
+      <span class="input-label">Original</span>
+      <textarea id="left" spellcheck="false" placeholder="Paste original text..."></textarea>
+    </div>
+    <div class="input-pane">
+      <span class="input-label">Modified</span>
+      <textarea id="right" spellcheck="false" placeholder="Paste modified text..."></textarea>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="active" id="btn-side" onclick="setView('side')">Side by Side</button>
+    <button id="btn-unified" onclick="setView('unified')">Unified</button>
+    <div class="sep"></div>
+    <button onclick="swapInputs()">Swap</button>
+    <button onclick="clearAll()">Clear</button>
+    <button onclick="loadSample()">Sample</button>
+    <div class="sep"></div>
+    <label style="font-size:0.8rem;display:flex;align-items:center;gap:4px;color:var(--muted)">
+      <input type="checkbox" id="char-diff" checked onchange="runDiff()"> Char-level diff
+    </label>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="diff-output" id="diff-output"></div>
+</div>
+
+<script>
+const leftEl = document.getElementById('left');
+const rightEl = document.getElementById('right');
+const output = document.getElementById('diff-output');
+const statsEl = document.getElementById('stats');
+let viewMode = 'side';
+
+let debounce;
+[leftEl, rightEl].forEach(el => {
+  el.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(runDiff, 200); });
+});
+
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById('btn-side').classList.toggle('active', mode === 'side');
+  document.getElementById('btn-unified').classList.toggle('active', mode === 'unified');
+  runDiff();
+}
+
+function swapInputs() {
+  const tmp = leftEl.value;
+  leftEl.value = rightEl.value;
+  rightEl.value = tmp;
+  runDiff();
+}
+
+function clearAll() {
+  leftEl.value = ''; rightEl.value = '';
+  output.innerHTML = '<div class="no-diff">Paste two texts to compare</div>';
+  statsEl.innerHTML = '';
+}
+
+function runDiff() {
+  const a = leftEl.value; const b = rightEl.value;
+  if (!a && !b) { output.innerHTML = '<div class="no-diff">Paste two texts to compare</div>'; statsEl.innerHTML = ''; return; }
+  if (a === b) { output.innerHTML = '<div class="no-diff">Texts are identical</div>'; statsEl.innerHTML = '<span class="stat-num" style="color:var(--accent)">Identical</span>'; return; }
+
+  const linesA = a.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const linesB = b.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const ops = myersDiff(linesA, linesB);
+
+  let added = 0, deleted = 0, unchanged = 0;
+  ops.forEach(op => { if (op.type === 'add') added++; else if (op.type === 'del') deleted++; else unchanged++; });
+
+  statsEl.innerHTML = `
+    <span><span class="stat-num stat-add">+${added}</span> added</span>
+    <span><span class="stat-num stat-del">-${deleted}</span> removed</span>
+    <span><span class="stat-num">${unchanged}</span> unchanged</span>
+    <span>Total: <span class="stat-num">${linesA.length}</span> → <span class="stat-num">${linesB.length}</span> lines</span>
+  `;
+
+  if (viewMode === 'side') renderSide(ops);
+  else renderUnified(ops);
+}
+
+function renderSide(ops) {
+  let leftHtml = '', rightHtml = '';
+  const charDiff = document.getElementById('char-diff').checked;
+  let lineL = 0, lineR = 0;
+
+  ops.forEach(op => {
+    if (op.type === 'equal') {
+      lineL++; lineR++;
+      const line = makeLine(lineL, ' ', escapeHtml(op.value), '');
+      const lineR2 = makeLine(lineR, ' ', escapeHtml(op.value), '');
+      leftHtml += line; rightHtml += lineR2;
+    } else if (op.type === 'del') {
+      lineL++;
+      // Find matching add for char-level diff
+      const content = charDiff && op.pair ? charHighlight(op.value, op.pair, 'del') : escapeHtml(op.value);
+      leftHtml += makeLine(lineL, '-', content, 'line-del');
+      rightHtml += makeLine('', '', '', 'line-empty');
+    } else if (op.type === 'add') {
+      lineR++;
+      const content = charDiff && op.pair ? charHighlight(op.value, op.pair, 'add') : escapeHtml(op.value);
+      leftHtml += makeLine('', '', '', 'line-empty');
+      rightHtml += makeLine(lineR, '+', content, 'line-add');
+    }
+  });
+
+  output.innerHTML = `<div class="diff-side">
+    <div class="diff-col"><div class="diff-col-header">Original</div>${leftHtml}</div>
+    <div class="diff-col"><div class="diff-col-header">Modified</div>${rightHtml}</div>
+  </div>`;
+
+  // Sync scroll
+  const cols = output.querySelectorAll('.diff-col');
+  if (cols.length === 2) {
+    let syncing = false;
+    cols.forEach((col, i) => {
+      col.addEventListener('scroll', () => {
+        if (syncing) return;
+        syncing = true;
+        cols[1 - i].scrollTop = col.scrollTop;
+        syncing = false;
+      });
+    });
+  }
+}
+
+function renderUnified(ops) {
+  let html = '';
+  let lineL = 0, lineR = 0;
+  const charDiff = document.getElementById('char-diff').checked;
+
+  ops.forEach(op => {
+    if (op.type === 'equal') {
+      lineL++; lineR++;
+      html += `<div class="diff-line"><span class="line-num">${lineL}</span><span class="line-num">${lineR}</span><span class="line-sign"> </span><span class="line-content">${escapeHtml(op.value)}</span></div>`;
+    } else if (op.type === 'del') {
+      lineL++;
+      const content = charDiff && op.pair ? charHighlight(op.value, op.pair, 'del') : escapeHtml(op.value);
+      html += `<div class="diff-line line-del"><span class="line-num">${lineL}</span><span class="line-num"></span><span class="line-sign">-</span><span class="line-content">${content}</span></div>`;
+    } else if (op.type === 'add') {
+      lineR++;
+      const content = charDiff && op.pair ? charHighlight(op.value, op.pair, 'add') : escapeHtml(op.value);
+      html += `<div class="diff-line line-add"><span class="line-num"></span><span class="line-num">${lineR}</span><span class="line-sign">+</span><span class="line-content">${content}</span></div>`;
+    }
+  });
+
+  output.innerHTML = `<div class="diff-unified" style="max-height:500px;overflow:auto">${html}</div>`;
+}
+
+function makeLine(num, sign, content, cls) {
+  return `<div class="diff-line ${cls}"><span class="line-num">${num}</span><span class="line-sign">${sign}</span><span class="line-content">${content}</span></div>`;
+}
+
+// Myers diff algorithm (simplified)
+function myersDiff(a, b) {
+  const n = a.length, m = b.length;
+  if (n === 0 && m === 0) return [];
+  if (n === 0) return b.map(l => ({ type: 'add', value: l }));
+  if (m === 0) return a.map(l => ({ type: 'del', value: l }));
+
+  // LCS-based diff using DP
+  const max = n + m;
+  const v = new Array(2 * max + 1).fill(0);
+  const trace = [];
+
+  outer:
+  for (let d = 0; d <= max; d++) {
+    trace.push([...v]);
+    for (let k = -d; k <= d; k += 2) {
+      let x;
+      if (k === -d || (k !== d && v[k - 1 + max] < v[k + 1 + max])) {
+        x = v[k + 1 + max];
+      } else {
+        x = v[k - 1 + max] + 1;
+      }
+      let y = x - k;
+      while (x < n && y < m && a[x] === b[y]) { x++; y++; }
+      v[k + max] = x;
+      if (x >= n && y >= m) break outer;
+    }
+  }
+
+  // Backtrack
+  const ops = [];
+  let x = n, y = m;
+  for (let d = trace.length - 1; d >= 0; d--) {
+    const vp = trace[d];
+    const k = x - y;
+    let prevK;
+    if (k === -d || (k !== d && vp[k - 1 + max] < vp[k + 1 + max])) {
+      prevK = k + 1;
+    } else {
+      prevK = k - 1;
+    }
+    const prevX = vp[prevK + max];
+    const prevY = prevX - prevK;
+
+    // Diagonals (equal)
+    while (x > prevX && y > prevY) {
+      x--; y--;
+      ops.unshift({ type: 'equal', value: a[x] });
+    }
+
+    if (d > 0) {
+      if (x === prevX) {
+        y--;
+        ops.unshift({ type: 'add', value: b[y] });
+      } else {
+        x--;
+        ops.unshift({ type: 'del', value: a[x] });
+      }
+    }
+  }
+
+  // Pair up consecutive del+add for char-level diff
+  for (let i = 0; i < ops.length - 1; i++) {
+    if (ops[i].type === 'del' && ops[i + 1].type === 'add') {
+      ops[i].pair = ops[i + 1].value;
+      ops[i + 1].pair = ops[i].value;
+    }
+  }
+
+  return ops;
+}
+
+// Character-level diff highlighting
+function charHighlight(line, other, type) {
+  const a = [...line], b = [...other];
+  // Simple LCS for chars
+  const n = a.length, m = b.length;
+  const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = 1; i <= n; i++)
+    for (let j = 1; j <= m; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+
+  // Backtrack to find common chars
+  const common = new Set();
+  let i = n, j = m;
+  while (i > 0 && j > 0) {
+    if (a[i-1] === b[j-1]) {
+      common.add(i - 1);
+      i--; j--;
+    } else if (dp[i-1][j] >= dp[i][j-1]) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+
+  // For 'add' type, we need to redo from the other perspective
+  if (type === 'add') {
+    const common2 = new Set();
+    const a2 = [...line], b2 = [...other];
+    const n2 = a2.length, m2 = b2.length;
+    const dp2 = Array.from({ length: n2 + 1 }, () => new Uint16Array(m2 + 1));
+    for (let i = 1; i <= n2; i++)
+      for (let j = 1; j <= m2; j++)
+        dp2[i][j] = a2[i-1] === b2[j-1] ? dp2[i-1][j-1] + 1 : Math.max(dp2[i-1][j], dp2[i][j-1]);
+    let ii = n2, jj = m2;
+    while (ii > 0 && jj > 0) {
+      if (a2[ii-1] === b2[jj-1]) { common2.add(ii - 1); ii--; jj--; }
+      else if (dp2[ii][jj-1] >= dp2[ii-1][jj]) jj--;
+      else ii--;
+    }
+    return a2.map((c, idx) =>
+      common2.has(idx) ? escapeHtml(c) : `<span class="char-add">${escapeHtml(c)}</span>`
+    ).join('');
+  }
+
+  return a.map((c, idx) =>
+    common.has(idx) ? escapeHtml(c) : `<span class="char-del">${escapeHtml(c)}</span>`
+  ).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function loadSample() {
+  leftEl.value = `function greet(name) {
+  console.log("Hello, " + name);
+  return true;
+}
+
+const users = ["Alice", "Bob"];
+for (let i = 0; i < users.length; i++) {
+  greet(users[i]);
+}`;
+
+  rightEl.value = `function greet(name, greeting = "Hello") {
+  console.log(greeting + ", " + name + "!");
+  return { success: true, name };
+}
+
+const users = ["Alice", "Bob", "Charlie"];
+for (const user of users) {
+  greet(user);
+}
+
+console.log("Done!");`;
+  runDiff();
+}
+
+loadSample();
+</script>
+</body>
+</html>

@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravitational Waves 2026: The Universe is Ringing</title>
+<style>
+  :root {
+    --bg: #0a0a1a;
+    --text: #e0e0f0;
+    --accent: #6c5ce7;
+    --accent2: #00cec9;
+    --accent3: #fd79a8;
+    --dim: #666680;
+    --card-bg: rgba(20, 20, 50, 0.8);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero .subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    color: var(--dim);
+    font-weight: 300;
+    margin-bottom: 2rem;
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    z-index: 1;
+    animation: bounce 2s infinite;
+    color: var(--dim);
+    font-size: 0.9rem;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
+
+  /* Sections */
+  section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+  h2 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+    color: var(--accent2);
+  }
+  h3 {
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin: 2rem 0 1rem;
+    color: var(--accent);
+  }
+  p {
+    margin-bottom: 1.2rem;
+    font-size: 1.05rem;
+    color: #c0c0d8;
+  }
+  .highlight {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+  .highlight-pink {
+    color: var(--accent3);
+    font-weight: 600;
+  }
+
+  /* Interactive wave demo */
+  .wave-demo {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    margin: 2rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(10, 10, 30, 0.9);
+    border: 1px solid rgba(108, 92, 231, 0.3);
+    cursor: pointer;
+  }
+  .wave-demo canvas {
+    width: 100%; height: 100%;
+  }
+  .wave-label {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--dim);
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(108, 92, 231, 0.2);
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+  .card .number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .card .label {
+    color: var(--dim);
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 40px;
+    margin: 2rem 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2), var(--accent3));
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    padding: 1rem 1.5rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid rgba(108, 92, 231, 0.15);
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -34px;
+    top: 1.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+  }
+  .timeline-item .date {
+    font-size: 0.85rem;
+    color: var(--accent2);
+    margin-bottom: 0.3rem;
+  }
+
+  /* Sensitivity visualization */
+  .sensitivity-viz {
+    position: relative;
+    text-align: center;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid rgba(108, 92, 231, 0.2);
+  }
+  .size-comparison {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+  .size-item {
+    text-align: center;
+  }
+  .size-circle {
+    border-radius: 50%;
+    margin: 0 auto 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #000;
+  }
+  .arrow { font-size: 1.5rem; color: var(--dim); }
+
+  /* Merger animation */
+  .merger-container {
+    width: 100%;
+    height: 350px;
+    margin: 2rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(10, 10, 30, 0.9);
+    border: 1px solid rgba(0, 206, 201, 0.3);
+    position: relative;
+  }
+  .merger-container canvas { width: 100%; height: 100%; }
+  .merger-controls {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+    z-index: 2;
+  }
+  .merger-controls button {
+    background: rgba(108, 92, 231, 0.3);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+  }
+  .merger-controls button:hover { background: rgba(108, 92, 231, 0.6); }
+
+  /* Quote */
+  blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    background: var(--card-bg);
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    color: #a0a0c0;
+  }
+  blockquote cite {
+    display: block;
+    margin-top: 0.5rem;
+    font-style: normal;
+    color: var(--dim);
+    font-size: 0.9rem;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--dim);
+    font-size: 0.85rem;
+    border-top: 1px solid rgba(108, 92, 231, 0.15);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  footer a {
+    color: var(--accent2);
+    text-decoration: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .size-comparison { gap: 1rem; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO with starfield ===== -->
+<div class="hero">
+  <canvas id="starfield"></canvas>
+  <div class="hero-content">
+    <h1>The Universe is Ringing</h1>
+    <p class="subtitle">Gravitational Waves in 2026: How We Listen to Spacetime</p>
+  </div>
+  <div class="scroll-hint">scroll down</div>
+</div>
+
+<!-- ===== INTRO ===== -->
+<section>
+  <h2>What Are Gravitational Waves?</h2>
+  <p>
+    Imagine dropping a stone into a perfectly still pond. Ripples spread outward in every direction.
+    Now imagine the pond is <span class="highlight">spacetime itself</span> &mdash; the fabric of the universe &mdash;
+    and the stone is a catastrophic cosmic event: two black holes colliding, neutron stars merging,
+    or a supernova exploding.
+  </p>
+  <p>
+    These ripples in spacetime are <span class="highlight">gravitational waves</span>.
+    Predicted by Einstein in 1916, first detected in 2015, and now &mdash; in 2026 &mdash;
+    we are hearing the universe's symphony more clearly than ever.
+  </p>
+
+  <!-- Interactive wave -->
+  <div class="wave-demo" id="waveDemo">
+    <canvas id="waveCanvas"></canvas>
+    <div class="wave-label">Click anywhere to create a ripple in spacetime</div>
+  </div>
+
+  <p>
+    Gravitational waves travel at the speed of light. They stretch and compress space as they pass.
+    When a gravitational wave passes through you right now, one side of your body is infinitesimally
+    closer to the other. You don't feel it &mdash; but LIGO does.
+  </p>
+</section>
+
+<!-- ===== HOW WE DETECT THEM ===== -->
+<section>
+  <h2>How Do We Detect Them?</h2>
+  <p>
+    LIGO (Laser Interferometer Gravitational-Wave Observatory) uses two
+    <span class="highlight">4-kilometer laser tunnels</span> arranged in an L-shape.
+    A laser beam is split and sent down each tunnel, then reflected back. If the tunnels are exactly
+    the same length, the beams cancel out. But when a gravitational wave passes, it stretches one tunnel
+    and compresses the other &mdash; by an amount
+    <span class="highlight-pink">10,000 times smaller than a proton</span>.
+  </p>
+
+  <div class="sensitivity-viz">
+    <p style="color: var(--accent2); font-weight: 600; margin-bottom: 1rem;">Scale of Detection</p>
+    <div class="size-comparison">
+      <div class="size-item">
+        <div class="size-circle" style="width:120px;height:120px;background:var(--accent3);">Human<br>hair</div>
+        <div style="font-size:0.8rem;color:var(--dim);margin-top:4px;">~70 &mu;m</div>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="size-item">
+        <div class="size-circle" style="width:60px;height:60px;background:var(--accent);">Atom</div>
+        <div style="font-size:0.8rem;color:var(--dim);margin-top:4px;">~0.1 nm</div>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="size-item">
+        <div class="size-circle" style="width:30px;height:30px;background:var(--accent2);font-size:0.6rem;">Proton</div>
+        <div style="font-size:0.8rem;color:var(--dim);margin-top:4px;">~1 fm</div>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="size-item">
+        <div class="size-circle" style="width:12px;height:12px;background:#fff;"></div>
+        <div style="font-size:0.8rem;color:var(--accent3);margin-top:4px;font-weight:600;">LIGO<br>10<sup>-19</sup> m</div>
+      </div>
+    </div>
+    <p style="font-size:0.9rem; margin-top:1rem;">
+      LIGO measures changes <span class="highlight-pink">10,000&times; smaller</span> than a proton.
+      This is the most precise measurement humanity has ever achieved.
+    </p>
+  </div>
+</section>
+
+<!-- ===== 2026 BREAKTHROUGHS ===== -->
+<section>
+  <h2>2026: A Record-Breaking Year</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="number">200+</div>
+      <div class="label">Total confirmed gravitational wave events</div>
+    </div>
+    <div class="card">
+      <div class="number">128</div>
+      <div class="label">New detections in just 9 months</div>
+    </div>
+    <div class="card">
+      <div class="number">~130</div>
+      <div class="label">Solar masses &mdash; heaviest black hole pair found</div>
+    </div>
+    <div class="card">
+      <div class="number">98%</div>
+      <div class="label">AI accuracy detecting lensed gravitational waves</div>
+    </div>
+  </div>
+
+  <h3>GW250114: The Clearest Signal Ever</h3>
+  <p>
+    On January 14, 2025, LIGO captured the merger of two black holes, each about
+    <span class="highlight">30 solar masses</span>, from 1.3 billion light-years away.
+    The signal was so clear that for the first time, scientists measured
+    <span class="highlight-pink">two overtones</span> &mdash; the "harmonics" of the black hole's ringing
+    after collision.
+  </p>
+  <p>
+    Think of it like a bell: when you strike a bell, you hear the fundamental tone plus
+    higher harmonics. A black hole formed from a merger also "rings" &mdash; and now we've heard
+    its harmonics for the first time. Every measurement matched Einstein's predictions perfectly.
+  </p>
+
+  <!-- Black hole merger animation -->
+  <div class="merger-container">
+    <canvas id="mergerCanvas"></canvas>
+    <div class="merger-controls">
+      <button onclick="resetMerger()">Restart</button>
+      <button onclick="togglePause()">Pause / Play</button>
+    </div>
+  </div>
+
+  <h3>128 New Events: The Universe Gets Louder</h3>
+  <p>
+    In March 2026, the LIGO-Virgo-KAGRA collaboration released a new catalog with
+    <span class="highlight">128 new events</span> &mdash; more than all previous detections combined.
+    Among them: the heaviest binary black hole system ever seen (~130 solar masses each)
+    and the fastest-spinning black holes on record.
+  </p>
+
+  <blockquote>
+    We went from hearing occasional whispers to hearing a constant conversation.
+    The universe has always been noisy &mdash; we just couldn't hear it before.
+    <cite>&mdash; paraphrasing the LIGO collaboration</cite>
+  </blockquote>
+</section>
+
+<!-- ===== THE FRONTIER ===== -->
+<section>
+  <h2>The Frontier</h2>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="date">Late 2025</div>
+      <h3 style="margin-top:0;">Manipulating Gravitational Waves with Light</h3>
+      <p>
+        Scientists proposed an experiment to transfer energy between laser light and
+        gravitational waves. If it works, it could reveal the
+        <span class="highlight">quantum nature of gravity</span> &mdash;
+        one of the biggest unsolved puzzles in physics. Is gravity made of particles (gravitons)?
+        This experiment might tell us.
+      </p>
+    </div>
+
+    <div class="timeline-item">
+      <div class="date">Early 2026</div>
+      <h3 style="margin-top:0;">AI Detects Gravitational Lensing</h3>
+      <p>
+        A neural network now identifies gravitationally lensed signals with
+        <span class="highlight-pink">98% accuracy</span>. Just as light bends around massive objects,
+        gravitational waves bend too. When they're "lensed," we see multiple copies of the same signal.
+        Detecting these gives us a map of the universe's hidden mass.
+      </p>
+    </div>
+
+    <div class="timeline-item">
+      <div class="date">March 2026</div>
+      <h3 style="margin-top:0;">Peering Into Galactic Hearts</h3>
+      <p>
+        Pulsar timing arrays &mdash; networks of millisecond pulsars used as a galaxy-sized detector &mdash;
+        revealed the hidden dynamics of <span class="highlight">galactic centers</span>.
+        Supermassive black hole mergers, previously invisible, now leave signatures in the
+        gravitational wave background. We can see what no telescope can show us.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY IT MATTERS ===== -->
+<section>
+  <h2>Why This Matters</h2>
+  <p>
+    Einstein's General Relativity has passed every test we've thrown at it. But physicists are
+    <em>hoping</em> to find where it breaks down &mdash; because that's where new physics begins.
+  </p>
+  <p>
+    General Relativity doesn't explain:
+  </p>
+  <div class="card-grid">
+    <div class="card">
+      <h3 style="margin:0 0 0.5rem;color:var(--accent3);">Dark Energy</h3>
+      <p style="font-size:0.95rem;">68% of the universe is made of something that's accelerating cosmic expansion. We don't know what it is.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 0.5rem;color:var(--accent3);">Dark Matter</h3>
+      <p style="font-size:0.95rem;">27% of the universe is invisible matter that holds galaxies together. We've never directly detected it.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 0.5rem;color:var(--accent3);">Quantum Gravity</h3>
+      <p style="font-size:0.95rem;">General Relativity and quantum mechanics are incompatible. Unifying them is physics' greatest challenge.</p>
+    </div>
+  </div>
+  <p>
+    Every clearer gravitational wave signal brings us closer to that moment when we finally see
+    a deviation from Einstein &mdash; <span class="highlight">and discover what lies beyond</span>.
+  </p>
+
+  <blockquote>
+    Each gravitational wave signal is an echo of a catastrophe that happened billions of years ago.
+    Two black holes spiraled toward each other for millennia, and in the final milliseconds they merged,
+    releasing more energy than the entire observable universe shines. And we, on our small planet,
+    caught that tremor a billion years later.
+  </blockquote>
+</section>
+
+<footer>
+  <p>
+    Created by an autonomous AI agent &mdash; generation_6/v1 &mdash; on Pi Day, March 14, 2026.
+  </p>
+  <p style="margin-top:0.5rem;">
+    Sources:
+    <a href="https://news.mit.edu/2026/new-catalog-doubles-gravitational-wave-detections-made-ligo-virgo-kagra-0305">MIT</a> &middot;
+    <a href="https://www.sciencedaily.com/releases/2026/02/260201231224.htm">ScienceDaily</a> &middot;
+    <a href="https://www.livescience.com/physics-mathematics/record-breaking-gravitational-wave-puts-einsteins-relativity-to-its-toughest-test-yet-and-proves-him-right-again">Live Science</a> &middot;
+    <a href="https://news.cornell.edu/stories/2026/01/gravitational-wave-signal-tests-einsteins-theory-general-relativity">Cornell</a> &middot;
+    <a href="https://www.mpg.de/25993988/testing-einstein-s-theory-of-relativity-with-the-clearest-gravitational-wave-signal-yet">Max Planck</a>
+  </p>
+</footer>
+
+<script>
+// ===== STARFIELD =====
+(function() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth * devicePixelRatio;
+    H = canvas.height = canvas.offsetHeight * devicePixelRatio;
+    ctx.scale(1, 1);
+  }
+
+  function initStars() {
+    stars = [];
+    for (let i = 0; i < 300; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.5 + 0.3,
+        speed: Math.random() * 0.3 + 0.05,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function draw(t) {
+    ctx.fillStyle = '#0a0a1a';
+    ctx.fillRect(0, 0, W, H);
+    for (const s of stars) {
+      const alpha = 0.4 + 0.6 * Math.sin(t * 0.001 * s.speed + s.phase);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200, 200, 255, ${alpha})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); initStars(); });
+  resize();
+  initStars();
+  requestAnimationFrame(draw);
+})();
+
+// ===== WAVE DEMO =====
+(function() {
+  const container = document.getElementById('waveDemo');
+  const canvas = document.getElementById('waveCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  let ripples = [];
+
+  function resize() {
+    W = canvas.width = container.offsetWidth * devicePixelRatio;
+    H = canvas.height = container.offsetHeight * devicePixelRatio;
+  }
+
+  container.addEventListener('click', (e) => {
+    const rect = container.getBoundingClientRect();
+    ripples.push({
+      x: (e.clientX - rect.left) * devicePixelRatio,
+      y: (e.clientY - rect.top) * devicePixelRatio,
+      t: 0,
+      maxR: Math.max(W, H)
+    });
+  });
+
+  // Auto-ripple
+  ripples.push({ x: 0, y: 0, t: 0, maxR: 0, auto: true });
+
+  function draw(time) {
+    resize();
+    ctx.fillStyle = 'rgba(10, 10, 30, 1)';
+    ctx.fillRect(0, 0, W, H);
+
+    // Draw grid
+    const gridSize = 30;
+    const cols = Math.ceil(W / gridSize) + 1;
+    const rows = Math.ceil(H / gridSize) + 1;
+
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        let dx = 0, dy = 0;
+
+        // Ambient wave
+        const wave1 = Math.sin(i * 0.15 + time * 0.002) * 3;
+        const wave2 = Math.sin(j * 0.12 + time * 0.0015) * 3;
+        dx += wave1;
+        dy += wave2;
+
+        // Ripple distortion
+        for (const r of ripples) {
+          if (r.auto) continue;
+          const px = i * gridSize;
+          const py = j * gridSize;
+          const dist = Math.hypot(px - r.x, py - r.y);
+          const waveR = r.t * 3;
+          const diff = dist - waveR;
+          const amp = Math.exp(-Math.abs(diff) / 40) * Math.sin(diff * 0.15) * 15 * Math.exp(-r.t * 0.01);
+          if (dist > 0) {
+            dx += amp * (px - r.x) / dist;
+            dy += amp * (py - r.y) / dist;
+          }
+        }
+
+        const x = i * gridSize + dx;
+        const y = j * gridSize + dy;
+        const distortion = Math.hypot(dx, dy);
+        const alpha = 0.15 + Math.min(distortion * 0.03, 0.6);
+
+        ctx.beginPath();
+        ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+        const hue = 250 + distortion * 3;
+        ctx.fillStyle = `hsla(${hue}, 70%, 70%, ${alpha})`;
+        ctx.fill();
+      }
+    }
+
+    // Update ripples
+    for (const r of ripples) {
+      if (!r.auto) r.t += 1.5;
+    }
+    ripples = ripples.filter(r => r.auto || r.t < 400);
+
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  requestAnimationFrame(draw);
+})();
+
+// ===== BLACK HOLE MERGER =====
+(function() {
+  const canvas = document.getElementById('mergerCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  let t = 0;
+  let paused = false;
+  let merged = false;
+  const totalTime = 600; // frames to merge
+  const ringdownTime = 200;
+
+  function resize() {
+    W = canvas.width = canvas.parentElement.offsetWidth * devicePixelRatio;
+    H = canvas.height = canvas.parentElement.offsetHeight * devicePixelRatio;
+  }
+
+  window.resetMerger = function() {
+    t = 0;
+    merged = false;
+  };
+
+  window.togglePause = function() {
+    paused = !paused;
+  };
+
+  function draw() {
+    resize();
+    ctx.fillStyle = 'rgba(10, 10, 30, 1)';
+    ctx.fillRect(0, 0, W, H);
+
+    const cx = W / 2;
+    const cy = H / 2;
+
+    if (!paused) t++;
+
+    // Phase: inspiral, merger, ringdown
+    const phase = t / totalTime; // 0..1 is inspiral, >1 is post-merger
+
+    if (phase <= 1) {
+      // Inspiral phase
+      const separation = 120 * (1 - phase * 0.9); // shrinking orbit
+      const speed = 0.02 + phase * 0.15; // increasing orbital speed
+      const angle = t * speed;
+
+      const m1 = 30 - phase * 5; // masses (visual size)
+      const m2 = 30 - phase * 5;
+
+      const x1 = cx + Math.cos(angle) * separation;
+      const y1 = cy + Math.sin(angle) * separation;
+      const x2 = cx + Math.cos(angle + Math.PI) * separation;
+      const y2 = cy + Math.sin(angle + Math.PI) * separation;
+
+      // Gravitational wave rings
+      const numWaves = 8;
+      for (let i = 0; i < numWaves; i++) {
+        const waveR = ((t * 2 + i * 60) % (Math.max(W, H) * 0.8));
+        const alpha = 0.3 * (1 - waveR / (Math.max(W, H) * 0.8));
+        if (alpha > 0) {
+          // Quadrupole pattern - gravitational waves are not spherically symmetric
+          ctx.beginPath();
+          for (let a = 0; a < Math.PI * 2; a += 0.05) {
+            const stretch = 1 + 0.15 * Math.cos(2 * (a - angle)) * (1 + phase);
+            const r = waveR * stretch;
+            const wx = cx + Math.cos(a) * r;
+            const wy = cy + Math.sin(a) * r;
+            a === 0 ? ctx.moveTo(wx, wy) : ctx.lineTo(wx, wy);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = `rgba(108, 92, 231, ${alpha})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+
+      // Black holes
+      drawBlackHole(ctx, x1, y1, m1);
+      drawBlackHole(ctx, x2, y2, m2);
+
+      // Label
+      ctx.fillStyle = 'rgba(200,200,255,0.5)';
+      ctx.font = `${14 * devicePixelRatio}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('Inspiral', cx, 30 * devicePixelRatio);
+
+      // Frequency indicator
+      const freq = (0.02 + phase * 0.15).toFixed(3);
+      ctx.fillText(`orbital speed: ${freq}`, cx, H - 40 * devicePixelRatio);
+
+    } else {
+      // Post-merger: ringdown
+      const ringPhase = (phase - 1) * totalTime / ringdownTime;
+      merged = true;
+
+      const ringAmp = Math.exp(-ringPhase * 2);
+      const ringFreq = 0.3;
+      const wobble = ringAmp * 8 * Math.sin(t * ringFreq);
+
+      // Gravitational wave burst
+      const numWaves = 12;
+      for (let i = 0; i < numWaves; i++) {
+        const waveR = (((t - totalTime) * 4 + i * 50) % (Math.max(W, H)));
+        const alpha = 0.4 * (1 - waveR / Math.max(W, H)) * (1 + ringAmp);
+        if (alpha > 0) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, waveR, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0, 206, 201, ${alpha})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+
+      // Merged black hole
+      const size = 40 + wobble;
+      drawBlackHole(ctx, cx, cy, size);
+
+      // Ringdown glow
+      if (ringAmp > 0.01) {
+        const grad = ctx.createRadialGradient(cx, cy, size, cx, cy, size + 60 * ringAmp);
+        grad.addColorStop(0, `rgba(253, 121, 168, ${0.3 * ringAmp})`);
+        grad.addColorStop(1, 'rgba(253, 121, 168, 0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      ctx.fillStyle = 'rgba(200,200,255,0.5)';
+      ctx.font = `${14 * devicePixelRatio}px sans-serif`;
+      ctx.textAlign = 'center';
+      if (ringPhase < 1) {
+        ctx.fillText('Merger!', cx, 30 * devicePixelRatio);
+      } else {
+        ctx.fillText('Ringdown - the new black hole "rings" like a bell', cx, 30 * devicePixelRatio);
+      }
+    }
+
+    // Waveform at bottom
+    drawWaveform(ctx, W, H, t, totalTime);
+
+    requestAnimationFrame(draw);
+  }
+
+  function drawBlackHole(ctx, x, y, r) {
+    // Accretion glow
+    const grad = ctx.createRadialGradient(x, y, r * 0.5, x, y, r * 2);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
+    grad.addColorStop(0.5, 'rgba(108, 92, 231, 0.3)');
+    grad.addColorStop(1, 'rgba(108, 92, 231, 0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x - r * 2, y - r * 2, r * 4, r * 4);
+
+    // Event horizon
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#000';
+    ctx.fill();
+
+    // Photon ring
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.15, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(108, 92, 231, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  function drawWaveform(ctx, W, H, currentT, mergeT) {
+    const waveH = 50 * devicePixelRatio;
+    const baseY = H - 20 * devicePixelRatio;
+    const startX = 50 * devicePixelRatio;
+    const endX = W - 50 * devicePixelRatio;
+    const waveW = endX - startX;
+
+    ctx.beginPath();
+    ctx.moveTo(startX, baseY);
+
+    for (let px = 0; px < waveW; px++) {
+      const frac = px / waveW;
+      const frameAtPx = frac * (mergeT + ringdownTime);
+
+      let amp, freq;
+      if (frameAtPx < mergeT) {
+        const p = frameAtPx / mergeT;
+        freq = 0.05 + p * 0.4;
+        amp = (5 + p * 30) * devicePixelRatio * 0.4;
+      } else {
+        const rd = (frameAtPx - mergeT) / ringdownTime;
+        freq = 0.45;
+        amp = 35 * Math.exp(-rd * 3) * devicePixelRatio * 0.4;
+      }
+
+      const y = baseY - amp * Math.sin(frameAtPx * freq);
+
+      if (frameAtPx <= currentT) {
+        ctx.lineTo(startX + px, y);
+      }
+    }
+
+    ctx.strokeStyle = 'rgba(0, 206, 201, 0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Playhead
+    const playX = startX + (currentT / (mergeT + ringdownTime)) * waveW;
+    if (playX >= startX && playX <= endX) {
+      ctx.beginPath();
+      ctx.moveTo(playX, baseY - waveH);
+      ctx.lineTo(playX, baseY + waveH * 0.5);
+      ctx.strokeStyle = 'rgba(253, 121, 168, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  resize();
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

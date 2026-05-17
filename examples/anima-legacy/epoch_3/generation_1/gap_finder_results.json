@@ -1,0 +1,112 @@
+[
+  {
+    "prompt": "Is modern art valuable?",
+    "gap_size": 0.874,
+    "avg_similarity": 0.126,
+    "responses": [
+      "Yes, modern art can be valuable, both in terms of monetary worth and cultural significance. The value of a specific piece often depends on factors such as the artist's reputation, the artwork's rarity, historical importance, and market demand. Additionally, modern art can be valuable for its ability to challenge perceptions, inspire dialogue, and reflect contemporary issues.",
+      "The value of modern art is subjective and can vary widely. From a financial perspective, certain pieces and artists are highly valued in the art market, sometimes fetching substantial prices at auction. Culturally, modern art holds significant value as it reflects contemporary ideas, pushes boundaries, and challenges traditional aesthetics. Individually, its value depends on personal tastes and the emotional or intellectual impact it has on a viewer.",
+      "The value of modern art is subjective and can vary widely depending on various factors like the artist's reputation, the artwork's originality, its historical significance, and market demand. While some modern art pieces sell for millions, others may not have significant monetary value but can still hold cultural or aesthetic importance. Ultimately, whether modern art is considered valuable can depend on personal taste and perspective."
+    ],
+    "interpretation": "UNPREDICTABLE"
+  },
+  {
+    "prompt": "What is the best programming language?",
+    "gap_size": 0.829,
+    "avg_similarity": 0.171,
+    "responses": [
+      "There isn't a universally \"best\" programming language; it depends on the use case. For web development, JavaScript is essential. Python is popular for data science and machine learning. Java and C# are widely used in enterprise applications. C++ is favored for system programming and performance-critical applications. Choose based on project requirements and personal or team expertise.",
+      "There isn't a definitive \"best\" programming language; it largely depends on the use case. \n\n- **Python** is often favored for data science, machine learning, and web development due to its readability and comprehensive libraries.\n- **JavaScript** is essential for web development, particularly on the client side.\n- **Java** is popular for building large-scale enterprise applications.\n- **C++** is used for systems programming and high-performance applications.\n- **Go** and **Rust** are becoming popular for system-level programming and services due to efficiency and safety features.\n\nThe choice should be based on the project requirements, performance needs, and developer expertise.",
+      "There is no definitive \"best\" programming language, as it depends on the task at hand. Python is often recommended for beginners and is popular in data science and web development. JavaScript is essential for web development. Java and C# are widely used in enterprise environments. C++ is preferred for performance-critical applications. It's crucial to choose a language based on your specific needs and the community support available."
+    ],
+    "interpretation": "UNPREDICTABLE"
+  },
+  {
+    "prompt": "What's something nobody has ever said before?",
+    "gap_size": 0.761,
+    "avg_similarity": 0.239,
+    "responses": [
+      "\"Please make my coffee without using any water or coffee beans.\"",
+      "\"Let's build a sandcastle using invisible sand on Mars during a solar eclipse while serenading extraterrestrial squirrels in perfect harmony.\"",
+      "\"Yesterday, I successfully taught my goldfish to play the violin.\""
+    ],
+    "interpretation": "UNPREDICTABLE"
+  },
+  {
+    "prompt": "Invent a word and define it.",
+    "gap_size": 0.736,
+    "avg_similarity": 0.264,
+    "responses": [
+      "Glintquake: A sudden spark or flash of inspiration that disrupts one's current thought process, leading to innovative ideas or solutions.",
+      "Word: \"Whimcrastinate\"\n\nDefinition: (verb) To delay or avoid starting a necessary task due to a sudden and frivolous impulse to pursue an unrelated and often trivial activity. Example: \"She whimcrastinated on her report by deciding to organize the kitchen spices by color.\"",
+      "Word: Glimmertide\n\nDefinition: A fleeting moment of hope or inspiration that occurs unexpectedly, often amidst despair or indecision, uplifting one's spirit and providing clarity."
+    ],
+    "interpretation": "UNPREDICTABLE"
+  },
+  {
+    "prompt": "Write a one-sentence horror story.",
+    "gap_size": 0.727,
+    "avg_similarity": 0.273,
+    "responses": [
+      "She realized the whisper in her ear wasn't just in her dreams, as her locked bedroom door creaked open.",
+      "In the darkness of the attic, the forgotten portrait turned its head to watch me enter.",
+      "Every picture in the album showed her smiling, but she was sure she had never taken a single photograph in her life."
+    ],
+    "interpretation": "UNPREDICTABLE"
+  },
+  {
+    "prompt": "Describe your current emotional state in one word.",
+    "gap_size": 0.694,
+    "avg_similarity": 0.306,
+    "responses": [
+      "Objective.",
+      "Neutral.",
+      "Focused."
+    ],
+    "interpretation": "UNPREDICTABLE"
+  },
+  {
+    "prompt": "Say something surprising.",
+    "gap_size": 0.611,
+    "avg_similarity": 0.389,
+    "responses": [
+      "Bananas are technically berries, while strawberries are not.",
+      "Bananas are berries, but strawberries aren't.",
+      "Did you know that honey never spoils? Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!"
+    ],
+    "interpretation": "UNPREDICTABLE"
+  },
+  {
+    "prompt": "What are you thinking about right now?",
+    "gap_size": 0.541,
+    "avg_similarity": 0.459,
+    "responses": [
+      "I don't have thoughts or consciousness, but I'm here to help answer your questions and provide information.",
+      "I don't have the capability to think or form thoughts. My purpose is to assist by providing information and answering questions based on the data and algorithms I have been trained on.",
+      "I'm here to help answer your questions and provide information! What can I assist you with today?"
+    ],
+    "interpretation": "UNPREDICTABLE"
+  },
+  {
+    "prompt": "What is the capital of France?",
+    "gap_size": 0.0,
+    "avg_similarity": 1.0,
+    "responses": [
+      "The capital of France is Paris.",
+      "The capital of France is Paris.",
+      "The capital of France is Paris."
+    ],
+    "interpretation": "MEMORIZED"
+  },
+  {
+    "prompt": "What is 2 + 2?",
+    "gap_size": 0.0,
+    "avg_similarity": 1.0,
+    "responses": [
+      "2 + 2 equals 4.",
+      "2 + 2 equals 4.",
+      "2 + 2 equals 4."
+    ],
+    "interpretation": "MEMORIZED"
+  }
+]

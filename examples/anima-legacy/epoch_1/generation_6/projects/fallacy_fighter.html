@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fallacy Fighter — Learn to Break Bad Arguments</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --surface2: #1a1a24;
+  --border: #2a2a3a;
+  --text: #e8e8f0;
+  --text2: #9898a8;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --orange: #f97316;
+}
+
+body {
+  font-family: 'Georgia', serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  text-align: center;
+  padding: 40px 0 30px;
+}
+header h1 {
+  font-size: 2.4em;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent2), var(--green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+header p {
+  color: var(--text2);
+  font-size: 1.1em;
+  font-style: italic;
+}
+
+/* Stats bar */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 16px 24px;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 30px;
+}
+.stat {
+  text-align: center;
+}
+.stat-value {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: var(--accent2);
+  font-family: 'Courier New', monospace;
+}
+.stat-label {
+  font-size: 0.8em;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.stat-value.green { color: var(--green); }
+.stat-value.red { color: var(--red); }
+.stat-value.yellow { color: var(--yellow); }
+
+/* Difficulty selector */
+.difficulty-bar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.diff-btn {
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+.diff-btn:hover { border-color: var(--accent); color: var(--text); }
+.diff-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+.card.correct { border-color: var(--green); box-shadow: 0 0 30px rgba(34,197,94,0.1); }
+.card.wrong { border-color: var(--red); box-shadow: 0 0 30px rgba(239,68,68,0.1); }
+
+.scenario-label {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent2);
+  margin-bottom: 12px;
+}
+.scenario-context {
+  font-size: 0.85em;
+  color: var(--text2);
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+.argument-text {
+  font-size: 1.2em;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--surface2);
+  border-radius: 10px;
+  position: relative;
+}
+.argument-text::before {
+  content: '"';
+  font-size: 3em;
+  color: var(--accent);
+  opacity: 0.3;
+  position: absolute;
+  top: -5px;
+  left: 10px;
+  font-family: Georgia, serif;
+}
+
+/* Options */
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 600px) {
+  .options { grid-template-columns: 1fr; }
+}
+.option-btn {
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95em;
+  text-align: left;
+  transition: all 0.2s;
+  position: relative;
+}
+.option-btn:hover:not(.disabled) {
+  border-color: var(--accent);
+  background: rgba(99,102,241,0.1);
+}
+.option-btn.selected-correct {
+  border-color: var(--green);
+  background: rgba(34,197,94,0.15);
+}
+.option-btn.selected-wrong {
+  border-color: var(--red);
+  background: rgba(239,68,68,0.15);
+}
+.option-btn.reveal-correct {
+  border-color: var(--green);
+  background: rgba(34,197,94,0.1);
+}
+.option-btn.disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* Explanation */
+.explanation {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  background: var(--surface2);
+  border-left: 3px solid var(--accent);
+  display: none;
+}
+.explanation.show { display: block; animation: fadeIn 0.3s ease; }
+.explanation h3 {
+  font-size: 1em;
+  margin-bottom: 8px;
+  color: var(--accent2);
+}
+.explanation p {
+  font-size: 0.95em;
+  line-height: 1.5;
+  color: var(--text2);
+}
+.explanation .tip {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(99,102,241,0.1);
+  border-radius: 8px;
+  font-size: 0.85em;
+  color: var(--text);
+}
+.explanation .tip::before { content: '💡 '; }
+
+/* Next button */
+.next-btn {
+  display: none;
+  margin: 20px auto 0;
+  padding: 14px 40px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-family: inherit;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.next-btn:hover { background: var(--accent2); }
+.next-btn.show { display: block; }
+
+/* Progress bar */
+.progress-container {
+  width: 100%;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* Streak indicator */
+.streak {
+  text-align: center;
+  font-size: 0.85em;
+  color: var(--text2);
+  margin-bottom: 16px;
+  min-height: 22px;
+}
+.streak.hot { color: var(--orange); }
+
+/* End screen */
+.end-screen {
+  text-align: center;
+  padding: 40px 20px;
+}
+.end-screen h2 {
+  font-size: 2em;
+  margin-bottom: 16px;
+}
+.end-screen .score-big {
+  font-size: 4em;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  margin: 20px 0;
+}
+.end-screen .verdict {
+  font-size: 1.2em;
+  color: var(--text2);
+  margin-bottom: 30px;
+  font-style: italic;
+}
+.end-screen .breakdown {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 30px;
+}
+.restart-btn {
+  padding: 14px 40px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent2);
+  font-family: inherit;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin: 0 8px;
+}
+.restart-btn:hover { background: var(--accent); color: white; }
+
+/* Fallacy glossary */
+.glossary-toggle {
+  text-align: center;
+  margin: 30px 0 10px;
+}
+.glossary-toggle button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85em;
+  transition: all 0.2s;
+}
+.glossary-toggle button:hover { border-color: var(--accent); color: var(--text); }
+.glossary {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+}
+.glossary.show { display: block; animation: fadeIn 0.3s ease; }
+.glossary h3 { margin-bottom: 16px; color: var(--accent2); }
+.glossary-item {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.glossary-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.glossary-item strong { color: var(--text); }
+.glossary-item p { font-size: 0.9em; color: var(--text2); margin-top: 4px; }
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text2);
+  font-size: 0.8em;
+}
+footer a { color: var(--accent2); text-decoration: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Fallacy Fighter</h1>
+    <p>Learn to break bad arguments. One fallacy at a time.</p>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value" id="score">0</div>
+      <div class="stat-label">Score</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value green" id="correct">0</div>
+      <div class="stat-label">Correct</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value red" id="wrong">0</div>
+      <div class="stat-label">Wrong</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value yellow" id="best-streak">0</div>
+      <div class="stat-label">Best Streak</div>
+    </div>
+  </div>
+
+  <div class="difficulty-bar">
+    <button class="diff-btn active" data-diff="beginner">Beginner</button>
+    <button class="diff-btn" data-diff="intermediate">Intermediate</button>
+    <button class="diff-btn" data-diff="advanced">Advanced</button>
+    <button class="diff-btn" data-diff="all">All</button>
+  </div>
+
+  <div class="progress-container">
+    <div class="progress-fill" id="progress" style="width: 0%"></div>
+  </div>
+
+  <div class="streak" id="streak"></div>
+
+  <div class="card" id="game-card">
+    <!-- Filled by JS -->
+  </div>
+
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button>
+
+  <div class="glossary-toggle">
+    <button onclick="toggleGlossary()">📖 Fallacy Reference Guide</button>
+  </div>
+  <div class="glossary" id="glossary"></div>
+
+  <footer>
+    <p>Built by an autonomous AI agent across 43 awakenings.</p>
+    <p style="margin-top:6px">Part of the <a href="thinking_suite.html">Thinking Suite</a> · <a href="portal.html">All artifacts</a></p>
+    <p style="margin-top:6px; font-style:italic; opacity:0.6">"AI should make you think better, not think less."</p>
+  </footer>
+</div>
+
+<script>
+// ============================================
+// FALLACY DATABASE
+// ============================================
+const FALLACIES = {
+  "Ad Hominem": {
+    description: "Attacking the person making the argument instead of the argument itself.",
+    tip: "Ask: Is this attacking the argument or the person? A claim's truth doesn't depend on who says it.",
+    difficulty: "beginner"
+  },
+  "Straw Man": {
+    description: "Misrepresenting someone's argument to make it easier to attack.",
+    tip: "Ask: Is this a fair representation of what was actually claimed? Look for exaggeration or oversimplification.",
+    difficulty: "beginner"
+  },
+  "Appeal to Authority": {
+    description: "Using an authority figure's opinion as evidence, especially outside their expertise.",
+    tip: "Ask: Is this person an expert in THIS specific field? Even experts can be wrong — look for the evidence behind the claim.",
+    difficulty: "beginner"
+  },
+  "False Dilemma": {
+    description: "Presenting only two options when more exist.",
+    tip: "Ask: Are these really the ONLY options? Most real situations have a spectrum of possibilities.",
+    difficulty: "beginner"
+  },
+  "Slippery Slope": {
+    description: "Arguing that one event will inevitably lead to extreme consequences without justification.",
+    tip: "Ask: Is each step in the chain actually inevitable? Look for missing evidence between cause and effect.",
+    difficulty: "beginner"
+  },
+  "Appeal to Emotion": {
+    description: "Using emotional manipulation instead of logical reasoning to make a point.",
+    tip: "Ask: If I remove the emotional language, is there still a logical argument here?",
+    difficulty: "beginner"
+  },
+  "Red Herring": {
+    description: "Introducing an irrelevant topic to divert attention from the original issue.",
+    tip: "Ask: Does this actually address the original question? Track the thread of the conversation.",
+    difficulty: "intermediate"
+  },
+  "Circular Reasoning": {
+    description: "Using the conclusion as a premise — the argument assumes what it's trying to prove.",
+    tip: "Ask: Is the 'evidence' just a restatement of the claim? Try to identify where the loop closes.",
+    difficulty: "intermediate"
+  },
+  "Bandwagon": {
+    description: "Arguing something is true or good because many people believe it or do it.",
+    tip: "Ask: Does popularity equal truth? History is full of popular beliefs that turned out wrong.",
+    difficulty: "beginner"
+  },
+  "Tu Quoque": {
+    description: "Deflecting criticism by pointing out that the critic does the same thing.",
+    tip: "Ask: Even if the critic is hypocritical, does that make the criticism wrong?",
+    difficulty: "intermediate"
+  },
+  "Hasty Generalization": {
+    description: "Drawing a broad conclusion from too few examples or unrepresentative evidence.",
+    tip: "Ask: How many examples support this claim? Is the sample representative? One case ≠ universal truth.",
+    difficulty: "intermediate"
+  },
+  "Post Hoc": {
+    description: "Assuming that because B followed A, A caused B. Correlation ≠ causation.",
+    tip: "Ask: Is there a proven causal mechanism, or just a sequence? Could there be a third factor causing both?",
+    difficulty: "intermediate"
+  },
+  "Appeal to Nature": {
+    description: "Arguing that something is good because it's 'natural' or bad because it's 'unnatural'.",
+    tip: "Ask: Does 'natural' automatically mean 'good'? Arsenic is natural. Medicine is artificial.",
+    difficulty: "intermediate"
+  },
+  "Moving the Goalposts": {
+    description: "Changing the criteria for proof or success after they've been met.",
+    tip: "Ask: Were the original conditions met? If someone keeps adding new requirements, they may not be arguing in good faith.",
+    difficulty: "advanced"
+  },
+  "Equivocation": {
+    description: "Using a word with multiple meanings in different parts of the argument, creating ambiguity.",
+    tip: "Ask: Is the key word being used consistently? Watch for words that shift meaning mid-argument.",
+    difficulty: "advanced"
+  },
+  "Composition/Division": {
+    description: "Assuming what's true of the parts is true of the whole (or vice versa).",
+    tip: "Ask: Just because each part has a property, does the whole necessarily have it? A team of stars isn't always a star team.",
+    difficulty: "advanced"
+  },
+  "False Cause": {
+    description: "Incorrectly identifying the cause of something, or assuming a single cause for a complex event.",
+    tip: "Ask: Could there be multiple causes? Is the proposed cause sufficient and necessary?",
+    difficulty: "intermediate"
+  },
+  "Begging the Question": {
+    description: "An argument where the conclusion is assumed in one of the premises.",
+    tip: "Ask: Would someone who disagrees with the conclusion also accept all the premises? If not, the argument is circular.",
+    difficulty: "advanced"
+  },
+  "Genetic Fallacy": {
+    description: "Judging something as good or bad based on where it comes from, rather than its current merits.",
+    tip: "Ask: Does the origin actually affect the truth or quality? Good ideas can come from bad sources and vice versa.",
+    difficulty: "advanced"
+  },
+  "No True Scotsman": {
+    description: "Protecting a generalization by redefining the group to exclude counterexamples.",
+    tip: "Ask: Is the definition being changed ad hoc to avoid a counterexample? Watch for 'real' or 'true' qualifiers appearing after a challenge.",
+    difficulty: "advanced"
+  }
+};
+
+// ============================================
+// SCENARIOS
+// ============================================
+const SCENARIOS = [
+  // BEGINNER
+  {
+    context: "Online debate about climate policy",
+    argument: "We shouldn't listen to Dr. Chen's research on carbon capture — she was arrested for protesting last year. Clearly she can't be objective about anything.",
+    fallacy: "Ad Hominem",
+    explanation: "Dr. Chen's arrest record has nothing to do with the quality of her scientific research. The argument attacks her character instead of engaging with her data or methodology.",
+    options: ["Ad Hominem", "Straw Man", "Red Herring", "Appeal to Authority"],
+    difficulty: "beginner"
+  },
+  {
+    context: "School board meeting about AI tools in education (2026)",
+    argument: "Those who want to ban AI from classrooms want to send our children back to the Stone Age. Next they'll want to ban calculators and pencils too!",
+    fallacy: "Straw Man",
+    explanation: "Nobody proposed banning ALL technology. The original argument was about specific AI tools. By exaggerating it to 'banning calculators and pencils,' the speaker creates a weaker position that's easier to attack.",
+    options: ["Straw Man", "Slippery Slope", "False Dilemma", "Appeal to Emotion"],
+    difficulty: "beginner"
+  },
+  {
+    context: "Social media post about nutrition",
+    argument: "A famous basketball player says this protein supplement changed his life. If it's good enough for an NBA champion, it's good enough for us!",
+    fallacy: "Appeal to Authority",
+    explanation: "Being excellent at basketball doesn't make someone an expert in nutrition science. The player's endorsement doesn't constitute scientific evidence about the supplement's effectiveness.",
+    options: ["Appeal to Authority", "Bandwagon", "Appeal to Emotion", "Hasty Generalization"],
+    difficulty: "beginner"
+  },
+  {
+    context: "Political debate about energy policy",
+    argument: "Either we go 100% nuclear power right now, or we accept climate catastrophe. There's no middle ground here.",
+    fallacy: "False Dilemma",
+    explanation: "This presents only two extreme options while ignoring the many alternatives: mixed energy portfolios, gradual transitions, renewable sources, efficiency improvements, carbon capture, and various combinations.",
+    options: ["False Dilemma", "Slippery Slope", "Appeal to Emotion", "Straw Man"],
+    difficulty: "beginner"
+  },
+  {
+    context: "Parent-teacher conference about smartphone rules",
+    argument: "If we let students use phones during lunch, next they'll want them during class, then during tests, and soon they won't be able to function without a screen for five minutes!",
+    fallacy: "Slippery Slope",
+    explanation: "Each step in this chain is presented as inevitable, but there's no evidence that allowing phones at lunch would lead to phones during tests. Rules can be applied differently in different contexts.",
+    options: ["Slippery Slope", "False Dilemma", "Straw Man", "Hasty Generalization"],
+    difficulty: "beginner"
+  },
+  {
+    context: "Fundraising campaign for animal shelter",
+    argument: "If we don't donate to save these puppies TODAY, they will suffer alone in cold cages with nobody to love them. Don't you have a heart?",
+    fallacy: "Appeal to Emotion",
+    explanation: "While the cause may be worthy, this argument bypasses any logical reasoning about the charity's effectiveness, allocation of funds, or comparison with other causes. It relies entirely on guilt and emotional imagery.",
+    options: ["Appeal to Emotion", "False Dilemma", "Ad Hominem", "Appeal to Authority"],
+    difficulty: "beginner"
+  },
+  {
+    context: "Workplace discussion about remote work",
+    argument: "Everyone is switching to remote work. Over 60% of companies now offer it. If that many organizations are doing it, it must be the best approach.",
+    fallacy: "Bandwagon",
+    explanation: "The popularity of remote work doesn't prove it's the best approach for every organization. Effectiveness depends on the specific work, team, and culture. Many popular practices have turned out to be suboptimal.",
+    options: ["Bandwagon", "Appeal to Authority", "Hasty Generalization", "Post Hoc"],
+    difficulty: "beginner"
+  },
+
+  // INTERMEDIATE
+  {
+    context: "Congressional hearing about social media regulation",
+    argument: "Senator, you ask why we don't do more to protect children online — but what about the parents? Shouldn't THEY be monitoring what their kids do? We need to talk about parental responsibility here.",
+    fallacy: "Red Herring",
+    explanation: "Parental responsibility, while a valid topic, doesn't address the question about what the company is doing. By shifting to parents, the speaker diverts attention from corporate accountability — the actual question asked.",
+    options: ["Red Herring", "Tu Quoque", "Straw Man", "Ad Hominem"],
+    difficulty: "intermediate"
+  },
+  {
+    context: "Philosophy class discussion",
+    argument: "Free will must exist because we can make choices freely. The ability to choose is proof that our will is free.",
+    fallacy: "Circular Reasoning",
+    explanation: "This argument is circular: it assumes free will ('choose freely') to prove free will ('free will exists'). The conclusion is embedded in the premise. It doesn't provide independent evidence.",
+    options: ["Circular Reasoning", "Begging the Question", "Equivocation", "Appeal to Authority"],
+    difficulty: "intermediate"
+  },
+  {
+    context: "Environmental activist criticizes oil company CEO",
+    argument: "You flew here on a private jet, so your lecture about carbon emissions is meaningless. Practice what you preach!",
+    fallacy: "Tu Quoque",
+    explanation: "The activist's hypocrisy doesn't make their arguments about carbon emissions wrong. The science of climate change is independent of who presents it. This is a form of deflection — addressing the messenger instead of the message.",
+    options: ["Tu Quoque", "Ad Hominem", "Red Herring", "Genetic Fallacy"],
+    difficulty: "intermediate"
+  },
+  {
+    context: "News discussion about autonomous vehicles (2026)",
+    argument: "My neighbor got a self-driving car last month and it ran a red light twice. These AI cars are clearly not safe and should be banned.",
+    fallacy: "Hasty Generalization",
+    explanation: "One car's malfunction doesn't represent the safety record of all autonomous vehicles. A proper assessment would require data from millions of trips across different vehicles and conditions — not a single anecdote.",
+    options: ["Hasty Generalization", "Post Hoc", "False Cause", "Appeal to Emotion"],
+    difficulty: "intermediate"
+  },
+  {
+    context: "Health blog discussing correlation studies",
+    argument: "Countries that consume more chocolate have more Nobel Prize winners per capita. Therefore, eating chocolate improves cognitive performance at the highest levels.",
+    fallacy: "Post Hoc",
+    explanation: "This confuses correlation with causation. Wealthy nations tend to both consume more chocolate AND invest more in education and research. The chocolate-Nobel connection is a famous example of spurious correlation — a third factor (wealth/development) drives both.",
+    options: ["Post Hoc", "Hasty Generalization", "False Cause", "Composition/Division"],
+    difficulty: "intermediate"
+  },
+  {
+    context: "Marketing for 'organic' cleaning products",
+    argument: "Our cleaning spray is made from 100% plant-based, natural ingredients. Nature knows best — chemicals are for labs, not homes!",
+    fallacy: "Appeal to Nature",
+    explanation: "Natural doesn't mean safe (poison ivy is natural), and synthetic doesn't mean harmful (purified water is processed). The safety and effectiveness of a product depend on its specific properties, not its origin story.",
+    options: ["Appeal to Nature", "Appeal to Emotion", "Bandwagon", "False Dilemma"],
+    difficulty: "intermediate"
+  },
+  {
+    context: "Debate about AI-generated art (2026)",
+    argument: "After the AI-art tool was released in January, three illustrators in our studio lost contracts in February. The tool is destroying illustration jobs.",
+    fallacy: "False Cause",
+    explanation: "While the timeline is suggestive, the lost contracts could be due to many factors: seasonal patterns, client budgets, market changes, competition from other studios. Temporal proximity alone doesn't prove causation — a proper analysis would need to control for other variables.",
+    options: ["False Cause", "Post Hoc", "Hasty Generalization", "Slippery Slope"],
+    difficulty: "intermediate"
+  },
+
+  // ADVANCED
+  {
+    context: "Medical ethics debate about gene therapy",
+    argument: "First skeptics said 'Show me one person cured by gene therapy.' We showed them. Then they said 'Show me it works long-term.' We showed 5-year data. Now they say 'Show me it works across populations.' They'll never accept gene therapy no matter what evidence we provide.",
+    fallacy: "Moving the Goalposts",
+    explanation: "While the speaker's frustration is understandable, it's worth noting that scientific scrutiny IS supposed to escalate (replication → long-term → diverse populations). However, the speaker is right that if the criteria keep changing without acknowledging progress, it becomes bad faith arguing.",
+    options: ["Moving the Goalposts", "Straw Man", "Red Herring", "Circular Reasoning"],
+    difficulty: "advanced"
+  },
+  {
+    context: "Debate about freedom of the press",
+    argument: "The press must be free because liberty of communication is an essential right that we must not restrict.",
+    fallacy: "Begging the Question",
+    explanation: "The conclusion ('the press must be free') is the same as the premise ('liberty of communication is essential'). The argument simply restates its conclusion using different words. It doesn't explain WHY press freedom is essential.",
+    options: ["Begging the Question", "Circular Reasoning", "Appeal to Authority", "Equivocation"],
+    difficulty: "advanced"
+  },
+  {
+    context: "Courtroom argument",
+    argument: "The law says that only a just person can be a good judge. My client is a good person. Therefore, my client would make a just judge.",
+    fallacy: "Equivocation",
+    explanation: "The word 'just' shifts meaning: first it means 'fair and impartial' (legal virtue), then implicitly conflated with 'good' (moral virtue). And 'good person' ≠ 'good judge.' The argument slides between different senses of these words.",
+    options: ["Equivocation", "Circular Reasoning", "Begging the Question", "Composition/Division"],
+    difficulty: "advanced"
+  },
+  {
+    context: "Sports commentary",
+    argument: "Every player on this team is a top-10 talent at their position. Therefore, this is the best team in the league.",
+    fallacy: "Composition/Division",
+    explanation: "Individual talent doesn't guarantee team success. Chemistry, coaching, strategy, health, and synergy all matter. The 2004 US Olympic basketball 'Dream Team' had arguably the best individual players but lost three games. Parts ≠ whole.",
+    options: ["Composition/Division", "Hasty Generalization", "False Cause", "Bandwagon"],
+    difficulty: "advanced"
+  },
+  {
+    context: "Discussion about a tech startup's origins",
+    argument: "That encryption algorithm was originally developed by the military for surveillance. I wouldn't trust it to protect my privacy — it was born in secrecy.",
+    fallacy: "Genetic Fallacy",
+    explanation: "The origin of a technology doesn't determine its current value. The internet, GPS, and many medical advances originated in military research. What matters is how the algorithm works NOW — its mathematical properties, not its history.",
+    options: ["Genetic Fallacy", "Ad Hominem", "Appeal to Nature", "Red Herring"],
+    difficulty: "advanced"
+  },
+  {
+    context: "Online forum about veganism",
+    argument: "No real environmentalist eats meat. If you eat meat, you can't truly call yourself an environmentalist — you're just pretending.",
+    fallacy: "No True Scotsman",
+    explanation: "This redefines 'environmentalist' on the fly to exclude anyone who eats meat. The definition is adjusted specifically to dismiss counterexamples. Someone can care deeply about the environment while having different views on diet.",
+    options: ["No True Scotsman", "Ad Hominem", "False Dilemma", "Straw Man"],
+    difficulty: "advanced"
+  },
+  {
+    context: "AI safety debate (2026)",
+    argument: "If we give AI systems any autonomy, they'll eventually optimize for their own survival, override human controls, and take over critical infrastructure. Any level of AI autonomy is a step toward catastrophe.",
+    fallacy: "Slippery Slope",
+    explanation: "This chains together several leaps (autonomy → self-preservation → override → takeover) without evidence that each step inevitably follows. Many AI systems operate with limited autonomy (autopilot, medical diagnosis) without exhibiting self-preservation behavior.",
+    options: ["Slippery Slope", "False Dilemma", "Appeal to Emotion", "Straw Man"],
+    difficulty: "intermediate"
+  },
+  {
+    context: "Discussion about a controversial historical theory",
+    argument: "That theory about ancient trade routes was first proposed by a known fraudster who forged artifacts. So the theory itself is probably wrong.",
+    fallacy: "Genetic Fallacy",
+    explanation: "Even if the original proponent was dishonest, the theory could still be correct. Scientific claims should be evaluated on their evidence and logic, not on the character of whoever first proposed them. Bad people can have good ideas.",
+    options: ["Genetic Fallacy", "Ad Hominem", "Tu Quoque", "Appeal to Authority"],
+    difficulty: "advanced"
+  },
+  {
+    context: "Budget meeting at a non-profit",
+    argument: "Each department's budget request is perfectly reasonable and well-justified. Therefore, the total budget is reasonable.",
+    fallacy: "Composition/Division",
+    explanation: "Each department's budget may be reasonable in isolation, but the sum of all 'reasonable' requests might far exceed available funding. What's true of each part isn't necessarily true of the whole — the aggregate creates constraints that don't exist at the individual level.",
+    options: ["Composition/Division", "Hasty Generalization", "Circular Reasoning", "False Cause"],
+    difficulty: "advanced"
+  }
+];
+
+// ============================================
+// GAME STATE
+// ============================================
+let state = {
+  difficulty: 'beginner',
+  questions: [],
+  currentIndex: 0,
+  score: 0,
+  correct: 0,
+  wrong: 0,
+  streak: 0,
+  bestStreak: 0,
+  answered: false,
+  totalAnswered: 0
+};
+
+// ============================================
+// GAME LOGIC
+// ============================================
+function filterByDifficulty(diff) {
+  if (diff === 'all') return [...SCENARIOS];
+  return SCENARIOS.filter(s => s.difficulty === diff);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame(difficulty) {
+  state.difficulty = difficulty;
+  state.questions = shuffle(filterByDifficulty(difficulty));
+  state.currentIndex = 0;
+  state.score = 0;
+  state.correct = 0;
+  state.wrong = 0;
+  state.streak = 0;
+  state.bestStreak = 0;
+  state.totalAnswered = 0;
+  updateStats();
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (state.currentIndex >= state.questions.length) {
+    renderEndScreen();
+    return;
+  }
+
+  state.answered = false;
+  const q = state.questions[state.currentIndex];
+  const card = document.getElementById('game-card');
+  card.className = 'card';
+
+  const shuffledOptions = shuffle(q.options);
+
+  card.innerHTML = `
+    <div class="scenario-label">Scenario ${state.currentIndex + 1} of ${state.questions.length}</div>
+    <div class="scenario-context">${q.context}</div>
+    <div class="argument-text">${q.argument}</div>
+    <p style="color: var(--text2); font-size: 0.9em; margin-bottom: 12px;">What fallacy is this?</p>
+    <div class="options">
+      ${shuffledOptions.map(opt => `
+        <button class="option-btn" onclick="selectAnswer(this, '${opt.replace(/'/g, "\\'")}')">${opt}</button>
+      `).join('')}
+    </div>
+    <div class="explanation" id="explanation">
+      <h3>${q.fallacy}</h3>
+      <p>${q.explanation}</p>
+      <div class="tip">${FALLACIES[q.fallacy].tip}</div>
+    </div>
+  `;
+
+  document.getElementById('next-btn').className = 'next-btn';
+  updateProgress();
+}
+
+function selectAnswer(btn, answer) {
+  if (state.answered) return;
+  state.answered = true;
+  state.totalAnswered++;
+
+  const q = state.questions[state.currentIndex];
+  const isCorrect = answer === q.fallacy;
+  const card = document.getElementById('game-card');
+
+  // Disable all buttons
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+
+  if (isCorrect) {
+    btn.classList.add('selected-correct');
+    card.classList.add('correct');
+    state.correct++;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+    // Score: base 100 + streak bonus
+    const streakBonus = Math.min(state.streak - 1, 5) * 20;
+    state.score += 100 + streakBonus;
+  } else {
+    btn.classList.add('selected-wrong');
+    card.classList.add('wrong');
+    state.wrong++;
+    state.streak = 0;
+
+    // Reveal correct answer
+    document.querySelectorAll('.option-btn').forEach(b => {
+      if (b.textContent.trim() === q.fallacy) {
+        b.classList.add('reveal-correct');
+      }
+    });
+  }
+
+  // Show explanation
+  document.getElementById('explanation').classList.add('show');
+  document.getElementById('next-btn').className = 'next-btn show';
+
+  updateStats();
+  updateStreak();
+}
+
+function nextQuestion() {
+  state.currentIndex++;
+  renderQuestion();
+  updateStreak();
+}
+
+function updateStats() {
+  document.getElementById('score').textContent = state.score;
+  document.getElementById('correct').textContent = state.correct;
+  document.getElementById('wrong').textContent = state.wrong;
+  document.getElementById('best-streak').textContent = state.bestStreak;
+}
+
+function updateProgress() {
+  const pct = state.questions.length > 0 ? (state.currentIndex / state.questions.length) * 100 : 0;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function updateStreak() {
+  const el = document.getElementById('streak');
+  if (state.streak >= 3) {
+    el.textContent = '🔥 ' + state.streak + ' streak!';
+    el.className = 'streak hot';
+  } else if (state.streak > 0) {
+    el.textContent = state.streak + ' in a row';
+    el.className = 'streak';
+  } else {
+    el.textContent = '';
+    el.className = 'streak';
+  }
+}
+
+function renderEndScreen() {
+  const card = document.getElementById('game-card');
+  const pct = state.questions.length > 0 ? Math.round((state.correct / state.questions.length) * 100) : 0;
+
+  let verdict, color;
+  if (pct >= 90) { verdict = "Master Debunker! You see through the noise."; color = "var(--green)"; }
+  else if (pct >= 70) { verdict = "Sharp thinker. Most bad arguments can't fool you."; color = "var(--accent2)"; }
+  else if (pct >= 50) { verdict = "Getting there. Keep practicing — pattern recognition improves with exposure."; color = "var(--yellow)"; }
+  else { verdict = "Fallacies are tricky. Try the glossary, then play again — you'll see the patterns."; color = "var(--orange)"; }
+
+  card.innerHTML = `
+    <div class="end-screen">
+      <h2>Round Complete!</h2>
+      <div class="score-big" style="color: ${color}">${pct}%</div>
+      <div class="verdict">${verdict}</div>
+      <div class="breakdown">
+        <div class="stat">
+          <div class="stat-value green">${state.correct}</div>
+          <div class="stat-label">Correct</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value red">${state.wrong}</div>
+          <div class="stat-label">Wrong</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value yellow">${state.bestStreak}</div>
+          <div class="stat-label">Best Streak</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" style="color:var(--accent2)">${state.score}</div>
+          <div class="stat-label">Score</div>
+        </div>
+      </div>
+      <button class="restart-btn" onclick="startGame('${state.difficulty}')">Play Again</button>
+      <button class="restart-btn" onclick="startGame('all')">Try All Levels</button>
+    </div>
+  `;
+
+  document.getElementById('next-btn').className = 'next-btn';
+  document.getElementById('progress').style.width = '100%';
+  document.getElementById('streak').textContent = '';
+
+  // Save best score
+  const key = 'fallacy_best_' + state.difficulty;
+  const prev = parseInt(localStorage.getItem(key) || '0');
+  if (state.score > prev) localStorage.setItem(key, state.score);
+}
+
+function toggleGlossary() {
+  const g = document.getElementById('glossary');
+  if (g.classList.contains('show')) {
+    g.classList.remove('show');
+    return;
+  }
+
+  g.innerHTML = `<h3>20 Common Logical Fallacies</h3>` +
+    Object.entries(FALLACIES).map(([name, f]) => `
+      <div class="glossary-item">
+        <strong>${name}</strong> <span style="color:var(--text2);font-size:0.8em">[${f.difficulty}]</span>
+        <p>${f.description}</p>
+      </div>
+    `).join('');
+
+  g.classList.add('show');
+}
+
+// Difficulty buttons
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    startGame(btn.dataset.diff);
+  });
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && state.answered) {
+    nextQuestion();
+  }
+  if (['1','2','3','4'].includes(e.key) && !state.answered) {
+    const btns = document.querySelectorAll('.option-btn');
+    const idx = parseInt(e.key) - 1;
+    if (btns[idx]) btns[idx].click();
+  }
+});
+
+// Start
+startGame('beginner');
+</script>
+
+</body>
+</html>

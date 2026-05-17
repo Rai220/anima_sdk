@@ -1,0 +1,536 @@
+{
+  "exhaustive_collapse": {
+    "2": {
+      "L": 5,
+      "total": 243,
+      "max_collapse_depth": 0,
+      "avg_collapse_depth": 0.0,
+      "all_collapse": true,
+      "worst_row": null
+    },
+    "3": {
+      "L": 6,
+      "total": 4096,
+      "max_collapse_depth": 5,
+      "avg_collapse_depth": 1.53,
+      "all_collapse": false,
+      "worst_row": [
+        0,
+        0,
+        0,
+        0,
+        3,
+        1
+      ]
+    },
+    "4": {
+      "L": 7,
+      "total": 78125,
+      "max_collapse_depth": 6,
+      "avg_collapse_depth": 2.46,
+      "all_collapse": false,
+      "worst_row": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0
+      ]
+    },
+    "5": {
+      "L": 7,
+      "total": 279936,
+      "max_collapse_depth": 6,
+      "avg_collapse_depth": 2.96,
+      "all_collapse": false,
+      "worst_row": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0
+      ]
+    },
+    "6": {
+      "L": 7,
+      "total": 823543,
+      "max_collapse_depth": 6,
+      "avg_collapse_depth": 3.29,
+      "all_collapse": false,
+      "worst_row": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0
+      ]
+    }
+  },
+  "worst_case_random": {
+    "3": {
+      "max_collapse_depth": 15,
+      "worst_row_prefix": [
+        1,
+        0,
+        0,
+        0,
+        3,
+        3,
+        3,
+        3,
+        0,
+        0
+      ]
+    },
+    "4": {
+      "max_collapse_depth": 18,
+      "worst_row_prefix": [
+        2,
+        4,
+        0,
+        2,
+        0,
+        4,
+        1,
+        4,
+        2,
+        1
+      ]
+    },
+    "5": {
+      "max_collapse_depth": 17,
+      "worst_row_prefix": [
+        4,
+        3,
+        3,
+        2,
+        5,
+        5,
+        1,
+        4,
+        0,
+        1
+      ]
+    },
+    "6": {
+      "max_collapse_depth": 23,
+      "worst_row_prefix": [
+        2,
+        3,
+        0,
+        1,
+        0,
+        3,
+        3,
+        4,
+        5,
+        0
+      ]
+    },
+    "8": {
+      "max_collapse_depth": 24,
+      "worst_row_prefix": [
+        8,
+        4,
+        7,
+        1,
+        8,
+        4,
+        5,
+        8,
+        1,
+        6
+      ]
+    },
+    "10": {
+      "max_collapse_depth": 24,
+      "worst_row_prefix": [
+        0,
+        2,
+        9,
+        6,
+        6,
+        10,
+        6,
+        2,
+        5,
+        2
+      ]
+    },
+    "15": {
+      "max_collapse_depth": 29,
+      "worst_row_prefix": [
+        1,
+        6,
+        12,
+        14,
+        3,
+        10,
+        12,
+        2,
+        1,
+        14
+      ]
+    },
+    "20": {
+      "max_collapse_depth": 29,
+      "worst_row_prefix": [
+        9,
+        8,
+        13,
+        5,
+        13,
+        6,
+        5,
+        11,
+        3,
+        9
+      ]
+    },
+    "30": {
+      "max_collapse_depth": 29,
+      "worst_row_prefix": [
+        4,
+        2,
+        9,
+        27,
+        25,
+        3,
+        16,
+        24,
+        17,
+        26
+      ]
+    },
+    "50": {
+      "max_collapse_depth": 29,
+      "worst_row_prefix": [
+        26,
+        3,
+        13,
+        26,
+        24,
+        49,
+        37,
+        44,
+        1,
+        48
+      ]
+    }
+  },
+  "max_dynamics": {
+    "5": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2
+    ],
+    "10": [
+      10,
+      10,
+      10,
+      10,
+      8,
+      8,
+      7,
+      7,
+      6,
+      5,
+      5,
+      4,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2
+    ],
+    "20": [
+      20,
+      20,
+      19,
+      19,
+      18,
+      16,
+      15,
+      15,
+      15,
+      14,
+      11,
+      10,
+      9,
+      9,
+      8,
+      8,
+      7,
+      6,
+      6,
+      6,
+      6,
+      6,
+      4,
+      4,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2
+    ],
+    "50": [
+      50,
+      50,
+      49,
+      43,
+      39,
+      37,
+      37,
+      34,
+      28,
+      27,
+      22,
+      21,
+      21,
+      21,
+      21,
+      21,
+      20,
+      20,
+      19,
+      19,
+      18,
+      18,
+      18,
+      17,
+      16,
+      16,
+      15,
+      15,
+      14,
+      14,
+      14,
+      13,
+      12,
+      12,
+      11,
+      11,
+      10,
+      10,
+      10,
+      10,
+      8,
+      8,
+      7,
+      6,
+      6,
+      6,
+      5,
+      4,
+      3,
+      3,
+      3,
+      3,
+      2
+    ]
+  },
+  "greedy_anticollapse": {
+    "3": {
+      "collapse_depth": null,
+      "row_prefix": [
+        0,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    "5": {
+      "collapse_depth": null,
+      "row_prefix": [
+        0,
+        5,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3
+      ]
+    },
+    "8": {
+      "collapse_depth": null,
+      "row_prefix": [
+        0,
+        8,
+        3,
+        8,
+        3,
+        8,
+        3,
+        8,
+        3,
+        8,
+        3,
+        8,
+        3,
+        8,
+        3
+      ]
+    },
+    "10": {
+      "collapse_depth": null,
+      "row_prefix": [
+        0,
+        10,
+        3,
+        2,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1
+      ]
+    },
+    "15": {
+      "collapse_depth": null,
+      "row_prefix": [
+        0,
+        15,
+        3,
+        0,
+        3,
+        0,
+        3,
+        0,
+        3,
+        0,
+        3,
+        0,
+        3,
+        0,
+        3
+      ]
+    }
+  },
+  "prime_collapse_vs_maxgap": {
+    "50": {
+      "max_gap": 14,
+      "collapse_depth": 9,
+      "ratio": 0.643
+    },
+    "100": {
+      "max_gap": 18,
+      "collapse_depth": 10,
+      "ratio": 0.556
+    },
+    "200": {
+      "max_gap": 22,
+      "collapse_depth": 19,
+      "ratio": 0.864
+    },
+    "500": {
+      "max_gap": 34,
+      "collapse_depth": 22,
+      "ratio": 0.647
+    },
+    "1000": {
+      "max_gap": 34,
+      "collapse_depth": 34,
+      "ratio": 1.0
+    },
+    "2000": {
+      "max_gap": 44,
+      "collapse_depth": 34,
+      "ratio": 0.773
+    },
+    "5000": {
+      "max_gap": 72,
+      "collapse_depth": 56,
+      "ratio": 0.778
+    },
+    "10000": {
+      "max_gap": 72,
+      "collapse_depth": 64,
+      "ratio": 0.889
+    },
+    "20000": {
+      "max_gap": 86,
+      "collapse_depth": 64,
+      "ratio": 0.744
+    },
+    "50000": {
+      "max_gap": 114,
+      "collapse_depth": 94,
+      "ratio": 0.825
+    }
+  },
+  "transition_matrix": {
+    "M": 6,
+    "counts": {
+      "0": 7,
+      "1": 12,
+      "2": 10,
+      "3": 8,
+      "4": 6,
+      "5": 4,
+      "6": 2
+    },
+    "key_insight": "Значение 0 порождается 7 парами, значение 6 — только 2 парами. Это делает abs-diff СЖИМАЮЩИМ: малые значения имеют комбинаторное преимущество."
+  },
+  "distribution_formula": {
+    "formula": "P(|a-b|=k) = 2(M+1-k)/(M+1)^2 for k>0, 1/(M+1) for k=0",
+    "verified": true,
+    "mean": "M/3 = 6.67",
+    "implication": "Треугольное распределение с модой в 0 → abs-diff сжимает."
+  },
+  "conclusions": [
+    "Worst-case collapse depth: M=3→15, M=10→24, M=50→29. Рост ≈ линейный по M (не экспоненциальный).",
+    "Для prime gaps: collapse_depth / max(gap) ≈ 0.77 (устойчивое отношение). Collapse depth определяется max(gap).",
+    "МЕХАНИЗМ коллапса: P(|a-b|=k) ∝ (M+1-k) — треугольное распределение. Малые значения имеют комбинаторное преимущество (0 порождается M+1 парами, M — только 2 парами). Каждый шаг abs-diff сдвигает распределение к 0.",
+    "СЛЕДСТВИЕ для Гилбрета: коллапс к {0,1,2} — это ОБЩЕЕ свойство оператора abs-diff на конечных алфавитах, не специфическое свойство простых чисел. Простые числа нужны только для гарантии first=1 на первых ~max(gap) строках до коллапса."
+  ]
+}

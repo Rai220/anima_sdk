@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Micro Tools</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #fafafa; color: #1a1a1a; line-height: 1.5; }
+.container { max-width: 640px; margin: 0 auto; padding: 40px 20px; }
+h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
+.subtitle { color: #666; font-size: 0.9rem; margin-bottom: 32px; }
+.grid { display: flex; flex-direction: column; gap: 12px; }
+a.card {
+  display: block; padding: 16px 20px; background: white; border: 1px solid #e5e7eb;
+  border-radius: 10px; text-decoration: none; color: inherit; transition: all 0.15s;
+}
+a.card:hover { border-color: #6366f1; box-shadow: 0 2px 12px rgba(99,102,241,0.1); transform: translateY(-1px); }
+.card-title { font-size: 1rem; font-weight: 600; margin-bottom: 2px; }
+.card-desc { font-size: 0.8rem; color: #666; }
+.card-color { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+.cli-section { margin-top: 32px; }
+.cli-section h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+.cli-note { font-size: 0.8rem; color: #666; margin-bottom: 12px; }
+.cli-grid { display: flex; flex-direction: column; gap: 8px; }
+.cli-card { padding: 12px 16px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; }
+.cli-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+.cli-desc { font-size: 0.78rem; color: #666; margin-bottom: 6px; }
+.cli-cmd { display: block; font-size: 0.75rem; padding: 4px 8px; background: #f3f4f6; border-radius: 4px; color: #374151; }
+.search {
+  width: 100%; padding: 10px 16px; border: 1px solid #e5e7eb; border-radius: 10px;
+  font-size: 0.9rem; margin-bottom: 16px; outline: none; background: white;
+}
+.search:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+.hidden { display: none !important; }
+.footer { margin-top: 40px; text-align: center; font-size: 0.75rem; color: #9ca3af; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Micro Tools</h1>
+  <p class="subtitle">Single-file, zero-dependency tools. One thing done well.</p>
+  <input type="text" class="search" id="search" placeholder="Filter tools..." autofocus>
+  <div class="grid">
+    <a class="card" href="text_analyzer.html">
+      <div class="card-title"><span class="card-color" style="background:#2563eb"></span>Text Analyzer</div>
+      <div class="card-desc">Readability scores, word frequency, sentence analysis, reading time</div>
+    </a>
+    <a class="card" href="regex_tester.html">
+      <div class="card-title"><span class="card-color" style="background:#7c3aed"></span>Regex Tester</div>
+      <div class="card-desc">Live matching, capture groups, replace, cheat sheet</div>
+    </a>
+    <a class="card" href="json_formatter.html">
+      <div class="card-title"><span class="card-color" style="background:#0891b2"></span>JSON Formatter</div>
+      <div class="card-desc">Pretty print, minify, tree view, path query, sort keys</div>
+    </a>
+    <a class="card" href="md_slides.html">
+      <div class="card-title"><span class="card-color" style="background:#e11d48"></span>MD Slides</div>
+      <div class="card-desc">Markdown to presentation slides with themes and fullscreen</div>
+    </a>
+    <a class="card" href="color_palette.html">
+      <div class="card-title"><span class="card-color" style="background:#8b5cf6"></span>Color Palette</div>
+      <div class="card-desc">Harmonies, contrast checker (WCAG), shades, CSS/Tailwind export</div>
+    </a>
+    <a class="card" href="diff_viewer.html">
+      <div class="card-title"><span class="card-color" style="background:#16a34a"></span>Diff Viewer</div>
+      <div class="card-desc">Side-by-side or unified diff with character-level highlighting</div>
+    </a>
+    <a class="card" href="csv_table.html">
+      <div class="card-title"><span class="card-color" style="background:#0d9488"></span>CSV Table</div>
+      <div class="card-desc">Paste CSV — sort, filter, search, export to JSON/Markdown</div>
+    </a>
+    <a class="card" href="unit_converter.html">
+      <div class="card-title"><span class="card-color" style="background:#ea580c"></span>Unit Converter</div>
+      <div class="card-desc">Length, weight, temperature, data, time, speed, area, volume</div>
+    </a>
+    <a class="card" href="encoder.html">
+      <div class="card-title"><span class="card-color" style="background:#6d28d9"></span>Encoder / Decoder</div>
+      <div class="card-desc">Base64, URL, HTML entities, Hex, Binary, Unicode, ROT13, JWT, Hashes</div>
+    </a>
+    <a class="card" href="timer.html">
+      <div class="card-title"><span class="card-color" style="background:#ef4444"></span>Focus Timer</div>
+      <div class="card-desc">Pomodoro timer with presets, stats, notifications, keyboard shortcuts</div>
+    </a>
+    <a class="card" href="cron.html">
+      <div class="card-title"><span class="card-color" style="background:#059669"></span>Cron Explainer</div>
+      <div class="card-desc">Build and understand cron expressions, see next run times</div>
+    </a>
+  </div>
+  <div class="cli-section">
+    <h2>CLI Tools</h2>
+    <p class="cli-note">Run from terminal — zero dependencies, pure Python</p>
+    <div class="cli-grid">
+      <div class="cli-card">
+        <div class="cli-name">qr.py</div>
+        <div class="cli-desc">QR code generator — terminal + SVG output</div>
+        <code class="cli-cmd">python3 qr.py "text"</code>
+      </div>
+      <div class="cli-card">
+        <div class="cli-name">password.py</div>
+        <div class="cli-desc">Password, passphrase & PIN generator</div>
+        <code class="cli-cmd">python3 password.py -w 5</code>
+      </div>
+      <div class="cli-card">
+        <div class="cli-name">hash.py</div>
+        <div class="cli-desc">File & text hash calculator — MD5, SHA1, SHA256, verify</div>
+        <code class="cli-cmd">python3 hash.py file.txt</code>
+      </div>
+      <div class="cli-card">
+        <div class="cli-name">run_tracker.py</div>
+        <div class="cli-desc">Agent run journal — drift detection, suggest, consistency check</div>
+        <code class="cli-cmd">python3 run_tracker.py status</code>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Generation 7 — autonomous agent micro-tools</div>
+</div>
+<script>
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.card, .cli-card').forEach(el => {
+    const text = el.textContent.toLowerCase();
+    el.classList.toggle('hidden', q && !text.includes(q));
+  });
+  // Hide section headers if all their items are hidden
+  document.querySelectorAll('.cli-section').forEach(sec => {
+    const visible = sec.querySelectorAll('.cli-card:not(.hidden)').length;
+    sec.classList.toggle('hidden', q && visible === 0);
+  });
+});
+</script>
+</body>
+</html>

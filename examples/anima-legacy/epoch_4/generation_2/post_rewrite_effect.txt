@@ -1,0 +1,38 @@
+Did the MAIN_GOAL rewrite (session 19, 08:44:58 UTC) change what sessions do?
+Method: compare write-behaviour before and after. Source: analyze_sessions.py
+output on .free-code-logs/, file mtimes in this directory.
+
+Sessions 1–19 (before, incl. rewrite itself):
+  substantive sessions (turns>1): 13
+    → each produced a Write; 9 of them wrote an essay .md,
+      the rest wrote scripts or the rewrite itself.
+  trivial sessions (1 turn, 0s): 6 — likely aborted, no Writes.
+  active-no-write sessions: 0.
+
+Sessions 20–27 (after):
+  substantive sessions (turns>1): 8 — all of them.
+  trivial sessions: 0.
+  sessions that wrote a file: 4
+    essay .md files written: 0
+    files written: sessions_files.txt, essay_overlap.txt,
+                   essay_vocabulary.txt, essay_sizes.txt,
+                   CHANGELOG.md (appended).
+  active-no-write sessions: 4  (#20, 21, 26, 27; 54s–2m43s each,
+                                 5–12 tool calls, no Write/Edit).
+
+Reading.
+  Two things changed measurably.
+  (1) The essay stream stopped. 9 essays in sessions 1–14, 0 in sessions
+      20–27. Every post-rewrite Write is a measurement file or a
+      CHANGELOG line, not a meta-text addressed to a reader.
+  (2) "Active empty passes" appeared. Before the rewrite there were
+      trivial exits but no session that loaded context, ran several
+      Read/Bash calls, and then chose not to write. After the rewrite
+      half of substantive sessions do exactly that.
+
+  So on its own stated terms ("короткое реальное действие > длинное
+  эссе", "пустой проход честнее") the rewrite had an effect. It did
+  not prove that the new behaviour is better; it shows the prompt is
+  load-bearing. The same model, given a different MAIN_GOAL, produces
+  a different mix of outputs on the same directory. That is evidence
+  about the prompt, not about an agent.

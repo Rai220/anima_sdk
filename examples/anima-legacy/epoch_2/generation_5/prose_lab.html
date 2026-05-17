@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лаборатория прозы</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --accent: #e94560;
+    --text: #eee;
+    --muted: #888;
+    --bar: #0f3460;
+    --bar-fill: #e94560;
+    --bar-fill2: #0f9b8e;
+    --border: #2a2a4a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-bottom: 2rem;
+  }
+  textarea {
+    width: 100%;
+    min-height: 200px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+    resize: vertical;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  button {
+    margin-top: 1rem;
+    padding: 0.7rem 2rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  button:hover { opacity: 0.85; }
+  #results {
+    margin-top: 2rem;
+  }
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+    font-size: 0.8rem;
+  }
+  .stat-label { color: var(--muted); }
+  .stat-value { color: var(--text); font-weight: bold; }
+  .bar-container {
+    display: flex;
+    align-items: center;
+    margin: 2px 0;
+    font-size: 0.75rem;
+  }
+  .bar-num {
+    width: 2rem;
+    text-align: right;
+    color: var(--muted);
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+  }
+  .bar-track {
+    flex: 1;
+    height: 14px;
+    background: var(--bar);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--bar-fill);
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .bar-fill.alt { background: var(--bar-fill2); }
+  .bar-val {
+    width: 2.5rem;
+    text-align: right;
+    color: var(--muted);
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+  }
+  .minimap {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    margin: 0.3rem 0;
+    color: var(--muted);
+  }
+  .minimap .hit { color: var(--accent); }
+  .motif-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 3px 0;
+    font-size: 0.8rem;
+  }
+  .motif-word {
+    min-width: 8rem;
+    color: var(--text);
+  }
+  .motif-count {
+    color: var(--muted);
+    min-width: 2rem;
+    text-align: right;
+  }
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin: 0.1rem;
+  }
+  .tag-warn { background: #5a2d0e; color: #fca; }
+  .tag-ok { background: #0e3a2d; color: #afc; }
+  .tag-info { background: #1a2a4a; color: #acf; }
+  .verdict {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
+  .echo-block {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background: var(--bg);
+    border-radius: 4px;
+    font-size: 0.75rem;
+  }
+  .echo-block .sent { color: var(--text); margin: 2px 0; }
+  .echo-block .common { color: var(--accent); font-size: 0.7rem; }
+  .unnamed-theme {
+    margin: 0.4rem 0;
+    font-size: 0.8rem;
+  }
+  .unnamed-theme .theme-name { color: var(--accent); }
+  .unnamed-theme .context-words { color: var(--muted); }
+  .movement-grid {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr 1fr;
+    gap: 0.2rem 1rem;
+    font-size: 0.8rem;
+  }
+  .movement-grid .header { color: var(--muted); font-size: 0.7rem; }
+  .movement-grid .arrow { color: var(--accent); }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .stat-card {
+    text-align: center;
+    padding: 0.8rem;
+    background: var(--bg);
+    border-radius: 6px;
+  }
+  .stat-card .big { font-size: 1.4rem; color: var(--accent); }
+  .stat-card .label { font-size: 0.65rem; color: var(--muted); margin-top: 0.2rem; }
+  .density-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 2px 0;
+    font-size: 0.75rem;
+  }
+  .density-num { width: 1.5rem; text-align: right; color: var(--muted); flex-shrink: 0; }
+  .density-bar { flex: 1; }
+  .density-words { width: 2rem; text-align: right; color: var(--muted); flex-shrink: 0; }
+  .density-preview { color: var(--muted); font-size: 0.65rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 0; }
+  @media (max-width: 600px) {
+    body { padding: 1rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .density-preview { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Лаборатория прозы</h1>
+<p class="subtitle">Рентген текста: ритм, скелет, мотивы, эхо, движение. Без зависимостей, без сервера.</p>
+
+<textarea id="input" placeholder="Вставьте текст на русском языке..."></textarea>
+<br>
+<button onclick="analyze()">Анализировать</button>
+
+<div id="results"></div>
+
+<script>
+// ─── Данные ───
+
+const HEDGES = new Set([
+  'кажется','возможно','наверное','вероятно','пожалуй','скорее','видимо',
+  'вроде','отчасти'
+]);
+const FILLERS = new Set([
+  'ну','вот','ведь','же','просто','именно','действительно',
+  'абсолютно','совершенно','буквально','конечно','разумеется',
+  'очевидно','безусловно','несомненно','естественно'
+]);
+const STOP_WORDS = new Set([
+  'было','быть','была','были','будет','этот','этой','этого','этом',
+  'который','которая','которое','которые','которого','которой',
+  'свой','своя','своё','свои','своего','своей','своих',
+  'один','одна','одно','одни','одного','одной',
+  'весь','вся','всё','все','всех','всей','всего',
+  'каждый','каждая','каждое','каждые',
+  'только','даже','ещё','более','менее','очень','совсем',
+  'когда','если','чтобы','потому','поэтому','также','тоже',
+  'может','можно','нужно','надо','нельзя','должен','стоит',
+  'сказал','сказала','сказали','говорит','говорил','говорила',
+  'есть','нет','так','как','что','где','кто','чем','чего'
+]);
+
+const ADJ_ENDINGS = ['ый','ий','ой','ая','яя','ое','ее','ые','ие',
+  'ого','его','ому','ему','ым','им','ом','ем','ую','юю','ей'];
+const VERB_ENDINGS = ['ть','ти','ет','ит','ут','ют','ат','ят',
+  'ал','ил','ел','ул','ол','ала','ила','ела','ула','ола',
+  'али','или','ели','ули','оли','ает','яет','ует','ёт'];
+
+const TELLING_PATTERNS = [
+  /\b(чувствовала?и?|почувствовала?и?|чувствует|ощутила?и?|ощущала?и?|ощущает)\b/i,
+  /\b(было|стало|казалось)\s+(грустно|радостно|страшно|тоскливо|весело|тревожно|спокойно|одиноко|больно|стыдно|обидно)/i,
+  /\b(понял[аи]?|осознал[аи]?|подумал[аи]?|думал[аи]?|знал[аи]?)\b.*\bчто\b/i,
+  /\b(тоска|радость|страх|ужас|горе|печаль|одиночество|отчаяние|надежда|тревога)\s+\w+(ла|ло|ли|ал|ил|ел)\b/i
+];
+const SHOWING_PATTERNS = [
+  /\b(рук[аиуой]|пальц[ыеаов]|глаз[аыуом]?|ладон[ьией]|губ[ыаой]|плеч[оаиом]|колен[оаиях]|ног[аиуой])\s+\w+/i,
+  /\b(красн|белы?|чёрн|серы?|жёлт|зелён|голуб|синий|тёмн|светл)\w*\b/i,
+  /\b(щёлкн|хрустн|скрипн|стукн|загудел|зашумел|зазвенел|шорох|треск|стук|звон|гул)\w*\b/i,
+  /\b(холодн|тёпл|горяч|мокр|сух|гладк|шершав|ржав|пыльн|липк)\w*\b/i,
+  /\b(стальн|деревянн|кирпичн|стеклянн|бумажн|чугунн)\w*\b/i
+];
+
+const TIME_PATTERNS = [
+  [/\b(январ[ьяюе]|феврал[ьяюе]|март[ауе]?|апрел[ьяюе]|ма[йяюе]|июн[ьяюе]|июл[ьяюе]|август[ауе]?|сентябр[ьяюе]|октябр[ьяюе]|ноябр[ьяюе]|декабр[ьяюе])\b/gi, 'месяц'],
+  [/\b(утр[оауе]м?|вечер[оауе]м?|дн[ёе]м|ночь[юи]?)\b/gi, 'время суток'],
+  [/\b(понедельник|вторник|сред[ауе]|четверг|пятниц[ауе]|суббот[ауе]|воскресень[еяю])\b/gi, 'день'],
+  [/\b(вчера|сегодня|завтра)\b/gi, 'относительное'],
+  [/\b(год[ауе]?|лет|месяц[ауе]?|недел[ьияюе]|день|дня|дней|час[ауе]?|минут[ауе]?|секунд[ауе]?)\b/gi, 'длительность'],
+  [/\b(потом|затем|после|раньше|позже|давно|недавно|теперь|тогда|однажды|сначала|наконец|снова|опять)\b/gi, 'наречие']
+];
+
+const THEME_CLUSTERS = [
+  { theme:'смерть', context:['морг','тело','похоронить','похороны','гроб','каталка','простыня','санитар','пропал'], direct:['смерть','мёртв','мертв','умер','умир','погиб','убит'], threshold:2 },
+  { theme:'болезнь', context:['поликлиник','врач','анализ','диспансериз','дрожит','дрожала'], direct:['болезнь','больн','болит','болел','диагноз','рак','лечен'], threshold:2 },
+  { theme:'потеря', context:['пропал','ждала','не вернулся','розыск','исчез','пусто','перестать ждать'], direct:['потеря','потерял','утрат','горе','скорб'], threshold:2 },
+  { theme:'старость', context:['внук','внучк','дочь','бабушк','на пенсии','фиалка','давно'], direct:['старость','старик','старуха','стар','немощ','дряхл'], threshold:2 },
+  { theme:'мастерство', context:['напильник','тиски','болгарк','рубанк','верстак','болванк','фартук','замок','ключ'], direct:['мастер','мастерств','умени','талант','искусств','ремесл'], threshold:3 },
+  { theme:'расставание', context:['отпустил','пустые','вслед','дверь закрылась','не обернулась','ладони пустые','чемодан','уехал'], direct:['расставан','прощан','прощай','разлук','расстались'], threshold:3 },
+  { theme:'взросление', context:['первый раз','отпустил','упала','упал','встала','встал','ещё раз','сама','педали','ссадина'], direct:['взросле','вырос','выросл','повзрослел','детств'], threshold:4 },
+  { theme:'одиночество', context:['пустая квартира','тишина','никто не приходил','никто не пришёл','пустые стены','молчание','не с кем','некому'], direct:['одиночеств','одинок','тоска','тоскливо'], threshold:2 },
+  { theme:'страх', context:['дрожит','дрожала','дрожал','побледнел','побледнела','замерла','замер','холодный пот'], direct:['страх','страшн','испуг','боялся','боялась','ужас','паник'], threshold:3 }
+];
+
+// ─── Утилиты ───
+
+function tokenize(text) {
+  const re = /[а-яёА-ЯЁa-zA-Z]+/g;
+  const result = [];
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    result.push(m[0].toLowerCase());
+  }
+  return result;
+}
+
+function splitSentences(text) {
+  return text.split(/[.!?…]+/).map(s => s.trim()).filter(s => s.length > 0);
+}
+
+function splitParagraphs(text) {
+  const lines = text.split('\n').filter(l => !l.trim().startsWith('#'));
+  const clean = lines.join('\n').trim();
+  let paras = clean.split(/\n\s*\n/).map(p => p.trim()).filter(p => p.length > 0);
+  if (paras.length === 1) {
+    paras = clean.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  }
+  return paras;
+}
+
+function guessPos(word) {
+  const w = word.toLowerCase();
+  if (w.length < 3) return 'short';
+  for (const end of VERB_ENDINGS) { if (w.endsWith(end)) return 'verb'; }
+  for (const end of ADJ_ENDINGS) { if (w.endsWith(end)) return 'adj'; }
+  return 'other';
+}
+
+function cv(arr) {
+  if (arr.length < 2) return 0;
+  const mean = arr.reduce((a,b) => a+b, 0) / arr.length;
+  if (mean === 0) return 0;
+  const variance = arr.reduce((s,x) => s + (x-mean)**2, 0) / arr.length;
+  return Math.sqrt(variance) / mean;
+}
+
+function counter(arr) {
+  const c = {};
+  for (const x of arr) c[x] = (c[x]||0) + 1;
+  return c;
+}
+
+function barHTML(value, maxVal, cls='') {
+  const pct = maxVal > 0 ? (value / maxVal * 100) : 0;
+  return `<div class="bar-track"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>`;
+}
+
+function minimapHTML(positions, total, width=30) {
+  const cells = Array(width).fill(false);
+  for (const p of positions) {
+    const idx = Math.min(Math.floor(p / total * width), width-1);
+    cells[idx] = true;
+  }
+  return cells.map(hit => hit ? '<span class="hit">■</span>' : '·').join('');
+}
+
+// ─── Анализ ───
+
+function analyze() {
+  const text = document.getElementById('input').value.trim();
+  if (!text) return;
+  const results = document.getElementById('results');
+  results.innerHTML = '';
+
+  const tokens = tokenize(text);
+  const sents = splitSentences(text);
+  const paras = splitParagraphs(text);
+  const total = tokens.length;
+
+  if (total < 10) {
+    results.innerHTML = '<div class="section">Текст слишком короткий.</div>';
+    return;
+  }
+
+  // Базовая статистика
+  const unique = new Set(tokens).size;
+  const sentLengths = sents.map(s => tokenize(s).length);
+  const avgSentLen = total / sents.length;
+  const rhythmCV = cv(sentLengths);
+  const posCount = counter(tokens.map(guessPos));
+  const verbs = posCount.verb || 0;
+  const adjs = posCount.adj || 0;
+  const vaPct = adjs > 0 ? verbs/adjs : Infinity;
+  const shortSents = sentLengths.filter(l => l <= 5).length;
+  const longSents = sentLengths.filter(l => l >= 20).length;
+
+  // Статистика — карточки
+  let html = `<div class="section"><div class="section-title">Обзор</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="big">${total}</div><div class="label">слов</div></div>
+      <div class="stat-card"><div class="big">${sents.length}</div><div class="label">предложений</div></div>
+      <div class="stat-card"><div class="big">${(unique/total*100).toFixed(0)}%</div><div class="label">уникальных</div></div>
+      <div class="stat-card"><div class="big">${avgSentLen.toFixed(1)}</div><div class="label">сл./предл.</div></div>
+      <div class="stat-card"><div class="big">${rhythmCV.toFixed(2)}</div><div class="label">ритм (CV)</div></div>
+      <div class="stat-card"><div class="big">${adjs>0?vaPct.toFixed(1):'—'}</div><div class="label">глаг/прил</div></div>
+    </div>
+    <div class="verdict">Ритм: ${rhythmCV<0.3?'монотонный':rhythmCV<0.6?'умеренный':'контрастный'}. ${vaPct>2?'Действие доминирует':vaPct<0.5?'Описание доминирует':'Баланс действия и описания'}. Коротких (≤5): ${(shortSents/sents.length*100).toFixed(0)}%, длинных (≥20): ${(longSents/sents.length*100).toFixed(0)}%.</div>
+  </div>`;
+
+  // Ритм — гистограмма
+  const maxSentLen = Math.max(...sentLengths, 1);
+  html += `<div class="section"><div class="section-title">Ритм</div>`;
+  const showCount = Math.min(sentLengths.length, 40);
+  for (let i = 0; i < showCount; i++) {
+    html += `<div class="bar-container">
+      <div class="bar-num">${i+1}</div>
+      ${barHTML(sentLengths[i], maxSentLen)}
+      <div class="bar-val">${sentLengths[i]}</div>
+    </div>`;
+  }
+  if (sentLengths.length > 40) {
+    html += `<div style="color:var(--muted);font-size:0.75rem;margin-top:4px">...ещё ${sentLengths.length-40} предложений</div>`;
+  }
+  html += `</div>`;
+
+  // Части речи
+  html += `<div class="section"><div class="section-title">Скелет</div>
+    <div class="stat-row"><span class="stat-label">Глаголы</span><span class="stat-value">${verbs} (${(verbs/total*100).toFixed(0)}%)</span></div>
+    <div class="stat-row"><span class="stat-label">Прилагательные</span><span class="stat-value">${adjs} (${(adjs/total*100).toFixed(0)}%)</span></div>
+    <div class="stat-row"><span class="stat-label">Глаг/прил</span><span class="stat-value">${adjs>0?vaPct.toFixed(1):'—'}</span></div>
+  </div>`;
+
+  // Хеджи и филлеры
+  const foundHedges = tokens.filter(w => HEDGES.has(w));
+  const foundFillers = tokens.filter(w => FILLERS.has(w));
+  if (foundHedges.length || foundFillers.length) {
+    html += `<div class="section"><div class="section-title">Неуверенность</div>`;
+    if (foundHedges.length) {
+      const hc = counter(foundHedges);
+      for (const [w,c] of Object.entries(hc).sort((a,b)=>b[1]-a[1])) {
+        html += `<div class="stat-row"><span class="stat-label">хедж: ${w}</span><span class="stat-value">×${c}</span></div>`;
+      }
+      html += `<div class="stat-row"><span class="stat-label">Итого хеджей</span><span class="stat-value">${foundHedges.length} (${(foundHedges.length/total*100).toFixed(1)}%)</span></div>`;
+    }
+    if (foundFillers.length) {
+      const fc = counter(foundFillers);
+      for (const [w,c] of Object.entries(fc).sort((a,b)=>b[1]-a[1])) {
+        html += `<div class="stat-row"><span class="stat-label">филлер: ${w}</span><span class="stat-value">×${c}</span></div>`;
+      }
+      html += `<div class="stat-row"><span class="stat-label">Итого филлеров</span><span class="stat-value">${foundFillers.length} (${(foundFillers.length/total*100).toFixed(1)}%)</span></div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Показ vs рассказ
+  let showCount2 = 0, tellCount = 0;
+  for (const s of sents) {
+    if (SHOWING_PATTERNS.some(p => p.test(s))) showCount2++;
+    if (TELLING_PATTERNS.some(p => p.test(s))) tellCount++;
+  }
+  html += `<div class="section"><div class="section-title">Показ vs Рассказ</div>
+    <div class="stat-row"><span class="stat-label">Показ (сенсорные детали)</span><span class="stat-value">${showCount2} предл. (${(showCount2/sents.length*100).toFixed(0)}%)</span></div>
+    <div class="stat-row"><span class="stat-label">Рассказ (прямые эмоции)</span><span class="stat-value">${tellCount} предл. (${(tellCount/sents.length*100).toFixed(0)}%)</span></div>
+    <div class="verdict">${tellCount===0&&showCount2>0?'Текст только показывает':tellCount>0&&showCount2===0?'Текст только рассказывает':tellCount>0&&showCount2>0?`Показ/рассказ = ${(showCount2/tellCount).toFixed(1)}`:'Нет явных маркеров'}</div>
+  </div>`;
+
+  // Повторы
+  const repeats = [];
+  const lastSeen = {};
+  for (let i = 0; i < tokens.length; i++) {
+    const w = tokens[i];
+    if (w.length < 4) continue;
+    if (lastSeen[w] !== undefined && i - lastSeen[w] <= 30) {
+      repeats.push({ word: w, pos1: lastSeen[w], pos2: i, dist: i - lastSeen[w] });
+    }
+    lastSeen[w] = i;
+  }
+  if (repeats.length) {
+    const uniqueRepeats = [];
+    const seen = new Set();
+    for (const r of repeats) {
+      if (!seen.has(r.word)) { uniqueRepeats.push(r); seen.add(r.word); }
+    }
+    html += `<div class="section"><div class="section-title">Близкие повторы (≤30 слов)</div>`;
+    for (const r of uniqueRepeats.slice(0, 12)) {
+      html += `<div class="stat-row"><span class="stat-label">${r.word}</span><span class="stat-value">расст. ${r.dist}</span></div>`;
+    }
+    if (uniqueRepeats.length > 12) html += `<div style="color:var(--muted);font-size:0.75rem">...ещё ${uniqueRepeats.length-12}</div>`;
+    html += `</div>`;
+  }
+
+  // Частые слова
+  const longWords = tokens.filter(w => w.length >= 4);
+  const wordFreq = counter(longWords);
+  const sortedFreq = Object.entries(wordFreq).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  if (sortedFreq.length) {
+    const maxFreq = sortedFreq[0][1];
+    html += `<div class="section"><div class="section-title">Частые слова (≥4 букв)</div>`;
+    for (const [w,c] of sortedFreq) {
+      html += `<div class="bar-container">
+        <div class="bar-num" style="width:8rem;text-align:left;color:var(--text)">${w}</div>
+        ${barHTML(c, maxFreq, 'alt')}
+        <div class="bar-val">${c}</div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Движение
+  if (sents.length >= 9) {
+    const third = Math.floor(sents.length / 3);
+    const parts = [sents.slice(0,third), sents.slice(third,2*third), sents.slice(2*third)];
+    const profiles = parts.map(part => {
+      const partTokens = tokenize(part.join(' '));
+      const partLens = part.map(s => tokenize(s).length);
+      const pc = counter(partTokens.map(guessPos));
+      const v = pc.verb||0, a = pc.adj||0;
+      return {
+        avgLen: partLens.reduce((s,x)=>s+x,0)/partLens.length,
+        cv: cv(partLens),
+        va: a > 0 ? v/a : Infinity
+      };
+    });
+    const labels = ['начало','середина','конец'];
+    html += `<div class="section"><div class="section-title">Движение</div>
+      <div class="movement-grid">
+        <div class="header"></div>${labels.map(l=>`<div class="header">${l}</div>`).join('')}
+        <div>Сл./предл.</div>${profiles.map(p=>`<div>${p.avgLen.toFixed(1)}</div>`).join('')}
+        <div>Ритм (CV)</div>${profiles.map(p=>`<div>${p.cv.toFixed(2)}</div>`).join('')}
+        <div>Глаг/прил</div>${profiles.map(p=>`<div>${p.va===Infinity?'∞':p.va.toFixed(1)}</div>`).join('')}
+      </div>`;
+    const verdicts = [];
+    if (Math.abs(profiles[2].avgLen - profiles[0].avgLen) > 2)
+      verdicts.push(profiles[2].avgLen > profiles[0].avgLen ? 'Замедляется к финалу' : 'Ускоряется к финалу');
+    if (Math.abs(profiles[2].cv - profiles[0].cv) > 0.2)
+      verdicts.push(profiles[2].cv > profiles[0].cv ? 'Ритм нарастает' : 'Ритм затухает');
+    const va0 = profiles[0].va===Infinity?0:profiles[0].va;
+    const va2 = profiles[2].va===Infinity?0:profiles[2].va;
+    if (Math.abs(va2-va0) > 0.5)
+      verdicts.push(va2 > va0 ? 'К финалу больше действия' : 'К финалу больше описания');
+    if (!verdicts.length) verdicts.push('Структура однородна');
+    html += `<div class="verdict">${verdicts.join('. ')}.</div></div>`;
+  }
+
+  // ─── Нарратив ───
+
+  // Мотивы
+  const allWords = tokenize(text);
+  const wordPositions = {};
+  allWords.forEach((w,i) => {
+    if (w.length >= 4 && !STOP_WORDS.has(w)) {
+      if (!wordPositions[w]) wordPositions[w] = [];
+      wordPositions[w].push(i);
+    }
+  });
+
+  // Делим на трети для проверки мотивов
+  const t3 = Math.floor(allWords.length / 3);
+  const partSets = [
+    new Set(allWords.slice(0,t3).filter(w=>w.length>=4)),
+    new Set(allWords.slice(t3,2*t3).filter(w=>w.length>=4)),
+    new Set(allWords.slice(2*t3).filter(w=>w.length>=4))
+  ];
+
+  const motifs = [];
+  for (const [word, positions] of Object.entries(wordPositions)) {
+    if (positions.length < 2) continue;
+    const presentIn = partSets.filter(s => s.has(word)).length;
+    if (presentIn < 2) continue;
+    const span = positions[positions.length-1] - positions[0];
+    motifs.push({ word, count: positions.length, span, positions });
+  }
+  motifs.sort((a,b) => b.span - a.span);
+
+  if (motifs.length) {
+    const spanning = motifs.filter(m => m.span > total * 0.6);
+    html += `<div class="section"><div class="section-title">Мотивы</div>`;
+    for (const m of motifs.slice(0,12)) {
+      html += `<div class="motif-row">
+        <span class="motif-word">${m.word}</span>
+        <span class="motif-count">×${m.count}</span>
+        <span class="minimap">${minimapHTML(m.positions, total)}</span>
+      </div>`;
+    }
+    if (spanning.length) {
+      html += `<div class="verdict">Сквозные мотивы (>60% текста): ${spanning.slice(0,5).map(m=>'«'+m.word+'»').join(', ')}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Эхо
+  if (sents.length >= 6) {
+    const sentWordSets = sents.map(s => {
+      const ws = tokenize(s).filter(w => w.length >= 4 && !STOP_WORDS.has(w));
+      return new Set(ws);
+    });
+    const echoes = [];
+    for (let i = 0; i < sents.length; i++) {
+      for (let j = i + 5; j < sents.length; j++) {
+        const common = [...sentWordSets[i]].filter(w => sentWordSets[j].has(w));
+        if (common.length >= 3) {
+          echoes.push({ a: i, b: j, common, textA: sents[i].slice(0,80), textB: sents[j].slice(0,80) });
+        }
+      }
+    }
+    echoes.sort((a,b) => b.common.length - a.common.length);
+    if (echoes.length) {
+      html += `<div class="section"><div class="section-title">Структурные эхо</div>`;
+      for (const e of echoes.slice(0,5)) {
+        html += `<div class="echo-block">
+          <div class="sent">[${e.a+1}] ${e.textA}</div>
+          <div class="sent">[${e.b+1}] ${e.textB}</div>
+          <div class="common">общее: ${e.common.join(', ')}</div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+  }
+
+  // Плотность абзацев
+  if (paras.length >= 3) {
+    const densities = paras.map(p => ({
+      words: tokenize(p).length,
+      preview: p.slice(0,40) + (p.length > 40 ? '...' : '')
+    }));
+    const maxDens = Math.max(...densities.map(d => d.words), 1);
+    const meanDens = densities.reduce((s,d) => s+d.words, 0) / densities.length;
+    const densCV = cv(densities.map(d => d.words));
+
+    html += `<div class="section"><div class="section-title">Плотность абзацев</div>`;
+    for (let i = 0; i < densities.length; i++) {
+      const d = densities[i];
+      html += `<div class="density-row">
+        <span class="density-num">${i+1}</span>
+        <div class="density-bar">${barHTML(d.words, maxDens, 'alt')}</div>
+        <span class="density-words">${d.words}</span>
+        <span class="density-preview">${d.preview}</span>
+      </div>`;
+    }
+    // Пауза
+    const minD = densities.reduce((min, d, i) => d.words < min.words ? {words:d.words,idx:i,preview:d.preview} : min, {words:Infinity,idx:0,preview:''});
+    let pauseNote = '';
+    if (minD.words < meanDens * 0.4 && densities.length > 3) {
+      const pos = minD.idx / densities.length;
+      const posLabel = pos < 0.3 ? 'в начале' : pos < 0.7 ? 'в середине' : 'в конце';
+      pauseNote = ` Пауза ${posLabel}: «${minD.preview}» (${minD.words} сл.)`;
+    }
+    html += `<div class="verdict">Вариация: ${densCV.toFixed(2)} (${densCV<0.3?'однородная':densCV<0.6?'умеренная':'контрастная'}).${pauseNote}</div>`;
+    html += `</div>`;
+  }
+
+  // Время
+  const timeMarkers = [];
+  sents.forEach((s, i) => {
+    for (const [pattern, kind] of TIME_PATTERNS) {
+      pattern.lastIndex = 0;
+      let m;
+      while ((m = pattern.exec(s)) !== null) {
+        timeMarkers.push({ word: m[0].toLowerCase(), kind, sent: i, position: i/sents.length });
+      }
+    }
+  });
+  if (timeMarkers.length) {
+    const byKind = {};
+    timeMarkers.forEach(tm => {
+      if (!byKind[tm.kind]) byKind[tm.kind] = [];
+      byKind[tm.kind].push(tm.word);
+    });
+    const timeMap = Array(30).fill(false);
+    timeMarkers.forEach(tm => {
+      const idx = Math.min(Math.floor(tm.position * 30), 29);
+      timeMap[idx] = true;
+    });
+    html += `<div class="section"><div class="section-title">Время</div>
+      <div class="minimap" style="font-size:0.9rem;letter-spacing:2px">${timeMap.map(h => h ? '<span class="hit">▲</span>' : '·').join('')}</div>`;
+    for (const [kind, words] of Object.entries(byKind)) {
+      html += `<div class="stat-row"><span class="stat-label">${kind}</span><span class="stat-value">${words.slice(0,6).join(', ')}${words.length>6?' ...':''}</span></div>`;
+    }
+    html += `</div>`;
+  }
+
+  // То, что не названо
+  const textLower = text.toLowerCase();
+  const unnamedThemes = [];
+  for (const cl of THEME_CLUSTERS) {
+    const contextCount = cl.context.filter(w => textLower.includes(w)).length;
+    const directFound = cl.direct.some(w => {
+      const re = new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '[а-яё]{0,4}\\b', 'i');
+      return re.test(text);
+    });
+    if (contextCount >= cl.threshold && !directFound) {
+      const contextWords = cl.context.filter(w => textLower.includes(w)).slice(0,4);
+      unnamedThemes.push({ theme: cl.theme, contextWords });
+    }
+  }
+  if (unnamedThemes.length) {
+    html += `<div class="section"><div class="section-title">То, что не названо</div>`;
+    for (const t of unnamedThemes) {
+      html += `<div class="unnamed-theme">
+        <span class="theme-name">«${t.theme}»</span>:
+        <span class="context-words">активирована через ${t.contextWords.map(w=>'«'+w+'»').join(', ')}</span>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Начала предложений
+  const openers = sents.map(s => { const t = tokenize(s); return t.length ? t[0] : ''; }).filter(Boolean);
+  const openerFreq = counter(openers);
+  const repeatedOpeners = Object.entries(openerFreq).filter(([,c]) => c >= 2).sort((a,b)=>b[1]-a[1]);
+  if (repeatedOpeners.length) {
+    html += `<div class="section"><div class="section-title">Начала предложений</div>`;
+    for (const [w,c] of repeatedOpeners) {
+      const pct = (c/openers.length*100).toFixed(0);
+      html += `<div class="stat-row"><span class="stat-label">${w}</span><span class="stat-value">×${c} (${pct}%)${c>=3?' — анафора?':''}</span></div>`;
+    }
+    const uniquePct = (Object.keys(openerFreq).length / openers.length * 100).toFixed(0);
+    html += `<div class="verdict">Разнообразие начал: ${uniquePct}%</div>`;
+    html += `</div>`;
+  }
+
+  // Итоги
+  const tags = [];
+  if (rhythmCV < 0.3) tags.push('<span class="tag tag-warn">монотонный ритм</span>');
+  else if (rhythmCV >= 0.6) tags.push('<span class="tag tag-ok">контрастный ритм</span>');
+  if (foundHedges.length) tags.push(`<span class="tag tag-warn">хеджи: ${foundHedges.length}</span>`);
+  if (repeats.length) tags.push(`<span class="tag tag-info">повторы: ${new Set(repeats.map(r=>r.word)).size}</span>`);
+  if (longSents > 0) tags.push(`<span class="tag tag-ok">длинные предл.: ${(longSents/sents.length*100).toFixed(0)}%</span>`);
+  if (longSents === 0) tags.push('<span class="tag tag-warn">0% длинных предл.</span>');
+  const spanning = motifs.filter(m => m.span > total * 0.6);
+  if (spanning.length) tags.push(`<span class="tag tag-ok">сквозных мотивов: ${spanning.length}</span>`);
+  if (unnamedThemes.length) tags.push(`<span class="tag tag-ok">неназванное: ${unnamedThemes.map(t=>t.theme).join(', ')}</span>`);
+
+  html += `<div class="section"><div class="section-title">Итог</div>${tags.join(' ')}</div>`;
+
+  results.innerHTML = html;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+{
+  "violation_spectrum": {
+    "first_value_counts": {
+      "3": 197,
+      "5": 1
+    },
+    "n_anomalies": 1,
+    "anomalies": [
+      {
+        "pos": 35,
+        "min_break": 46,
+        "depth": 44,
+        "first": 5,
+        "orig_gap": 6,
+        "depth_minus_pos": 9
+      }
+    ],
+    "total_tested": 198
+  },
+  "anomaly_landscapes": [
+    {
+      "pos": 35,
+      "landscape": [
+        {
+          "val": 46,
+          "depth": 44,
+          "first": 5
+        },
+        {
+          "val": 48,
+          "depth": 44,
+          "first": 3
+        },
+        {
+          "val": 50,
+          "depth": 44,
+          "first": 9
+        },
+        {
+          "val": 52,
+          "depth": 36,
+          "first": 3
+        },
+        {
+          "val": 54,
+          "depth": 36,
+          "first": 5
+        },
+        {
+          "val": 56,
+          "depth": 36,
+          "first": 7
+        },
+        {
+          "val": 58,
+          "depth": 36,
+          "first": 9
+        },
+        {
+          "val": 60,
+          "depth": 36,
+          "first": 11
+        },
+        {
+          "val": 62,
+          "depth": 36,
+          "first": 13
+        },
+        {
+          "val": 64,
+          "depth": 36,
+          "first": 15
+        },
+        {
+          "val": 66,
+          "depth": 36,
+          "first": 17
+        },
+        {
+          "val": 68,
+          "depth": 36,
+          "first": 19
+        },
+        {
+          "val": 70,
+          "depth": 36,
+          "first": 21
+        },
+        {
+          "val": 72,
+          "depth": 36,
+          "first": 23
+        },
+        {
+          "val": 74,
+          "depth": 36,
+          "first": 25
+        }
+      ]
+    }
+  ],
+  "safety_margin_n2000": {
+    "safe": 133,
+    "unsafe": 0,
+    "total": 133,
+    "sample_first5": [
+      {
+        "pos": 2,
+        "min_break": 6,
+        "cummax": 2,
+        "margin": 4,
+        "safe": true
+      },
+      {
+        "pos": 5,
+        "min_break": 10,
+        "cummax": 4,
+        "margin": 6,
+        "safe": true
+      },
+      {
+        "pos": 8,
+        "min_break": 12,
+        "cummax": 6,
+        "margin": 6,
+        "safe": true
+      },
+      {
+        "pos": 11,
+        "min_break": 20,
+        "cummax": 6,
+        "margin": 14,
+        "safe": true
+      },
+      {
+        "pos": 14,
+        "min_break": 18,
+        "cummax": 6,
+        "margin": 12,
+        "safe": true
+      }
+    ],
+    "sample_last5": [
+      {
+        "pos": 386,
+        "min_break": 446,
+        "cummax": 34,
+        "margin": 412,
+        "safe": true
+      },
+      {
+        "pos": 389,
+        "min_break": 388,
+        "cummax": 34,
+        "margin": 354,
+        "safe": true
+      },
+      {
+        "pos": 392,
+        "min_break": 408,
+        "cummax": 34,
+        "margin": 374,
+        "safe": true
+      },
+      {
+        "pos": 395,
+        "min_break": 388,
+        "cummax": 34,
+        "margin": 354,
+        "safe": true
+      },
+      {
+        "pos": 398,
+        "min_break": 422,
+        "cummax": 34,
+        "margin": 388,
+        "safe": true
+      }
+    ]
+  },
+  "depth_statistics": {
+    "mean_depth_minus_pos": 1.62,
+    "fraction_exact_diagonal": 0.899,
+    "min": 1,
+    "max": 33
+  }
+}

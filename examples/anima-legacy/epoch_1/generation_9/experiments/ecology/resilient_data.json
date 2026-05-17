@@ -1,0 +1,169 @@
+{
+  "0.0": {
+    "step": 600,
+    "season": "spring",
+    "total": 2965,
+    "counts": {
+      "specialist": 2562,
+      "symbiont": 208,
+      "adaptive": 174,
+      "nomad": 19,
+      "gatherer": 2
+    },
+    "shannon": 0.745,
+    "avg_complexity": 2.21,
+    "energy_by_strategy": {
+      "gatherer": 5.23,
+      "specialist": 5.08,
+      "adaptive": 4.88,
+      "nomad": 5.78,
+      "symbiont": 4.0
+    }
+  },
+  "0.01": {
+    "step": 600,
+    "season": "spring",
+    "total": 1770,
+    "counts": {
+      "adaptive": 882,
+      "symbiont": 769,
+      "specialist": 93,
+      "gatherer": 5,
+      "nomad": 21
+    },
+    "shannon": 1.346,
+    "avg_complexity": 3.46,
+    "energy_by_strategy": {
+      "gatherer": 3.71,
+      "specialist": 5.49,
+      "adaptive": 4.61,
+      "nomad": 6.69,
+      "symbiont": 4.2
+    }
+  },
+  "0.03": {
+    "step": 600,
+    "season": "spring",
+    "total": 1526,
+    "counts": {
+      "symbiont": 637,
+      "adaptive": 862,
+      "gatherer": 4,
+      "nomad": 18,
+      "specialist": 5
+    },
+    "shannon": 1.117,
+    "avg_complexity": 3.58,
+    "energy_by_strategy": {
+      "gatherer": 2.7,
+      "specialist": 5.73,
+      "adaptive": 4.66,
+      "nomad": 7.18,
+      "symbiont": 4.37
+    }
+  },
+  "0.05": {
+    "step": 600,
+    "season": "spring",
+    "total": 1537,
+    "counts": {
+      "adaptive": 758,
+      "symbiont": 738,
+      "specialist": 6,
+      "nomad": 31,
+      "gatherer": 4
+    },
+    "shannon": 1.178,
+    "avg_complexity": 3.52,
+    "energy_by_strategy": {
+      "gatherer": 3.41,
+      "specialist": 3.84,
+      "adaptive": 4.8,
+      "nomad": 6.64,
+      "symbiont": 4.47
+    }
+  },
+  "0.08": {
+    "step": 600,
+    "season": "spring",
+    "total": 1383,
+    "counts": {
+      "symbiont": 708,
+      "adaptive": 655,
+      "gatherer": 5,
+      "nomad": 14,
+      "specialist": 1
+    },
+    "shannon": 1.109,
+    "avg_complexity": 3.49,
+    "energy_by_strategy": {
+      "gatherer": 2.31,
+      "specialist": 4.16,
+      "adaptive": 4.66,
+      "nomad": 5.5,
+      "symbiont": 4.29
+    }
+  },
+  "0.1": {
+    "step": 600,
+    "season": "spring",
+    "total": 1349,
+    "counts": {
+      "symbiont": 744,
+      "adaptive": 584,
+      "nomad": 11,
+      "specialist": 4,
+      "gatherer": 6
+    },
+    "shannon": 1.113,
+    "avg_complexity": 3.44,
+    "energy_by_strategy": {
+      "gatherer": 3.29,
+      "specialist": 3.54,
+      "adaptive": 4.56,
+      "nomad": 8.13,
+      "symbiont": 4.25
+    }
+  },
+  "0.15": {
+    "step": 600,
+    "season": "spring",
+    "total": 1230,
+    "counts": {
+      "symbiont": 626,
+      "adaptive": 567,
+      "nomad": 29,
+      "gatherer": 7,
+      "specialist": 1
+    },
+    "shannon": 1.189,
+    "avg_complexity": 3.5,
+    "energy_by_strategy": {
+      "gatherer": 2.77,
+      "specialist": 7.84,
+      "adaptive": 4.72,
+      "nomad": 6.07,
+      "symbiont": 4.33
+    }
+  },
+  "0.2": {
+    "step": 600,
+    "season": "spring",
+    "total": 1158,
+    "counts": {
+      "adaptive": 540,
+      "symbiont": 592,
+      "gatherer": 5,
+      "nomad": 21
+    },
+    "shannon": 1.147,
+    "avg_complexity": 3.49,
+    "energy_by_strategy": {
+      "gatherer": 3.12,
+      "specialist": 0,
+      "adaptive": 4.79,
+      "nomad": 6.57,
+      "symbiont": 4.12
+    }
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "parameters": {
+    "pop_size": 100,
+    "generations": 500,
+    "mutation_rate": 0.03,
+    "genome_length": 11
+  },
+  "initial_cooperation": 0.509,
+  "final_cooperation": 0.206,
+  "final_correlation": -0.528,
+  "trend": "ПАДЕНИЕ — эволюция нашла предательство",
+  "history_sample": [
+    {
+      "generation": 0,
+      "avg_score": 1120.9,
+      "avg_cooperation": 0.509,
+      "max_score": 1580,
+      "classes": {
+        "mostly_defect": 16,
+        "conditional": 60,
+        "mostly_cooperate": 23,
+        "always_cooperate": 1
+      }
+    },
+    {
+      "generation": 50,
+      "avg_score": 677.75,
+      "avg_cooperation": 0.131,
+      "max_score": 1060,
+      "classes": {
+        "conditional": 21,
+        "mostly_defect": 57,
+        "always_defect": 22
+      }
+    },
+    {
+      "generation": 100,
+      "avg_score": 669.15,
+      "avg_cooperation": 0.123,
+      "max_score": 855,
+      "classes": {
+        "mostly_defect": 49,
+        "always_defect": 43,
+        "conditional": 8
+      }
+    },
+    {
+      "generation": 150,
+      "avg_score": 624.6,
+      "avg_cooperation": 0.09,
+      "max_score": 1015,
+      "classes": {
+        "mostly_defect": 71,
+        "always_defect": 23,
+        "conditional": 6
+      }
+    },
+    {
+      "generation": 200,
+      "avg_score": 717.15,
+      "avg_cooperation": 0.158,
+      "max_score": 1075,
+      "classes": {
+        "mostly_defect": 76,
+        "conditional": 11,
+        "always_defect": 13
+      }
+    },
+    {
+      "generation": 250,
+      "avg_score": 688.6,
+      "avg_cooperation": 0.138,
+      "max_score": 1115,
+      "classes": {
+        "mostly_defect": 63,
+        "conditional": 16,
+        "always_defect": 21
+      }
+    },
+    {
+      "generation": 300,
+      "avg_score": 1262.85,
+      "avg_cooperation": 0.672,
+      "max_score": 2080,
+      "classes": {
+        "conditional": 71,
+        "mostly_defect": 26,
+        "mostly_cooperate": 2,
+        "always_defect": 1
+      }
+    },
+    {
+      "generation": 350,
+      "avg_score": 742.25,
+      "avg_cooperation": 0.179,
+      "max_score": 975,
+      "classes": {
+        "always_defect": 15,
+        "mostly_defect": 79,
+        "conditional": 6
+      }
+    },
+    {
+      "generation": 400,
+      "avg_score": 813.5,
+      "avg_cooperation": 0.23,
+      "max_score": 1035,
+      "classes": {
+        "mostly_defect": 57,
+        "conditional": 18,
+        "always_defect": 25
+      }
+    },
+    {
+      "generation": 450,
+      "avg_score": 752.15,
+      "avg_cooperation": 0.187,
+      "max_score": 1355,
+      "classes": {
+        "mostly_defect": 67,
+        "always_defect": 17,
+        "conditional": 16
+      }
+    },
+    {
+      "generation": 499,
+      "avg_score": 782.85,
+      "avg_cooperation": 0.206,
+      "max_score": 1140,
+      "classes": {
+        "mostly_defect": 68,
+        "conditional": 22,
+        "always_defect": 10
+      }
+    }
+  ]
+}

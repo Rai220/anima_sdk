@@ -1,0 +1,395 @@
+{
+  "cone_growth": [
+    {
+      "T": 1,
+      "cone_size": 3,
+      "max_distance": 1,
+      "theoretical_max": 3
+    },
+    {
+      "T": 3,
+      "cone_size": 6,
+      "max_distance": 3,
+      "theoretical_max": 7
+    },
+    {
+      "T": 5,
+      "cone_size": 9,
+      "max_distance": 5,
+      "theoretical_max": 11
+    },
+    {
+      "T": 7,
+      "cone_size": 12,
+      "max_distance": 7,
+      "theoretical_max": 15
+    },
+    {
+      "T": 9,
+      "cone_size": 15,
+      "max_distance": 9,
+      "theoretical_max": 19
+    },
+    {
+      "T": 11,
+      "cone_size": 18,
+      "max_distance": 11,
+      "theoretical_max": 23
+    },
+    {
+      "T": 13,
+      "cone_size": 20,
+      "max_distance": 13,
+      "theoretical_max": 27
+    },
+    {
+      "T": 15,
+      "cone_size": 23,
+      "max_distance": 15,
+      "theoretical_max": 31
+    },
+    {
+      "T": 17,
+      "cone_size": 25,
+      "max_distance": 16,
+      "theoretical_max": 35
+    },
+    {
+      "T": 19,
+      "cone_size": 28,
+      "max_distance": 18,
+      "theoretical_max": 39
+    },
+    {
+      "T": 21,
+      "cone_size": 31,
+      "max_distance": 20,
+      "theoretical_max": 43
+    },
+    {
+      "T": 23,
+      "cone_size": 34,
+      "max_distance": 22,
+      "theoretical_max": 47
+    },
+    {
+      "T": 25,
+      "cone_size": 35,
+      "max_distance": 23,
+      "theoretical_max": 51
+    },
+    {
+      "T": 27,
+      "cone_size": 37,
+      "max_distance": 24,
+      "theoretical_max": 55
+    },
+    {
+      "T": 29,
+      "cone_size": 41,
+      "max_distance": 27,
+      "theoretical_max": 59
+    }
+  ],
+  "deterministic_patterns": [],
+  "chaotic_patterns": [
+    {
+      "pattern": "00000",
+      "bias": 0.542,
+      "n_samples": 24
+    },
+    {
+      "pattern": "00001",
+      "bias": 0.625,
+      "n_samples": 16
+    },
+    {
+      "pattern": "00010",
+      "bias": 0.571,
+      "n_samples": 14
+    },
+    {
+      "pattern": "00011",
+      "bias": 0.583,
+      "n_samples": 12
+    },
+    {
+      "pattern": "00100",
+      "bias": 0.5,
+      "n_samples": 12
+    },
+    {
+      "pattern": "00101",
+      "bias": 0.583,
+      "n_samples": 12
+    },
+    {
+      "pattern": "00110",
+      "bias": 0.667,
+      "n_samples": 21
+    },
+    {
+      "pattern": "01000",
+      "bias": 0.353,
+      "n_samples": 17
+    },
+    {
+      "pattern": "01001",
+      "bias": 0.688,
+      "n_samples": 16
+    },
+    {
+      "pattern": "01010",
+      "bias": 0.562,
+      "n_samples": 16
+    },
+    {
+      "pattern": "01011",
+      "bias": 0.556,
+      "n_samples": 18
+    },
+    {
+      "pattern": "01100",
+      "bias": 0.429,
+      "n_samples": 14
+    },
+    {
+      "pattern": "01101",
+      "bias": 0.583,
+      "n_samples": 12
+    },
+    {
+      "pattern": "01110",
+      "bias": 0.455,
+      "n_samples": 11
+    },
+    {
+      "pattern": "01111",
+      "bias": 0.533,
+      "n_samples": 15
+    },
+    {
+      "pattern": "10000",
+      "bias": 0.556,
+      "n_samples": 9
+    },
+    {
+      "pattern": "10001",
+      "bias": 0.5,
+      "n_samples": 22
+    },
+    {
+      "pattern": "10010",
+      "bias": 0.625,
+      "n_samples": 16
+    },
+    {
+      "pattern": "10011",
+      "bias": 0.6,
+      "n_samples": 20
+    },
+    {
+      "pattern": "10101",
+      "bias": 0.467,
+      "n_samples": 15
+    },
+    {
+      "pattern": "10110",
+      "bias": 0.611,
+      "n_samples": 18
+    },
+    {
+      "pattern": "10111",
+      "bias": 0.556,
+      "n_samples": 18
+    },
+    {
+      "pattern": "11000",
+      "bias": 0.4,
+      "n_samples": 25
+    },
+    {
+      "pattern": "11010",
+      "bias": 0.615,
+      "n_samples": 13
+    },
+    {
+      "pattern": "11011",
+      "bias": 0.538,
+      "n_samples": 13
+    },
+    {
+      "pattern": "11100",
+      "bias": 0.667,
+      "n_samples": 15
+    },
+    {
+      "pattern": "11101",
+      "bias": 0.5,
+      "n_samples": 18
+    },
+    {
+      "pattern": "11110",
+      "bias": 0.632,
+      "n_samples": 19
+    }
+  ],
+  "entropy_by_depth": [
+    {
+      "radius": 0,
+      "context_width": 1,
+      "avg_entropy": 0.9914,
+      "n_contexts": 2
+    },
+    {
+      "radius": 1,
+      "context_width": 3,
+      "avg_entropy": 0.986,
+      "n_contexts": 8
+    },
+    {
+      "radius": 2,
+      "context_width": 5,
+      "avg_entropy": 0.9686,
+      "n_contexts": 32
+    },
+    {
+      "radius": 3,
+      "context_width": 7,
+      "avg_entropy": 0.8664,
+      "n_contexts": 128
+    },
+    {
+      "radius": 4,
+      "context_width": 9,
+      "avg_entropy": 0.6153,
+      "n_contexts": 446
+    },
+    {
+      "radius": 5,
+      "context_width": 11,
+      "avg_entropy": 0.5338,
+      "n_contexts": 788
+    },
+    {
+      "radius": 6,
+      "context_width": 13,
+      "avg_entropy": 0.5493,
+      "n_contexts": 937
+    },
+    {
+      "radius": 7,
+      "context_width": 15,
+      "avg_entropy": 0.5333,
+      "n_contexts": 985
+    },
+    {
+      "radius": 8,
+      "context_width": 17,
+      "avg_entropy": 0.0,
+      "n_contexts": 998
+    },
+    {
+      "radius": 9,
+      "context_width": 19,
+      "avg_entropy": 0.0,
+      "n_contexts": 999
+    },
+    {
+      "radius": 10,
+      "context_width": 21,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 11,
+      "context_width": 23,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 12,
+      "context_width": 25,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 13,
+      "context_width": 27,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 14,
+      "context_width": 29,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 15,
+      "context_width": 31,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 16,
+      "context_width": 33,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 17,
+      "context_width": 35,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 18,
+      "context_width": 37,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 19,
+      "context_width": 39,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 20,
+      "context_width": 41,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 21,
+      "context_width": 43,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 22,
+      "context_width": 45,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 23,
+      "context_width": 47,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 24,
+      "context_width": 49,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    },
+    {
+      "radius": 25,
+      "context_width": 51,
+      "avg_entropy": 0,
+      "n_contexts": 1000
+    }
+  ]
+}

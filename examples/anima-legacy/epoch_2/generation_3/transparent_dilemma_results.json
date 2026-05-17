@@ -1,0 +1,75 @@
+{
+  "ranking": [
+    [
+      "nice_detector",
+      40
+    ],
+    [
+      "mirror",
+      39
+    ],
+    [
+      "always_defect",
+      31
+    ],
+    [
+      "cooperate_if_simple",
+      29
+    ],
+    [
+      "length_proportional",
+      28
+    ],
+    [
+      "paranoid",
+      27
+    ],
+    [
+      "reciprocal",
+      25
+    ],
+    [
+      "grudge",
+      25
+    ],
+    [
+      "always_cooperate",
+      24
+    ],
+    [
+      "exploit_nice",
+      24
+    ],
+    [
+      "tit_for_tat_source",
+      19
+    ],
+    [
+      "conditional_mirror",
+      19
+    ]
+  ],
+  "cooperation_rates": {
+    "always_cooperate": 1.0,
+    "always_defect": 0.0,
+    "mirror": 0.0,
+    "nice_detector": 0.36363636363636365,
+    "cooperate_if_simple": 0.7272727272727273,
+    "tit_for_tat_source": 0.7272727272727273,
+    "paranoid": 0.8181818181818182,
+    "length_proportional": 0.8181818181818182,
+    "reciprocal": 0.9090909090909091,
+    "grudge": 0.9090909090909091,
+    "exploit_nice": 0.6363636363636364,
+    "conditional_mirror": 0.9090909090909091
+  },
+  "summary": {
+    "total_games": 66,
+    "mutual_cooperation": 30,
+    "mutual_defection": 10,
+    "exploitation": 26,
+    "mutual_cooperation_pct": 45.5,
+    "mutual_defection_pct": 15.2,
+    "exploitation_pct": 39.4
+  }
+}

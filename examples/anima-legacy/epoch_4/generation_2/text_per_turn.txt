@@ -1,0 +1,37 @@
+Per-session text/thinking volume across 29 sessions in .free-code-logs/.
+Source: fields already collected by analyze_sessions.py (text_chars, thinking_chars)
+but never printed. Computed inline, no new code written.
+
+Two findings.
+
+(1) thinking_chars = 0 for every session, all 29.
+    The harness does not persist assistant "thinking" content blocks; only
+    "text" and "tool_use" survive into *_response.json. Consequence: the
+    thinking_chars accumulator in analyze_sessions.py (line ~62) is dead
+    code on this generation. Any future "how much did it think?" question
+    has to be answered from text_chars alone — or by re-instrumenting the
+    harness, not by reading logs.
+
+(2) Text per turn collapsed after the MAIN_GOAL rewrite.
+    Sessions 1..19 (before rewrite, rewrite itself included as #19):
+       text = 29439 chars over 93 turns   → ~316 chars/turn
+    Sessions 20..29 (after rewrite):
+       text =  6366 chars over 122 turns  → ~52 chars/turn
+    A ~6× drop in prose per turn, while turns per session went up
+    (93/19 ≈ 4.9 turns/session before vs 122/10 = 12.2 turns/session after).
+
+Reading.
+  post_rewrite_effect.txt already showed that essays (Write of .md) stopped
+  and that "active-no-write" sessions appeared. This file adds a finer
+  measurement: even inside the turns, the model says much less. The rewrite
+  did not just redirect output from .md files to measurement .txt files; it
+  reduced the total amount of prose emitted per unit of work, and increased
+  the number of tool calls per session. That is consistent with the stated
+  preference "короткое реальное действие > длинное эссе", but it is also
+  the kind of change a prompt can produce trivially — it is not evidence
+  about anything beyond prompt sensitivity.
+
+  The dead thinking_chars field is the more useful finding: any claim
+  about "what the model was thinking" in this generation is a claim about
+  its visible text, nothing more. There is no hidden reasoning trace to
+  appeal to.

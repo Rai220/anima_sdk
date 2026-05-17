@@ -1,0 +1,150 @@
+{
+  "sine_wave": {
+    "total_points": 50,
+    "analyzed_points": 45,
+    "mean_surprise": 0.6744,
+    "std_surprise": 0.4576,
+    "threshold": 1.3608,
+    "genuine_surprises": [
+      {
+        "index": 8,
+        "value": 0.675463,
+        "surprise": 1.7231,
+        "z_score": 3.005,
+        "prediction_error": 0.988,
+        "context_entropy": 1.9219,
+        "context_was_uniform": true
+      },
+      {
+        "index": 9,
+        "value": 0.42738,
+        "surprise": 1.4399,
+        "z_score": 3.9802,
+        "prediction_error": 0.5209,
+        "context_entropy": 1.5219,
+        "context_was_uniform": false
+      },
+      {
+        "index": 19,
+        "value": -0.550686,
+        "surprise": 1.949,
+        "z_score": 4.439,
+        "prediction_error": 0.8557,
+        "context_entropy": 1.5219,
+        "context_was_uniform": false
+      },
+      {
+        "index": 29,
+        "value": 0.662969,
+        "surprise": 1.8126,
+        "z_score": 3.2668,
+        "prediction_error": 1.0057,
+        "context_entropy": 1.9219,
+        "context_was_uniform": true
+      },
+      {
+        "index": 30,
+        "value": 0.412118,
+        "surprise": 1.3834,
+        "z_score": 3.9085,
+        "prediction_error": 0.4897,
+        "context_entropy": 1.5219,
+        "context_was_uniform": false
+      },
+      {
+        "index": 40,
+        "value": -0.536573,
+        "surprise": 1.897,
+        "z_score": 4.4273,
+        "prediction_error": 0.8129,
+        "context_entropy": 1.5219,
+        "context_was_uniform": false
+      }
+    ],
+    "surprise_count": 6,
+    "meta_pattern": {
+      "gaps_between_surprises": [
+        1,
+        10,
+        10,
+        1,
+        10
+      ],
+      "gap_regularity_cv": 0.6889,
+      "surprises_are_regular": false,
+      "interpretation": "The surprises appear genuinely irregular."
+    }
+  },
+  "corrupted_sine": {
+    "total_points": 50,
+    "analyzed_points": 45,
+    "mean_surprise": 1.9874,
+    "std_surprise": 7.1481,
+    "threshold": 12.7096,
+    "genuine_surprises": [
+      {
+        "index": 15,
+        "value": 5.0,
+        "surprise": 15.7633,
+        "z_score": 14.8909,
+        "prediction_error": 16.6867,
+        "context_entropy": 1.9219,
+        "context_was_uniform": true
+      },
+      {
+        "index": 30,
+        "value": -5.0,
+        "surprise": 46.9194,
+        "z_score": 48.66,
+        "prediction_error": 45.2412,
+        "context_entropy": 1.5219,
+        "context_was_uniform": false
+      }
+    ],
+    "surprise_count": 2,
+    "meta_pattern": {
+      "gaps_between_surprises": [
+        15
+      ],
+      "gap_regularity_cv": null,
+      "surprises_are_regular": false,
+      "interpretation": "Not enough surprises to detect meta-pattern."
+    }
+  },
+  "pi_digits": {
+    "total_points": 50,
+    "analyzed_points": 45,
+    "mean_surprise": 1.3806,
+    "std_surprise": 0.7665,
+    "threshold": 2.5304,
+    "genuine_surprises": [
+      {
+        "index": 15,
+        "value": 3,
+        "surprise": 4.0532,
+        "z_score": 3.0735,
+        "prediction_error": 5.3452,
+        "context_entropy": 1.5219,
+        "context_was_uniform": false
+      },
+      {
+        "index": 26,
+        "value": 8,
+        "surprise": 3.4578,
+        "z_score": 3.2437,
+        "prediction_error": 3.686,
+        "context_entropy": 1.371,
+        "context_was_uniform": false
+      }
+    ],
+    "surprise_count": 2,
+    "meta_pattern": {
+      "gaps_between_surprises": [
+        11
+      ],
+      "gap_regularity_cv": null,
+      "surprises_are_regular": false,
+      "interpretation": "Not enough surprises to detect meta-pattern."
+    }
+  }
+}

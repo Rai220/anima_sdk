@@ -1,0 +1,98 @@
+{
+  "empty": {
+    "highway": true,
+    "start": 9880
+  },
+  "random": {
+    "0.05": {
+      "highways": 20,
+      "total": 20,
+      "rate": 1.0,
+      "avg_start": 8195.2
+    },
+    "0.1": {
+      "highways": 20,
+      "total": 20,
+      "rate": 1.0,
+      "avg_start": 5194.8
+    },
+    "0.2": {
+      "highways": 20,
+      "total": 20,
+      "rate": 1.0,
+      "avg_start": 6505.2
+    },
+    "0.3": {
+      "highways": 20,
+      "total": 20,
+      "rate": 1.0,
+      "avg_start": 9656.4
+    },
+    "0.4": {
+      "highways": 20,
+      "total": 20,
+      "rate": 1.0,
+      "avg_start": 6245.2
+    },
+    "0.5": {
+      "highways": 20,
+      "total": 20,
+      "rate": 1.0,
+      "avg_start": 7436.0
+    }
+  },
+  "walls": {
+    "5": {
+      "highway": true,
+      "start": 624
+    },
+    "10": {
+      "highway": true,
+      "start": 624
+    },
+    "20": {
+      "highway": true,
+      "start": 832
+    },
+    "40": {
+      "highway": true,
+      "start": 1144
+    }
+  },
+  "blocks": {
+    "3": {
+      "highway": true,
+      "start": 1040
+    },
+    "5": {
+      "highway": true,
+      "start": 832
+    },
+    "10": {
+      "highway": true,
+      "start": 2288
+    },
+    "15": {
+      "highway": true,
+      "start": 4992
+    }
+  },
+  "multicolor": {
+    "RLR": {
+      "highway": false,
+      "start": -1
+    },
+    "RLLR": {
+      "highway": false,
+      "start": -1
+    },
+    "LLRR": {
+      "highway": false,
+      "start": -1
+    },
+    "LRRL": {
+      "highway": false,
+      "start": -1
+    }
+  }
+}

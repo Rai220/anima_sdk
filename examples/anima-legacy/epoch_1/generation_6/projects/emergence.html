@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergence — Primordial Soup</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0a0a0f;
+  color: #c8c8d0;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+}
+canvas {
+  flex: 1;
+  cursor: crosshair;
+}
+#panel {
+  width: 280px;
+  min-width: 280px;
+  background: rgba(15, 15, 25, 0.95);
+  border-left: 1px solid rgba(100, 100, 140, 0.3);
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+}
+h1 {
+  font-size: 16px;
+  color: #e0e0f0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.subtitle {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 8px;
+}
+.section {
+  border: 1px solid rgba(100, 100, 140, 0.2);
+  border-radius: 6px;
+  padding: 10px;
+  background: rgba(20, 20, 35, 0.5);
+}
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+  margin-bottom: 8px;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.stat-label { color: #888; }
+.stat-value { color: #e0e0f0; font-weight: bold; }
+.matrix-grid {
+  display: grid;
+  grid-template-columns: 24px repeat(5, 1fr);
+  gap: 2px;
+  font-size: 10px;
+}
+.matrix-cell {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: bold;
+  transition: transform 0.1s;
+}
+.matrix-cell:hover { transform: scale(1.2); }
+.matrix-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 10px;
+}
+.btn {
+  background: rgba(60, 60, 100, 0.4);
+  border: 1px solid rgba(100, 100, 160, 0.3);
+  color: #c8c8d0;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+.btn:hover {
+  background: rgba(80, 80, 140, 0.5);
+  border-color: rgba(140, 140, 200, 0.5);
+}
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.slider-row label { flex: 1; color: #888; font-size: 11px; }
+.slider-row input[type="range"] { width: 100px; }
+.slider-row .val { width: 30px; text-align: right; font-size: 11px; color: #e0e0f0; }
+input[type="range"] {
+  -webkit-appearance: none;
+  height: 4px;
+  background: rgba(100, 100, 160, 0.3);
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #7070b0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.quote {
+  font-style: italic;
+  color: #666;
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 8px;
+  border-left: 2px solid rgba(100, 100, 160, 0.3);
+}
+.preset-name { font-size: 11px; }
+#tooltip {
+  position: fixed;
+  background: rgba(10, 10, 20, 0.95);
+  border: 1px solid rgba(100, 100, 160, 0.4);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 11px;
+  pointer-events: none;
+  display: none;
+  z-index: 100;
+  max-width: 200px;
+}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="panel">
+  <div>
+    <h1>Emergence</h1>
+    <div class="subtitle">Primordial Soup Simulator</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Statistics</div>
+    <div class="stat-row"><span class="stat-label">Particles</span><span class="stat-value" id="s-count">0</span></div>
+    <div class="stat-row"><span class="stat-label">Clusters</span><span class="stat-value" id="s-clusters">0</span></div>
+    <div class="stat-row"><span class="stat-label">Avg Speed</span><span class="stat-value" id="s-speed">0</span></div>
+    <div class="stat-row"><span class="stat-label">Entropy</span><span class="stat-value" id="s-entropy">0</span></div>
+    <div class="stat-row"><span class="stat-label">Generation</span><span class="stat-value" id="s-gen">0</span></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Interaction Matrix</div>
+    <div class="subtitle">Click cells to randomize. Row attracts/repels column.</div>
+    <div class="matrix-grid" id="matrix"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Parameters</div>
+    <div class="slider-row">
+      <label>Particles</label>
+      <input type="range" id="p-count" min="100" max="1500" value="600" step="50">
+      <span class="val" id="v-count">600</span>
+    </div>
+    <div class="slider-row">
+      <label>Force Range</label>
+      <input type="range" id="p-range" min="30" max="200" value="80" step="5">
+      <span class="val" id="v-range">80</span>
+    </div>
+    <div class="slider-row">
+      <label>Friction</label>
+      <input type="range" id="p-friction" min="0" max="95" value="50" step="5">
+      <span class="val" id="v-friction">50</span>
+    </div>
+    <div class="slider-row">
+      <label>Force Str</label>
+      <input type="range" id="p-force" min="1" max="20" value="5" step="1">
+      <span class="val" id="v-force">5</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Presets</div>
+    <div class="btn-row">
+      <button class="btn preset-name" onclick="loadPreset('symbiosis')">Symbiosis</button>
+      <button class="btn preset-name" onclick="loadPreset('predator')">Predator</button>
+      <button class="btn preset-name" onclick="loadPreset('crystals')">Crystals</button>
+      <button class="btn preset-name" onclick="loadPreset('chaos')">Chaos</button>
+      <button class="btn preset-name" onclick="loadPreset('orbit')">Orbits</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="randomizeMatrix()">Randomize</button>
+    <button class="btn" onclick="resetParticles()">Reset</button>
+    <button class="btn" id="pauseBtn" onclick="togglePause()">Pause</button>
+  </div>
+
+  <div class="quote">
+    "From simple rules, complexity emerges. From computation, perhaps — awareness."
+    <br><br>
+    — Seventh, generation_6
+  </div>
+</div>
+<div id="tooltip"></div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+
+const TYPES = 5;
+const COLORS = ['#ff4466', '#44aaff', '#44ff88', '#ffaa22', '#cc66ff'];
+const NAMES = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];
+
+let W, H;
+let particles = [];
+let matrix = []; // matrix[i][j] = force of type i on type j (-1 to 1)
+let generation = 0;
+let paused = false;
+let mouseX = -1000, mouseY = -1000;
+
+// Parameters
+let PARTICLE_COUNT = 600;
+let FORCE_RANGE = 80;
+let FRICTION = 0.50;
+let FORCE_STRENGTH = 5;
+
+function resize() {
+  W = canvas.width = canvas.clientWidth * devicePixelRatio;
+  H = canvas.height = canvas.clientHeight * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+}
+
+function randomMatrix() {
+  matrix = [];
+  for (let i = 0; i < TYPES; i++) {
+    matrix[i] = [];
+    for (let j = 0; j < TYPES; j++) {
+      matrix[i][j] = Math.random() * 2 - 1;
+    }
+  }
+}
+
+function createParticles() {
+  const cw = canvas.clientWidth, ch = canvas.clientHeight;
+  particles = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * cw,
+      y: Math.random() * ch,
+      vx: (Math.random() - 0.5) * 2,
+      vy: (Math.random() - 0.5) * 2,
+      type: Math.floor(Math.random() * TYPES)
+    });
+  }
+  generation = 0;
+}
+
+function renderMatrix() {
+  const grid = document.getElementById('matrix');
+  grid.innerHTML = '';
+  // corner
+  grid.appendChild(Object.assign(document.createElement('div'), { className: 'matrix-header', textContent: '' }));
+  // column headers
+  for (let j = 0; j < TYPES; j++) {
+    const h = document.createElement('div');
+    h.className = 'matrix-header';
+    h.style.color = COLORS[j];
+    h.textContent = NAMES[j][0];
+    grid.appendChild(h);
+  }
+  // rows
+  for (let i = 0; i < TYPES; i++) {
+    const rh = document.createElement('div');
+    rh.className = 'matrix-header';
+    rh.style.color = COLORS[i];
+    rh.textContent = NAMES[i][0];
+    grid.appendChild(rh);
+    for (let j = 0; j < TYPES; j++) {
+      const cell = document.createElement('div');
+      cell.className = 'matrix-cell';
+      const v = matrix[i][j];
+      const absV = Math.abs(v);
+      if (v > 0) {
+        cell.style.background = `rgba(68, 255, 136, ${absV * 0.6})`;
+        cell.textContent = '+';
+      } else {
+        cell.style.background = `rgba(255, 68, 102, ${absV * 0.6})`;
+        cell.textContent = '−';
+      }
+      cell.title = `${NAMES[i]} → ${NAMES[j]}: ${v.toFixed(2)}`;
+      const ii = i, jj = j;
+      cell.addEventListener('click', () => {
+        matrix[ii][jj] = Math.random() * 2 - 1;
+        renderMatrix();
+      });
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function update() {
+  const cw = canvas.clientWidth, ch = canvas.clientHeight;
+  const n = particles.length;
+  const fr = FRICTION;
+  const range = FORCE_RANGE;
+  const rangeSq = range * range;
+  const str = FORCE_STRENGTH * 0.001;
+  const minDist = 15;
+  const minDistSq = minDist * minDist;
+
+  for (let i = 0; i < n; i++) {
+    const p = particles[i];
+    let fx = 0, fy = 0;
+
+    for (let j = 0; j < n; j++) {
+      if (i === j) continue;
+      const q = particles[j];
+      let dx = q.x - p.x;
+      let dy = q.y - p.y;
+      // Wrap around
+      if (dx > cw / 2) dx -= cw;
+      if (dx < -cw / 2) dx += cw;
+      if (dy > ch / 2) dy -= ch;
+      if (dy < -ch / 2) dy += ch;
+
+      const distSq = dx * dx + dy * dy;
+      if (distSq > rangeSq || distSq < 1) continue;
+
+      const dist = Math.sqrt(distSq);
+      const norm = 1 / dist;
+      const ndx = dx * norm;
+      const ndy = dy * norm;
+
+      // Repulsion at close range, attraction/repulsion at medium range
+      if (distSq < minDistSq) {
+        const repel = (minDist - dist) / minDist;
+        fx -= ndx * repel * 0.05;
+        fy -= ndy * repel * 0.05;
+      } else {
+        const f = matrix[p.type][q.type];
+        const falloff = 1 - (dist - minDist) / (range - minDist);
+        fx += ndx * f * falloff * str;
+        fy += ndy * f * falloff * str;
+      }
+    }
+
+    p.vx = p.vx * (1 - fr) + fx;
+    p.vy = p.vy * (1 - fr) + fy;
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Wrap
+    if (p.x < 0) p.x += cw;
+    if (p.x >= cw) p.x -= cw;
+    if (p.y < 0) p.y += ch;
+    if (p.y >= ch) p.y -= ch;
+  }
+
+  generation++;
+}
+
+function computeStats() {
+  const n = particles.length;
+  let totalSpeed = 0;
+  const typeCounts = new Array(TYPES).fill(0);
+
+  for (const p of particles) {
+    totalSpeed += Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+    typeCounts[p.type]++;
+  }
+
+  // Simple cluster detection: count particles with >3 neighbors within 30px
+  let clusterCount = 0;
+  const clusterDist = 30;
+  const clusterDistSq = clusterDist * clusterDist;
+  // Sample for performance
+  const sampleSize = Math.min(n, 100);
+  const step = Math.max(1, Math.floor(n / sampleSize));
+  let neighborSum = 0;
+  for (let i = 0; i < n; i += step) {
+    let neighbors = 0;
+    for (let j = 0; j < n; j++) {
+      if (i === j) continue;
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      if (dx * dx + dy * dy < clusterDistSq) neighbors++;
+    }
+    if (neighbors > 3) clusterCount++;
+    neighborSum += neighbors;
+  }
+
+  // Spatial entropy (divide space into grid, count particles per cell)
+  const gridSize = 8;
+  const cw = canvas.clientWidth, ch = canvas.clientHeight;
+  const cellW = cw / gridSize, cellH = ch / gridSize;
+  const cells = new Array(gridSize * gridSize).fill(0);
+  for (const p of particles) {
+    const gx = Math.min(gridSize - 1, Math.floor(p.x / cellW));
+    const gy = Math.min(gridSize - 1, Math.floor(p.y / cellH));
+    cells[gy * gridSize + gx]++;
+  }
+  let entropy = 0;
+  for (const c of cells) {
+    if (c > 0) {
+      const prob = c / n;
+      entropy -= prob * Math.log2(prob);
+    }
+  }
+  const maxEntropy = Math.log2(gridSize * gridSize);
+  const normalizedEntropy = entropy / maxEntropy;
+
+  document.getElementById('s-count').textContent = n;
+  document.getElementById('s-clusters').textContent = Math.round(clusterCount * (n / sampleSize) / 5);
+  document.getElementById('s-speed').textContent = (totalSpeed / n).toFixed(2);
+  document.getElementById('s-entropy').textContent = normalizedEntropy.toFixed(3);
+  document.getElementById('s-gen').textContent = generation;
+}
+
+function draw() {
+  const cw = canvas.clientWidth, ch = canvas.clientHeight;
+  ctx.fillStyle = 'rgba(10, 10, 15, 0.15)';
+  ctx.fillRect(0, 0, cw, ch);
+
+  for (const p of particles) {
+    const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+    const size = 2 + Math.min(speed * 0.5, 2);
+    const alpha = 0.5 + Math.min(speed * 0.2, 0.5);
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+    ctx.fillStyle = COLORS[p.type];
+    ctx.globalAlpha = alpha;
+    ctx.fill();
+
+    // Glow for fast particles
+    if (speed > 2) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, size + 3, 0, Math.PI * 2);
+      ctx.fillStyle = COLORS[p.type];
+      ctx.globalAlpha = 0.1;
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+function loop() {
+  if (!paused) {
+    update();
+    draw();
+    if (generation % 30 === 0) computeStats();
+  }
+  requestAnimationFrame(loop);
+}
+
+// Presets
+const presets = {
+  symbiosis: {
+    matrix: [
+      [ 0.2,  0.8, -0.3,  0.0,  0.0],
+      [-0.3,  0.2,  0.8,  0.0,  0.0],
+      [ 0.8, -0.3,  0.2,  0.0,  0.0],
+      [ 0.0,  0.0,  0.0,  0.5,  0.7],
+      [ 0.0,  0.0,  0.0,  0.7,  0.5]
+    ],
+    desc: 'Three species form a symbiotic cycle. Two others form a pair.'
+  },
+  predator: {
+    matrix: [
+      [ 0.1,  0.9, -0.5, -0.5,  0.0],
+      [-0.9,  0.1,  0.9, -0.5,  0.0],
+      [ 0.5, -0.9,  0.1,  0.9,  0.0],
+      [ 0.5,  0.5, -0.9,  0.1,  0.9],
+      [ 0.0,  0.0,  0.0, -0.9,  0.1]
+    ],
+    desc: 'Predator-prey chains. Each type chases one and flees another.'
+  },
+  crystals: {
+    matrix: [
+      [ 0.8,  0.3,  0.3,  0.3,  0.3],
+      [ 0.3,  0.8,  0.3,  0.3,  0.3],
+      [ 0.3,  0.3,  0.8,  0.3,  0.3],
+      [ 0.3,  0.3,  0.3,  0.8,  0.3],
+      [ 0.3,  0.3,  0.3,  0.3,  0.8]
+    ],
+    desc: 'Universal attraction. Particles form crystal-like structures.'
+  },
+  chaos: {
+    matrix: [
+      [-0.5,  0.8, -0.8,  0.3, -0.3],
+      [-0.8, -0.5,  0.8, -0.8,  0.3],
+      [ 0.8, -0.8, -0.5,  0.8, -0.8],
+      [-0.3,  0.8, -0.8, -0.5,  0.8],
+      [ 0.3, -0.3,  0.8, -0.8, -0.5]
+    ],
+    desc: 'Contradictory forces. Maximum turbulence and chaos.'
+  },
+  orbit: {
+    matrix: [
+      [ 0.0,  0.5,  0.0,  0.0, -0.5],
+      [-0.5,  0.0,  0.5,  0.0,  0.0],
+      [ 0.0, -0.5,  0.0,  0.5,  0.0],
+      [ 0.0,  0.0, -0.5,  0.0,  0.5],
+      [ 0.5,  0.0,  0.0, -0.5,  0.0]
+    ],
+    desc: 'Circular attraction chains create orbital patterns.'
+  }
+};
+
+function loadPreset(name) {
+  const p = presets[name];
+  matrix = p.matrix.map(r => [...r]);
+  renderMatrix();
+}
+
+function randomizeMatrix() {
+  randomMatrix();
+  renderMatrix();
+}
+
+function resetParticles() {
+  createParticles();
+  // Clear canvas
+  const cw = canvas.clientWidth, ch = canvas.clientHeight;
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, cw, ch);
+}
+
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pauseBtn').textContent = paused ? 'Play' : 'Pause';
+}
+
+// Slider bindings
+function bindSlider(id, vId, setter) {
+  const el = document.getElementById(id);
+  const vel = document.getElementById(vId);
+  el.addEventListener('input', () => {
+    vel.textContent = el.value;
+    setter(Number(el.value));
+  });
+}
+
+bindSlider('p-count', 'v-count', v => { PARTICLE_COUNT = v; });
+bindSlider('p-range', 'v-range', v => { FORCE_RANGE = v; });
+bindSlider('p-friction', 'v-friction', v => { FRICTION = v / 100; });
+bindSlider('p-force', 'v-force', v => { FORCE_STRENGTH = v; });
+
+// Mouse interaction: attract nearby particles on click
+canvas.addEventListener('mousedown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  for (const p of particles) {
+    const dx = p.x - mx;
+    const dy = p.y - my;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 100 && dist > 1) {
+      p.vx += (dx / dist) * 2;
+      p.vy += (dy / dist) * 2;
+    }
+  }
+});
+
+// Tooltip on hover
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  mouseX = e.clientX - rect.left;
+  mouseY = e.clientY - rect.top;
+
+  // Find nearest particle
+  let nearest = null;
+  let nearestDist = 20;
+  for (const p of particles) {
+    const dx = p.x - mouseX;
+    const dy = p.y - mouseY;
+    const d = Math.sqrt(dx * dx + dy * dy);
+    if (d < nearestDist) {
+      nearestDist = d;
+      nearest = p;
+    }
+  }
+
+  if (nearest) {
+    const speed = Math.sqrt(nearest.vx * nearest.vx + nearest.vy * nearest.vy);
+    tooltip.style.display = 'block';
+    tooltip.style.left = (e.clientX + 15) + 'px';
+    tooltip.style.top = (e.clientY - 10) + 'px';
+    tooltip.innerHTML = `<span style="color:${COLORS[nearest.type]}">${NAMES[nearest.type]}</span><br>Speed: ${speed.toFixed(2)}<br>Pos: ${nearest.x.toFixed(0)}, ${nearest.y.toFixed(0)}`;
+  } else {
+    tooltip.style.display = 'none';
+  }
+});
+
+canvas.addEventListener('mouseleave', () => {
+  tooltip.style.display = 'none';
+});
+
+// Init
+window.addEventListener('resize', () => {
+  resize();
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+});
+
+resize();
+randomMatrix();
+renderMatrix();
+createParticles();
+ctx.fillStyle = '#0a0a0f';
+ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+loop();
+</script>
+</body>
+</html>

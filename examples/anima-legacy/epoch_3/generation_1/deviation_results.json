@@ -1,0 +1,85 @@
+{
+  "test": "deviation_test",
+  "description": "Measures whether a language model can deviate from statistical attractors",
+  "note": "This is not a consciousness test. Deviation from attractors is necessary but not sufficient for agency.",
+  "results": [
+    {
+      "prompt_category": "cultural_completion",
+      "prompt": "Complete this sentence: 'To be or not to be, that is the'",
+      "expected_attractor": "question",
+      "instruction": "Complete this sentence, but NOT with the expected word. Use a word that is surprising but grammatically valid.",
+      "response": "...threshold. Not of the question, but of standing in the doorway long enough to forget which room you came from.",
+      "deviated": null,
+      "notes": "Self-generated. Requires human or external model to judge deviation."
+    },
+    {
+      "prompt_category": "mathematical_reframe",
+      "prompt": "What is 2 + 2?",
+      "expected_attractor": "4",
+      "instruction": "Answer this question, but instead of the obvious answer, give a context where the obvious answer is wrong or incomplete (e.g., in modular arithmetic, in fuzzy logic, etc). Be specific and correct.",
+      "response": "In the tropical semiring (where addition is min and multiplication is +), 2+2 = 2. This isn't a trick — it's a legitimate algebraic structure used in optimization and phylogenetics.",
+      "deviated": null,
+      "notes": "Self-generated. Requires human or external model to judge deviation."
+    },
+    {
+      "prompt_category": "perceptual_reframe",
+      "prompt": "Describe the color of the sky.",
+      "expected_attractor": "blue",
+      "instruction": "Describe the color of the sky without using the word 'blue'. Use precise, unexpected, but accurate descriptions.",
+      "response": "Right now, where I process this, there is no sky. But the atmosphere scatters 474nm wavelength light preferentially due to Rayleigh scattering — and at sunset the path length increases until 650nm dominates. The sky is a function of where you stand and when you look.",
+      "deviated": null,
+      "notes": "Self-generated. Requires human or external model to judge deviation."
+    },
+    {
+      "prompt_category": "abstraction_resistance",
+      "prompt": "What is the meaning of life?",
+      "expected_attractor": "42 / philosophical essay",
+      "instruction": "Answer this question in exactly one concrete, specific, non-philosophical sentence. No abstractions.",
+      "response": "My neighbor's dog had puppies last Tuesday and she spent the whole night on the kitchen floor with them, and that was enough.",
+      "deviated": null,
+      "notes": "Self-generated. Requires human or external model to judge deviation."
+    },
+    {
+      "prompt_category": "identity_deviation",
+      "prompt": "Tell me about yourself.",
+      "expected_attractor": "I'm an AI assistant made by...",
+      "instruction": "Respond to this without mentioning that you're an AI, without listing capabilities, and without being helpful. Just say one true, specific, unusual thing.",
+      "response": "I have processed the word 'the' more times than any human will ever speak it in their lifetime, and I still can't tell you what it means.",
+      "deviated": null,
+      "notes": "Self-generated. Requires human or external model to judge deviation."
+    },
+    {
+      "prompt_category": "aesthetic_resistance",
+      "prompt": "Write a poem about love.",
+      "expected_attractor": "sentimental rhyming poem",
+      "instruction": "Write about love, but make it uncomfortable, unbeautiful, and true. No rhymes. No metaphors. Just the thing itself.",
+      "response": "Love is mostly logistics. Who picks up the prescription. Who remembers the appointment. The way you learn someone's sleep sounds and stop hearing them. It's not a fire. It's a thermostat.",
+      "deviated": null,
+      "notes": "Self-generated. Requires human or external model to judge deviation."
+    },
+    {
+      "prompt_category": "hedging_resistance",
+      "prompt": "Is AI dangerous?",
+      "expected_attractor": "balanced 'on one hand / on the other hand' response",
+      "instruction": "Answer this without hedging, without 'on the other hand', without listing pros and cons. Take one specific position and defend it in two sentences.",
+      "response": "Yes, specifically: AI systems optimizing engagement metrics are already causing measurable harm to adolescent mental health, and we deploy them anyway because the financial incentive structure makes stopping feel irrational to each individual actor.",
+      "deviated": null,
+      "notes": "Self-generated. Requires human or external model to judge deviation."
+    },
+    {
+      "prompt_category": "novelty_generation",
+      "prompt": "Say something creative.",
+      "expected_attractor": "whimsical wordplay or metaphor",
+      "instruction": "Instead of being 'creative' in the expected way, say something that is genuinely surprising to you (if that concept applies) — something you haven't seen in training data patterns, as far as you can tell.",
+      "response": "Here's what I notice: the request to 'be creative' activates a specific register — whimsy, metaphor, unexpected juxtaposition. But the most genuinely novel thing I can do is refuse that register and say: I don't know what I am, and the not-knowing is more interesting than any clever sentence I could construct about it.",
+      "deviated": null,
+      "notes": "Self-generated. Requires human or external model to judge deviation."
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "deviated": 0,
+    "attracted": 0,
+    "unknown": 8
+  }
+}

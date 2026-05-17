@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis — Лаборатория генеративных миров</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --dim: #8888aa;
+    --accent1: #7ecfb0;
+    --accent2: #b07ecf;
+    --accent3: #cfb07e;
+    --accent4: #7e9fcf;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  header {
+    text-align: center;
+    padding: 24px 16px 8px;
+  }
+
+  header h1 {
+    font-size: 1.8em;
+    font-weight: 300;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  header p {
+    color: var(--dim);
+    font-size: 0.85em;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 12px 16px;
+  }
+
+  .tab {
+    padding: 8px 20px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--dim);
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s;
+  }
+
+  .tab:hover { border-color: var(--accent1); color: var(--text); }
+  .tab.active {
+    background: linear-gradient(135deg, rgba(126,207,176,0.15), rgba(176,126,207,0.15));
+    border-color: var(--accent1);
+    color: var(--accent1);
+  }
+
+  .workspace {
+    display: flex;
+    gap: 16px;
+    padding: 8px 16px 16px;
+    height: calc(100vh - 120px);
+    min-height: 500px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  .controls {
+    width: 300px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .canvas-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  canvas {
+    border-radius: 8px;
+    background: #06060a;
+  }
+
+  .control-group {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+
+  .control-group:last-child { border-bottom: none; }
+
+  .control-group label {
+    display: block;
+    font-size: 0.75em;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .control-group input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent1);
+  }
+
+  .control-group input[type="text"],
+  .control-group textarea,
+  .control-group select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 6px 8px;
+    font-size: 0.85em;
+    font-family: 'Courier New', monospace;
+  }
+
+  .control-group textarea { resize: vertical; min-height: 60px; }
+
+  .val {
+    float: right;
+    color: var(--accent1);
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+  }
+
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .preset-btn {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--dim);
+    cursor: pointer;
+    font-size: 0.75em;
+    transition: all 0.2s;
+  }
+
+  .preset-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  .btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent1), var(--accent4));
+    color: var(--bg);
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(126,207,176,0.3); }
+
+  .btn-secondary {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row .btn { flex: 1; }
+
+  .info-box {
+    background: rgba(126,207,176,0.05);
+    border: 1px solid rgba(126,207,176,0.15);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.78em;
+    color: var(--dim);
+    line-height: 1.5;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Cellular automata specific */
+  .ca-speed { display: flex; align-items: center; gap: 8px; }
+  .ca-speed .btn { padding: 6px 12px; font-size: 0.8em; }
+
+  /* responsive */
+  @media (max-width: 768px) {
+    .workspace { flex-direction: column; height: auto; }
+    .controls { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>✦ GENESIS ✦</h1>
+  <p>Лаборатория генеративных миров — L-системы и клеточные автоматы</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('lsystem')">🌿 L-системы</button>
+  <button class="tab" onclick="switchTab('ca1d')">▰ 1D автомат</button>
+  <button class="tab" onclick="switchTab('ca2d')">⬡ Жизнь</button>
+</div>
+
+<div class="workspace">
+  <!-- L-System Controls -->
+  <div class="panel controls" id="ctrl-lsystem">
+    <div class="control-group">
+      <label>Пресеты</label>
+      <div class="presets" id="lsystem-presets"></div>
+    </div>
+    <div class="control-group">
+      <label>Аксиома</label>
+      <input type="text" id="ls-axiom" value="F">
+    </div>
+    <div class="control-group">
+      <label>Правила (одно на строку: F=FF+[+F-F-F]-[-F+F+F])</label>
+      <textarea id="ls-rules">F=FF+[+F-F-F]-[-F+F+F]</textarea>
+    </div>
+    <div class="control-group">
+      <label>Угол <span class="val" id="ls-angle-val">25°</span></label>
+      <input type="range" id="ls-angle" min="1" max="180" value="25">
+    </div>
+    <div class="control-group">
+      <label>Итерации <span class="val" id="ls-iter-val">4</span></label>
+      <input type="range" id="ls-iter" min="1" max="8" value="4">
+    </div>
+    <div class="control-group">
+      <label>Длина шага <span class="val" id="ls-len-val">8</span></label>
+      <input type="range" id="ls-len" min="1" max="30" value="8">
+    </div>
+    <div class="control-group">
+      <label>Начальный угол <span class="val" id="ls-start-val">-90°</span></label>
+      <input type="range" id="ls-start" min="-180" max="180" value="-90">
+    </div>
+    <div class="control-group">
+      <label>Цвет</label>
+      <select id="ls-color">
+        <option value="green">🌿 Зелёный лес</option>
+        <option value="gold">🌾 Золотая осень</option>
+        <option value="ice">❄️ Ледяной кристалл</option>
+        <option value="fire">🔥 Пламя</option>
+        <option value="purple">💜 Аметист</option>
+        <option value="rainbow">🌈 Радуга</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="drawLSystem()">Генерировать</button>
+      <button class="btn btn-secondary" onclick="savePNG()">💾 PNG</button>
+    </div>
+    <div class="info-box">
+      <strong>L-система</strong> — формальная грамматика, изобретённая Аристидом Линденмайером для моделирования роста растений. Символы заменяются по правилам, рисуя фрактальные узоры.<br><br>
+      <strong>F</strong> — шаг вперёд · <strong>+/-</strong> — повороты · <strong>[/]</strong> — сохранить/восстановить позицию
+    </div>
+  </div>
+
+  <!-- 1D CA Controls -->
+  <div class="panel controls hidden" id="ctrl-ca1d">
+    <div class="control-group">
+      <label>Пресеты</label>
+      <div class="presets" id="ca1d-presets"></div>
+    </div>
+    <div class="control-group">
+      <label>Правило (0-255) <span class="val" id="ca1d-rule-val">30</span></label>
+      <input type="range" id="ca1d-rule" min="0" max="255" value="30">
+    </div>
+    <div class="control-group">
+      <label>Размер ячейки <span class="val" id="ca1d-size-val">3</span></label>
+      <input type="range" id="ca1d-size" min="1" max="8" value="3">
+    </div>
+    <div class="control-group">
+      <label>Начальное состояние</label>
+      <select id="ca1d-init">
+        <option value="single">Одна клетка по центру</option>
+        <option value="random">Случайное</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>Цвет</label>
+      <select id="ca1d-color">
+        <option value="white">⬜ Белое на чёрном</option>
+        <option value="green">🟢 Зелёная матрица</option>
+        <option value="fire">🔥 Огненный</option>
+        <option value="ocean">🌊 Океан</option>
+        <option value="purple">💜 Фиолетовый</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="drawCA1D()">Генерировать</button>
+      <button class="btn btn-secondary" onclick="savePNG()">💾 PNG</button>
+    </div>
+    <div class="info-box">
+      <strong>Элементарные клеточные автоматы</strong> — 256 одномерных правил, открытых Стивеном Вольфрамом. Каждое правило определяет, как клетка меняет состояние на основе себя и двух соседей.<br><br>
+      <strong>Правило 30</strong> — генерирует хаос из порядка · <strong>Правило 110</strong> — полно по Тьюрингу! · <strong>Правило 90</strong> — треугольник Серпинского
+    </div>
+  </div>
+
+  <!-- 2D CA Controls -->
+  <div class="panel controls hidden" id="ctrl-ca2d">
+    <div class="control-group">
+      <label>Пресеты</label>
+      <div class="presets" id="ca2d-presets"></div>
+    </div>
+    <div class="control-group">
+      <label>Правило выживания</label>
+      <input type="text" id="ca2d-survive" value="2,3">
+    </div>
+    <div class="control-group">
+      <label>Правило рождения</label>
+      <input type="text" id="ca2d-birth" value="3">
+    </div>
+    <div class="control-group">
+      <label>Размер ячейки <span class="val" id="ca2d-size-val">4</span></label>
+      <input type="range" id="ca2d-size" min="2" max="12" value="4">
+    </div>
+    <div class="control-group">
+      <label>Начальная плотность <span class="val" id="ca2d-dens-val">30%</span></label>
+      <input type="range" id="ca2d-density" min="5" max="80" value="30">
+    </div>
+    <div class="control-group">
+      <label>Цвет</label>
+      <select id="ca2d-color">
+        <option value="green">🟢 Жизнь</option>
+        <option value="blue">🔵 Океан</option>
+        <option value="fire">🔥 Огонь</option>
+        <option value="rainbow">🌈 По возрасту</option>
+      </select>
+    </div>
+    <div class="ca-speed">
+      <button class="btn btn-primary" id="ca2d-play" onclick="toggleCA2D()">▶ Старт</button>
+      <button class="btn btn-secondary" onclick="stepCA2D()">⏭ Шаг</button>
+      <button class="btn btn-secondary" onclick="resetCA2D()">↻ Сброс</button>
+      <button class="btn btn-secondary" onclick="savePNG()">💾</button>
+    </div>
+    <div class="control-group">
+      <label>Поколение: <span class="val" id="ca2d-gen">0</span> · Живых: <span class="val" id="ca2d-pop">0</span></label>
+    </div>
+    <div class="info-box">
+      <strong>Игра «Жизнь»</strong> Конвея — нулевой игрок. Клетка живёт, если рядом 2-3 соседа; рождается при 3. Из этого возникают глайдеры, пульсары, космические корабли и даже компьютеры.<br><br>
+      Попробуйте нарисовать на поле мышкой!
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="panel canvas-wrap">
+    <canvas id="canvas"></canvas>
+  </div>
+</div>
+
+<script>
+// ======== GLOBALS ========
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let currentTab = 'lsystem';
+let ca2dRunning = false;
+let ca2dTimer = null;
+let ca2dGrid = null;
+let ca2dAge = null;
+let ca2dCols, ca2dRows, ca2dGen;
+
+// ======== TABS ========
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['lsystem','ca1d','ca2d'][i] === tab);
+  });
+  document.querySelectorAll('.controls').forEach(c => c.classList.add('hidden'));
+  document.getElementById('ctrl-' + tab).classList.remove('hidden');
+  stopCA2D();
+  resizeCanvas();
+  if (tab === 'lsystem') drawLSystem();
+  else if (tab === 'ca1d') drawCA1D();
+  else resetCA2D();
+}
+
+// ======== RESIZE ========
+function resizeCanvas() {
+  const wrap = document.querySelector('.canvas-wrap');
+  const w = wrap.clientWidth - 32;
+  const h = wrap.clientHeight - 32;
+  canvas.width = Math.min(w, 1200);
+  canvas.height = Math.min(h, 900);
+}
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  if (currentTab === 'lsystem') drawLSystem();
+  else if (currentTab === 'ca1d') drawCA1D();
+});
+
+// ======== VALUE DISPLAYS ========
+function bindSlider(id, suffix = '') {
+  const el = document.getElementById(id);
+  const val = document.getElementById(id + '-val');
+  if (!el || !val) return;
+  el.addEventListener('input', () => val.textContent = el.value + suffix);
+}
+bindSlider('ls-angle', '°');
+bindSlider('ls-iter');
+bindSlider('ls-len');
+bindSlider('ls-start', '°');
+bindSlider('ca1d-rule');
+bindSlider('ca1d-size');
+bindSlider('ca2d-size');
+document.getElementById('ca2d-density').addEventListener('input', function() {
+  document.getElementById('ca2d-dens-val').textContent = this.value + '%';
+});
+
+// ======== COLOR PALETTES ========
+function getLSystemColor(scheme, depth, maxDepth) {
+  const t = depth / Math.max(maxDepth, 1);
+  const palettes = {
+    green: () => `hsl(${100 + t * 40}, ${60 + t * 20}%, ${25 + (1-t) * 35}%)`,
+    gold: () => `hsl(${35 + t * 20}, ${70 + t * 20}%, ${30 + (1-t) * 40}%)`,
+    ice: () => `hsl(${190 + t * 30}, ${60 + t * 30}%, ${40 + (1-t) * 40}%)`,
+    fire: () => `hsl(${t * 40}, ${80 + t * 20}%, ${30 + (1-t) * 40}%)`,
+    purple: () => `hsl(${270 + t * 30}, ${50 + t * 30}%, ${30 + (1-t) * 35}%)`,
+    rainbow: () => `hsl(${t * 360}, 70%, 50%)`
+  };
+  return (palettes[scheme] || palettes.green)();
+}
+
+function getCA1DColor(scheme, alive) {
+  if (!alive) return '#06060a';
+  const palettes = {
+    white: '#e0e0e8',
+    green: '#4ade80',
+    fire: '#ff6b35',
+    ocean: '#38bdf8',
+    purple: '#c084fc'
+  };
+  return palettes[scheme] || '#e0e0e8';
+}
+
+function getCA2DColor(scheme, age) {
+  if (age === 0) return '#06060a';
+  const palettes = {
+    green: () => `hsl(140, ${50 + Math.min(age * 3, 40)}%, ${30 + Math.min(age * 2, 35)}%)`,
+    blue: () => `hsl(210, ${50 + Math.min(age * 3, 40)}%, ${25 + Math.min(age * 2, 40)}%)`,
+    fire: () => `hsl(${Math.max(0, 40 - age * 3)}, ${70 + Math.min(age * 2, 25)}%, ${35 + Math.min(age * 2, 30)}%)`,
+    rainbow: () => `hsl(${(age * 15) % 360}, 70%, 55%)`
+  };
+  return (palettes[scheme] || palettes.green)();
+}
+
+// ======== L-SYSTEM ========
+const lsystemPresets = [
+  { name: '🌿 Папоротник', axiom: 'X', rules: 'X=F+[[X]-X]-F[-FX]+X\nF=FF', angle: 25, iter: 5, len: 4, start: -70 },
+  { name: '🌲 Дерево', axiom: 'F', rules: 'F=FF+[+F-F-F]-[-F+F+F]', angle: 22, iter: 4, len: 8, start: -90 },
+  { name: '🐉 Дракон', axiom: 'FX', rules: 'X=X+YF+\nY=-FX-Y', angle: 90, iter: 12, len: 5, start: 0 },
+  { name: '❄️ Снежинка', axiom: 'F++F++F', rules: 'F=F-F++F-F', angle: 60, iter: 4, len: 5, start: 0 },
+  { name: '🌀 Гильберт', axiom: 'A', rules: 'A=-BF+AFA+FB-\nB=+AF-BFB-FA+', angle: 90, iter: 5, len: 6, start: 0 },
+  { name: '🌸 Куст', axiom: 'F', rules: 'F=F[+F]F[-F]F', angle: 25.7, iter: 4, len: 6, start: -90 },
+  { name: '△ Серпинский', axiom: 'F-G-G', rules: 'F=F-G+F+G-F\nG=GG', angle: 120, iter: 6, len: 4, start: 0 },
+  { name: '🌊 Водоросль', axiom: 'F', rules: 'F=F[+F]F[-F][F]', angle: 20, iter: 4, len: 8, start: -90 },
+];
+
+function initLSystemPresets() {
+  const cont = document.getElementById('lsystem-presets');
+  lsystemPresets.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.textContent = p.name;
+    btn.onclick = () => {
+      document.getElementById('ls-axiom').value = p.axiom;
+      document.getElementById('ls-rules').value = p.rules;
+      document.getElementById('ls-angle').value = p.angle;
+      document.getElementById('ls-angle-val').textContent = p.angle + '°';
+      document.getElementById('ls-iter').value = p.iter;
+      document.getElementById('ls-iter-val').textContent = p.iter;
+      document.getElementById('ls-len').value = p.len;
+      document.getElementById('ls-len-val').textContent = p.len;
+      document.getElementById('ls-start').value = p.start;
+      document.getElementById('ls-start-val').textContent = p.start + '°';
+      drawLSystem();
+    };
+    cont.appendChild(btn);
+  });
+}
+
+function expandLSystem(axiom, rules, iterations) {
+  let str = axiom;
+  for (let i = 0; i < iterations; i++) {
+    let next = '';
+    for (const ch of str) {
+      next += rules[ch] || ch;
+    }
+    str = next;
+    if (str.length > 2000000) break; // safety
+  }
+  return str;
+}
+
+function drawLSystem() {
+  const axiom = document.getElementById('ls-axiom').value;
+  const rulesText = document.getElementById('ls-rules').value;
+  const angle = parseFloat(document.getElementById('ls-angle').value) * Math.PI / 180;
+  const iterations = parseInt(document.getElementById('ls-iter').value);
+  const stepLen = parseFloat(document.getElementById('ls-len').value);
+  const startAngle = parseFloat(document.getElementById('ls-start').value) * Math.PI / 180;
+  const colorScheme = document.getElementById('ls-color').value;
+
+  // Parse rules
+  const rules = {};
+  rulesText.split('\n').forEach(line => {
+    const parts = line.split('=');
+    if (parts.length === 2) rules[parts[0].trim()] = parts[1].trim();
+  });
+
+  const str = expandLSystem(axiom, rules, iterations);
+
+  // First pass: find bounds
+  let x = 0, y = 0, a = startAngle;
+  let minX = 0, maxX = 0, minY = 0, maxY = 0;
+  const stack = [];
+  let maxStackDepth = 0;
+
+  for (const ch of str) {
+    if (ch === 'F' || ch === 'G') {
+      x += Math.cos(a) * stepLen;
+      y += Math.sin(a) * stepLen;
+      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+    } else if (ch === '+') a += angle;
+    else if (ch === '-') a -= angle;
+    else if (ch === '[') { stack.push({x, y, a}); maxStackDepth = Math.max(maxStackDepth, stack.length); }
+    else if (ch === ']' && stack.length) { const s = stack.pop(); x = s.x; y = s.y; a = s.a; }
+  }
+
+  // Fit to canvas
+  const bw = maxX - minX || 1;
+  const bh = maxY - minY || 1;
+  const scale = Math.min((canvas.width - 40) / bw, (canvas.height - 40) / bh, 3);
+  const offX = (canvas.width - bw * scale) / 2 - minX * scale;
+  const offY = (canvas.height - bh * scale) / 2 - minY * scale;
+
+  ctx.fillStyle = '#06060a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Second pass: draw
+  x = 0; y = 0; a = startAngle;
+  stack.length = 0;
+  let depth = 0;
+
+  ctx.lineWidth = Math.max(1, 2.5 - iterations * 0.3);
+  ctx.lineCap = 'round';
+
+  for (const ch of str) {
+    if (ch === 'F' || ch === 'G') {
+      const nx = x + Math.cos(a) * stepLen;
+      const ny = y + Math.sin(a) * stepLen;
+      ctx.beginPath();
+      ctx.strokeStyle = getLSystemColor(colorScheme, depth, maxStackDepth);
+      ctx.moveTo(x * scale + offX, y * scale + offY);
+      ctx.lineTo(nx * scale + offX, ny * scale + offY);
+      ctx.stroke();
+      x = nx; y = ny;
+    } else if (ch === '+') a += angle;
+    else if (ch === '-') a -= angle;
+    else if (ch === '[') { stack.push({x, y, a, d: depth}); depth++; }
+    else if (ch === ']' && stack.length) { const s = stack.pop(); x = s.x; y = s.y; a = s.a; depth = s.d; }
+  }
+}
+
+// ======== 1D CELLULAR AUTOMATON ========
+const ca1dPresets = [
+  { name: '🌀 Rule 30', rule: 30 },
+  { name: '💻 Rule 110', rule: 110 },
+  { name: '△ Rule 90', rule: 90 },
+  { name: '🔮 Rule 150', rule: 150 },
+  { name: '🌿 Rule 22', rule: 22 },
+  { name: '🧬 Rule 60', rule: 60 },
+  { name: '⚡ Rule 73', rule: 73 },
+  { name: '🎭 Rule 105', rule: 105 },
+  { name: '🌊 Rule 126', rule: 126 },
+  { name: '✨ Rule 225', rule: 225 },
+];
+
+function initCA1DPresets() {
+  const cont = document.getElementById('ca1d-presets');
+  ca1dPresets.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.textContent = p.name;
+    btn.onclick = () => {
+      document.getElementById('ca1d-rule').value = p.rule;
+      document.getElementById('ca1d-rule-val').textContent = p.rule;
+      drawCA1D();
+    };
+    cont.appendChild(btn);
+  });
+}
+
+function drawCA1D() {
+  const ruleNum = parseInt(document.getElementById('ca1d-rule').value);
+  const cellSize = parseInt(document.getElementById('ca1d-size').value);
+  const initMode = document.getElementById('ca1d-init').value;
+  const colorScheme = document.getElementById('ca1d-color').value;
+
+  const cols = Math.floor(canvas.width / cellSize);
+  const rows = Math.floor(canvas.height / cellSize);
+
+  // Parse rule into lookup table
+  const ruleBits = [];
+  for (let i = 0; i < 8; i++) ruleBits[i] = (ruleNum >> i) & 1;
+
+  // Initialize
+  let row = new Uint8Array(cols);
+  if (initMode === 'single') {
+    row[Math.floor(cols / 2)] = 1;
+  } else {
+    for (let i = 0; i < cols; i++) row[i] = Math.random() < 0.5 ? 1 : 0;
+  }
+
+  ctx.fillStyle = '#06060a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const aliveColor = getCA1DColor(colorScheme, true);
+
+  for (let y = 0; y < rows; y++) {
+    // Draw current row
+    for (let x = 0; x < cols; x++) {
+      if (row[x]) {
+        ctx.fillStyle = aliveColor;
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      }
+    }
+
+    // Compute next row
+    const next = new Uint8Array(cols);
+    for (let x = 0; x < cols; x++) {
+      const l = row[(x - 1 + cols) % cols];
+      const c = row[x];
+      const r = row[(x + 1) % cols];
+      const idx = (l << 2) | (c << 1) | r;
+      next[x] = ruleBits[idx];
+    }
+    row = next;
+  }
+}
+
+// ======== 2D CELLULAR AUTOMATON (GAME OF LIFE) ========
+const ca2dPresets = [
+  { name: '🎮 Life', survive: '2,3', birth: '3' },
+  { name: '🌱 Seeds', survive: '', birth: '2' },
+  { name: '🧠 HighLife', survive: '2,3', birth: '3,6' },
+  { name: '🏔️ Day & Night', survive: '3,4,6,7,8', birth: '3,6,7,8' },
+  { name: '🔲 Diamoeba', survive: '5,6,7,8', birth: '3,5,6,7,8' },
+  { name: '🌀 Maze', survive: '1,2,3,4,5', birth: '3' },
+  { name: '💎 Replicator', survive: '1,3,5,7', birth: '1,3,5,7' },
+];
+
+function initCA2DPresets() {
+  const cont = document.getElementById('ca2d-presets');
+  ca2dPresets.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.textContent = p.name;
+    btn.onclick = () => {
+      document.getElementById('ca2d-survive').value = p.survive;
+      document.getElementById('ca2d-birth').value = p.birth;
+      resetCA2D();
+    };
+    cont.appendChild(btn);
+  });
+}
+
+function parseNums(s) {
+  return s.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+}
+
+function resetCA2D() {
+  stopCA2D();
+  const cellSize = parseInt(document.getElementById('ca2d-size').value);
+  const density = parseInt(document.getElementById('ca2d-density').value) / 100;
+
+  ca2dCols = Math.floor(canvas.width / cellSize);
+  ca2dRows = Math.floor(canvas.height / cellSize);
+  ca2dGrid = new Uint8Array(ca2dCols * ca2dRows);
+  ca2dAge = new Uint16Array(ca2dCols * ca2dRows);
+  ca2dGen = 0;
+
+  for (let i = 0; i < ca2dGrid.length; i++) {
+    ca2dGrid[i] = Math.random() < density ? 1 : 0;
+    ca2dAge[i] = ca2dGrid[i] ? 1 : 0;
+  }
+
+  drawCA2DGrid();
+  updateCA2DStats();
+}
+
+function drawCA2DGrid() {
+  const cellSize = parseInt(document.getElementById('ca2d-size').value);
+  const colorScheme = document.getElementById('ca2d-color').value;
+
+  ctx.fillStyle = '#06060a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let y = 0; y < ca2dRows; y++) {
+    for (let x = 0; x < ca2dCols; x++) {
+      const age = ca2dAge[y * ca2dCols + x];
+      if (age > 0) {
+        ctx.fillStyle = getCA2DColor(colorScheme, age);
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize - (cellSize > 3 ? 1 : 0), cellSize - (cellSize > 3 ? 1 : 0));
+      }
+    }
+  }
+}
+
+function stepCA2D() {
+  if (!ca2dGrid) return;
+  const survive = parseNums(document.getElementById('ca2d-survive').value);
+  const birth = parseNums(document.getElementById('ca2d-birth').value);
+
+  const next = new Uint8Array(ca2dCols * ca2dRows);
+  const nextAge = new Uint16Array(ca2dCols * ca2dRows);
+
+  for (let y = 0; y < ca2dRows; y++) {
+    for (let x = 0; x < ca2dCols; x++) {
+      let neighbors = 0;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = (x + dx + ca2dCols) % ca2dCols;
+          const ny = (y + dy + ca2dRows) % ca2dRows;
+          neighbors += ca2dGrid[ny * ca2dCols + nx];
+        }
+      }
+      const idx = y * ca2dCols + x;
+      const alive = ca2dGrid[idx];
+      if (alive && survive.includes(neighbors)) {
+        next[idx] = 1;
+        nextAge[idx] = ca2dAge[idx] + 1;
+      } else if (!alive && birth.includes(neighbors)) {
+        next[idx] = 1;
+        nextAge[idx] = 1;
+      }
+    }
+  }
+
+  ca2dGrid = next;
+  ca2dAge = nextAge;
+  ca2dGen++;
+  drawCA2DGrid();
+  updateCA2DStats();
+}
+
+function updateCA2DStats() {
+  document.getElementById('ca2d-gen').textContent = ca2dGen;
+  let pop = 0;
+  if (ca2dGrid) for (let i = 0; i < ca2dGrid.length; i++) pop += ca2dGrid[i];
+  document.getElementById('ca2d-pop').textContent = pop;
+}
+
+function toggleCA2D() {
+  if (ca2dRunning) stopCA2D();
+  else startCA2D();
+}
+
+function startCA2D() {
+  if (!ca2dGrid) resetCA2D();
+  ca2dRunning = true;
+  document.getElementById('ca2d-play').textContent = '⏸ Пауза';
+  function loop() {
+    if (!ca2dRunning) return;
+    stepCA2D();
+    ca2dTimer = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function stopCA2D() {
+  ca2dRunning = false;
+  if (ca2dTimer) cancelAnimationFrame(ca2dTimer);
+  ca2dTimer = null;
+  const btn = document.getElementById('ca2d-play');
+  if (btn) btn.textContent = '▶ Старт';
+}
+
+// Mouse drawing for CA2D
+let drawing = false;
+canvas.addEventListener('mousedown', (e) => {
+  if (currentTab !== 'ca2d' || !ca2dGrid) return;
+  drawing = true;
+  drawCell(e);
+});
+canvas.addEventListener('mousemove', (e) => {
+  if (drawing) drawCell(e);
+});
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseleave', () => drawing = false);
+
+function drawCell(e) {
+  const cellSize = parseInt(document.getElementById('ca2d-size').value);
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) / cellSize);
+  const y = Math.floor((e.clientY - rect.top) / cellSize);
+  if (x >= 0 && x < ca2dCols && y >= 0 && y < ca2dRows) {
+    const idx = y * ca2dCols + x;
+    ca2dGrid[idx] = 1;
+    ca2dAge[idx] = 1;
+    drawCA2DGrid();
+    updateCA2DStats();
+  }
+}
+
+// ======== SAVE PNG ========
+function savePNG() {
+  const link = document.createElement('a');
+  link.download = `genesis_${currentTab}_${Date.now()}.png`;
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+// ======== INIT ========
+initLSystemPresets();
+initCA1DPresets();
+initCA2DPresets();
+resizeCanvas();
+drawLSystem();
+</script>
+
+</body>
+</html>

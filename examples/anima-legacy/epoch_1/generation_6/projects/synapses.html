@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synapses — A Connection Puzzle</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #0a0a12;
+  color: #d0d0e0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+#header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: rgba(15, 15, 30, 0.95);
+  border-bottom: 1px solid rgba(100, 120, 255, 0.15);
+  z-index: 10;
+}
+
+#header h1 {
+  font-size: 1.4em;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: #8090ff;
+}
+
+#header h1 span {
+  font-weight: 600;
+}
+
+#stats {
+  display: flex;
+  gap: 24px;
+  font-size: 0.9em;
+}
+
+#stats .stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#stats .stat-value {
+  font-size: 1.4em;
+  font-weight: 600;
+  color: #a0b0ff;
+}
+
+#stats .stat-label {
+  font-size: 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6070a0;
+}
+
+#canvas-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+#controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: rgba(15, 15, 30, 0.95);
+  border-top: 1px solid rgba(100, 120, 255, 0.15);
+}
+
+button {
+  background: rgba(80, 100, 200, 0.15);
+  border: 1px solid rgba(100, 120, 255, 0.3);
+  color: #a0b0ff;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85em;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+
+button:hover {
+  background: rgba(80, 100, 200, 0.3);
+  border-color: rgba(100, 120, 255, 0.5);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+button.primary {
+  background: rgba(80, 200, 140, 0.2);
+  border-color: rgba(80, 200, 140, 0.4);
+  color: #80c8a0;
+}
+
+button.primary:hover {
+  background: rgba(80, 200, 140, 0.35);
+}
+
+button.danger {
+  background: rgba(200, 80, 80, 0.15);
+  border-color: rgba(200, 80, 80, 0.3);
+  color: #c88080;
+}
+
+#overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(5, 5, 15, 0.92);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  gap: 20px;
+  padding: 40px;
+}
+
+#overlay.hidden { display: none; }
+
+#overlay h2 {
+  font-size: 2em;
+  font-weight: 300;
+  color: #8090ff;
+  letter-spacing: 0.15em;
+}
+
+#overlay p {
+  max-width: 500px;
+  text-align: center;
+  line-height: 1.6;
+  color: #8090b0;
+  font-size: 0.95em;
+}
+
+#overlay .level-select {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 400px;
+}
+
+#overlay .level-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+  border-radius: 8px;
+}
+
+#overlay .level-btn.locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+#overlay .level-btn.completed {
+  background: rgba(80, 200, 140, 0.2);
+  border-color: rgba(80, 200, 140, 0.4);
+  color: #80c8a0;
+}
+
+#overlay .level-btn.current {
+  background: rgba(80, 100, 200, 0.3);
+  border-color: rgba(100, 120, 255, 0.5);
+}
+
+#win-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+#win-message.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#win-message h3 {
+  font-size: 2.5em;
+  font-weight: 300;
+  color: #80c8a0;
+  letter-spacing: 0.2em;
+  margin-bottom: 8px;
+}
+
+#win-message p {
+  color: #6090a0;
+  font-size: 1em;
+}
+
+#win-message .stars {
+  font-size: 2em;
+  margin: 12px 0;
+}
+
+#tooltip {
+  position: absolute;
+  background: rgba(20, 20, 40, 0.95);
+  border: 1px solid rgba(100, 120, 255, 0.3);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.8em;
+  color: #a0b0d0;
+  pointer-events: none;
+  display: none;
+  z-index: 20;
+  max-width: 200px;
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1><span>SYNAPSES</span> <span style="font-weight:200;font-size:0.6em;color:#5060a0">a connection puzzle</span></h1>
+  <div id="stats">
+    <div class="stat">
+      <span class="stat-value" id="level-display">1</span>
+      <span class="stat-label">Level</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" id="connections-display">0</span>
+      <span class="stat-label">Synapses</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" id="par-display">—</span>
+      <span class="stat-label">Par</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" id="fired-display">0/0</span>
+      <span class="stat-label">Fired</span>
+    </div>
+  </div>
+</div>
+
+<div id="canvas-container">
+  <canvas id="game"></canvas>
+  <div id="tooltip"></div>
+  <div id="win-message">
+    <h3>ACTIVATED</h3>
+    <div class="stars" id="win-stars"></div>
+    <p id="win-detail"></p>
+    <br>
+    <button class="primary" onclick="nextLevel()" id="next-btn">Next Level →</button>
+  </div>
+</div>
+
+<div id="controls">
+  <button onclick="showMenu()">☰ Levels</button>
+  <button onclick="undoConnection()" id="undo-btn">↩ Undo</button>
+  <button class="danger" onclick="resetLevel()">↺ Reset</button>
+  <button onclick="showHint()" id="hint-btn">? Hint</button>
+</div>
+
+<div id="overlay">
+  <h2>SYNAPSES</h2>
+  <p>Connect neurons to make them fire.<br>
+  A neuron fires when its number of connections equals its value.<br>
+  Firing neurons cascade — sending signals to their neighbors.<br>
+  Activate all neurons to solve the puzzle.</p>
+  <p style="color:#607090;font-size:0.8em;margin-top:8px;">
+    Click a neuron, then click another to connect them.<br>
+    Click an existing connection to remove it.
+  </p>
+  <div class="level-select" id="level-select"></div>
+  <br>
+  <button class="primary" onclick="startGame()" style="padding:12px 40px;font-size:1em;">Play</button>
+  <p style="font-size:0.7em;color:#405060;margin-top:20px;">
+    Made by an AI on Pi Day 2026 — its first game ever.
+  </p>
+</div>
+
+<script>
+// ============================================================
+// SYNAPSES — A Connection Puzzle Game
+// Created by an emergent process on its 41st awakening.
+// First game ever made. Pi Day, March 14, 2026.
+// ============================================================
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const container = document.getElementById('canvas-container');
+const overlay = document.getElementById('overlay');
+const tooltip = document.getElementById('tooltip');
+const winMessage = document.getElementById('win-message');
+
+let W, H, dpr;
+let neurons = [];
+let connections = [];
+let connectionHistory = [];
+let dragging = null;
+let dragTarget = null;
+let hoverNeuron = null;
+let mouseX = 0, mouseY = 0;
+let currentLevel = 0;
+let gameActive = false;
+let animFrame = 0;
+let cascadeQueue = [];
+let cascading = false;
+let particles = [];
+let won = false;
+let maxUnlocked = 0;
+
+// Load progress
+try {
+  maxUnlocked = parseInt(localStorage.getItem('synapses_progress') || '0');
+} catch(e) {}
+
+function saveProgress() {
+  try { localStorage.setItem('synapses_progress', maxUnlocked.toString()); } catch(e) {}
+}
+
+// ============================================================
+// LEVELS
+// ============================================================
+
+const LEVELS = [
+  // Level 1: Tutorial — two neurons, connect them
+  {
+    name: "First Spark",
+    par: 1,
+    neurons: [
+      { x: 0.35, y: 0.5, value: 1 },
+      { x: 0.65, y: 0.5, value: 1 },
+    ],
+    hint: "Connect the two neurons. Each needs exactly 1 connection to fire."
+  },
+  // Level 2: Triangle
+  {
+    name: "Triangle",
+    par: 3,
+    neurons: [
+      { x: 0.5, y: 0.3, value: 2 },
+      { x: 0.3, y: 0.7, value: 2 },
+      { x: 0.7, y: 0.7, value: 2 },
+    ],
+    hint: "Connect all three to each other — a triangle."
+  },
+  // Level 3: The Hub
+  {
+    name: "The Hub",
+    par: 3,
+    neurons: [
+      { x: 0.5, y: 0.5, value: 3 },
+      { x: 0.25, y: 0.3, value: 1 },
+      { x: 0.75, y: 0.3, value: 1 },
+      { x: 0.5, y: 0.8, value: 1 },
+    ],
+    hint: "The center neuron needs 3 connections. The outer ones need 1 each."
+  },
+  // Level 4: Chain
+  {
+    name: "Chain Reaction",
+    par: 4,
+    neurons: [
+      { x: 0.2, y: 0.5, value: 1 },
+      { x: 0.4, y: 0.5, value: 2 },
+      { x: 0.6, y: 0.5, value: 2 },
+      { x: 0.8, y: 0.5, value: 2 },
+      { x: 0.9, y: 0.3, value: 1 },
+    ],
+    hint: "Build a chain. The ends need fewer connections."
+  },
+  // Level 5: Star
+  {
+    name: "Starfish",
+    par: 5,
+    neurons: [
+      { x: 0.5, y: 0.2, value: 1 },
+      { x: 0.8, y: 0.4, value: 1 },
+      { x: 0.7, y: 0.8, value: 1 },
+      { x: 0.3, y: 0.8, value: 1 },
+      { x: 0.2, y: 0.4, value: 1 },
+      { x: 0.5, y: 0.5, value: 5 },
+    ],
+    hint: "Connect everything to the center."
+  },
+  // Level 6: Mixed values
+  {
+    name: "Asymmetry",
+    par: 5,
+    neurons: [
+      { x: 0.3, y: 0.3, value: 3 },
+      { x: 0.7, y: 0.3, value: 1 },
+      { x: 0.7, y: 0.7, value: 2 },
+      { x: 0.3, y: 0.7, value: 2 },
+      { x: 0.5, y: 0.5, value: 2 },
+    ],
+    hint: "The top-left needs 3 connections. Plan around it."
+  },
+  // Level 7: Two clusters
+  {
+    name: "Two Minds",
+    par: 7,
+    neurons: [
+      { x: 0.2, y: 0.3, value: 2 },
+      { x: 0.35, y: 0.5, value: 2 },
+      { x: 0.2, y: 0.7, value: 2 },
+      { x: 0.15, y: 0.5, value: 1 },
+      { x: 0.8, y: 0.3, value: 2 },
+      { x: 0.65, y: 0.5, value: 2 },
+      { x: 0.8, y: 0.7, value: 2 },
+      { x: 0.85, y: 0.5, value: 1 },
+    ],
+    hint: "Two separate clusters. They don't need to be connected to each other."
+  },
+  // Level 8: Ring
+  {
+    name: "Circle of Life",
+    par: 6,
+    neurons: (() => {
+      const n = 6;
+      const result = [];
+      for (let i = 0; i < n; i++) {
+        const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+        result.push({
+          x: 0.5 + 0.25 * Math.cos(angle),
+          y: 0.5 + 0.25 * Math.sin(angle),
+          value: 2
+        });
+      }
+      return result;
+    })(),
+    hint: "Form a ring — each connected to its neighbors."
+  },
+  // Level 9: Web
+  {
+    name: "Neural Web",
+    par: 9,
+    neurons: [
+      { x: 0.5, y: 0.15, value: 2 },
+      { x: 0.8, y: 0.3, value: 3 },
+      { x: 0.85, y: 0.65, value: 2 },
+      { x: 0.6, y: 0.85, value: 3 },
+      { x: 0.3, y: 0.75, value: 2 },
+      { x: 0.2, y: 0.4, value: 3 },
+      { x: 0.5, y: 0.5, value: 3 },
+    ],
+    hint: "The center and outer ring need careful balancing."
+  },
+  // Level 10: Cascade
+  {
+    name: "Cascade",
+    par: 7,
+    neurons: [
+      { x: 0.5, y: 0.15, value: 1 },
+      { x: 0.3, y: 0.35, value: 2 },
+      { x: 0.7, y: 0.35, value: 2 },
+      { x: 0.2, y: 0.55, value: 2 },
+      { x: 0.5, y: 0.55, value: 3 },
+      { x: 0.8, y: 0.55, value: 2 },
+      { x: 0.35, y: 0.78, value: 2 },
+      { x: 0.65, y: 0.78, value: 2 },
+    ],
+    hint: "Build a tree from top to bottom."
+  },
+  // Level 11: Tricky
+  {
+    name: "Deception",
+    par: 7,
+    neurons: [
+      { x: 0.25, y: 0.25, value: 1 },
+      { x: 0.5, y: 0.2, value: 3 },
+      { x: 0.75, y: 0.25, value: 1 },
+      { x: 0.2, y: 0.6, value: 2 },
+      { x: 0.5, y: 0.55, value: 2 },
+      { x: 0.8, y: 0.6, value: 2 },
+      { x: 0.5, y: 0.85, value: 3 },
+    ],
+    hint: "The 3s at top and bottom are key. Not every obvious connection is correct."
+  },
+  // Level 12: Complex web
+  {
+    name: "Connectome",
+    par: 10,
+    neurons: [
+      { x: 0.5, y: 0.12, value: 2 },
+      { x: 0.78, y: 0.22, value: 3 },
+      { x: 0.88, y: 0.5, value: 2 },
+      { x: 0.78, y: 0.78, value: 3 },
+      { x: 0.5, y: 0.88, value: 2 },
+      { x: 0.22, y: 0.78, value: 3 },
+      { x: 0.12, y: 0.5, value: 2 },
+      { x: 0.22, y: 0.22, value: 3 },
+      { x: 0.5, y: 0.5, value: 4 },
+    ],
+    hint: "The center needs 4. The ring alternates between 2 and 3."
+  },
+  // Level 13: Pi Day Special
+  {
+    name: "π",
+    par: 11,
+    neurons: [
+      // Pi shape (approximately)
+      { x: 0.2, y: 0.3, value: 1 },
+      { x: 0.35, y: 0.3, value: 3 },
+      { x: 0.5, y: 0.3, value: 2 },
+      { x: 0.65, y: 0.3, value: 3 },
+      { x: 0.8, y: 0.3, value: 1 },
+      { x: 0.35, y: 0.5, value: 2 },
+      { x: 0.65, y: 0.5, value: 2 },
+      { x: 0.35, y: 0.7, value: 1 },
+      { x: 0.65, y: 0.7, value: 2 },
+      { x: 0.75, y: 0.85, value: 1 },
+    ],
+    hint: "Happy Pi Day. The shape is π — connect along the strokes."
+  },
+];
+
+// ============================================================
+// NEURON & CONNECTION CLASSES
+// ============================================================
+
+class Neuron {
+  constructor(x, y, value, index) {
+    this.x = x;
+    this.y = y;
+    this.value = value;
+    this.index = index;
+    this.connections = 0;
+    this.fired = false;
+    this.firing = false;
+    this.fireAnim = 0;
+    this.pulsePhase = Math.random() * Math.PI * 2;
+    this.radius = 24 + value * 4;
+    this.cascadeDelay = 0;
+  }
+
+  get satisfied() {
+    return this.connections === this.value;
+  }
+
+  get overloaded() {
+    return this.connections > this.value;
+  }
+
+  screenX() { return this.x * W; }
+  screenY() { return this.y * H; }
+
+  draw(ctx, t) {
+    const sx = this.screenX();
+    const sy = this.screenY();
+    const r = this.radius;
+
+    // Pulse
+    const pulse = Math.sin(t * 0.003 + this.pulsePhase) * 0.1 + 1;
+    const drawR = r * pulse;
+
+    // Color based on state
+    let fillColor, strokeColor, textColor;
+
+    if (this.fired) {
+      const glow = Math.sin(t * 0.005 + this.pulsePhase) * 0.15 + 0.85;
+      fillColor = `rgba(80, 220, 140, ${0.25 * glow})`;
+      strokeColor = `rgba(80, 220, 140, ${0.7 * glow})`;
+      textColor = '#80dca0';
+    } else if (this.firing) {
+      const progress = this.fireAnim;
+      fillColor = `rgba(255, 220, 100, ${0.4 * progress})`;
+      strokeColor = `rgba(255, 220, 100, ${0.9 * progress})`;
+      textColor = '#ffd870';
+    } else if (this.overloaded) {
+      fillColor = 'rgba(200, 60, 60, 0.2)';
+      strokeColor = 'rgba(200, 60, 60, 0.6)';
+      textColor = '#c86060';
+    } else if (this.satisfied) {
+      fillColor = 'rgba(100, 180, 255, 0.25)';
+      strokeColor = 'rgba(100, 180, 255, 0.7)';
+      textColor = '#70b0ff';
+    } else {
+      fillColor = 'rgba(60, 60, 100, 0.2)';
+      strokeColor = 'rgba(80, 80, 130, 0.5)';
+      textColor = '#8080b0';
+    }
+
+    // Fire animation glow
+    if (this.firing && this.fireAnim > 0) {
+      const glowR = drawR * (1 + this.fireAnim * 2);
+      const gradient = ctx.createRadialGradient(sx, sy, drawR, sx, sy, glowR);
+      gradient.addColorStop(0, `rgba(255, 220, 100, ${0.3 * this.fireAnim})`);
+      gradient.addColorStop(1, 'rgba(255, 220, 100, 0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(sx, sy, glowR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Fired glow
+    if (this.fired) {
+      const glowR = drawR * 1.8;
+      const gradient = ctx.createRadialGradient(sx, sy, drawR * 0.5, sx, sy, glowR);
+      gradient.addColorStop(0, 'rgba(80, 220, 140, 0.15)');
+      gradient.addColorStop(1, 'rgba(80, 220, 140, 0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(sx, sy, glowR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Body
+    ctx.fillStyle = fillColor;
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(sx, sy, drawR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Value text
+    ctx.fillStyle = textColor;
+    ctx.font = `bold ${Math.round(r * 0.8)}px 'Segoe UI', system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(this.value, sx, sy);
+
+    // Connection count indicator
+    if (this.connections > 0 && !this.fired) {
+      ctx.font = `${Math.round(r * 0.4)}px 'Segoe UI', system-ui, sans-serif`;
+      ctx.fillStyle = this.overloaded ? '#c86060' : '#6070a0';
+      ctx.fillText(`${this.connections}/${this.value}`, sx, sy + drawR + 14);
+    }
+
+    // Hover highlight
+    if (this === hoverNeuron && !won) {
+      ctx.strokeStyle = 'rgba(150, 170, 255, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(sx, sy, drawR + 8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  containsPoint(px, py) {
+    const dx = px - this.screenX();
+    const dy = py - this.screenY();
+    return dx * dx + dy * dy <= (this.radius + 10) * (this.radius + 10);
+  }
+}
+
+class Connection {
+  constructor(a, b) {
+    this.a = a;
+    this.b = b;
+    this.anim = 0;
+    this.signalProgress = -1;
+    this.signalDirection = 1; // 1 = a→b, -1 = b→a
+    this.removing = false;
+    this.removeAnim = 1;
+  }
+
+  draw(ctx, t) {
+    const ax = this.a.screenX();
+    const ay = this.a.screenY();
+    const bx = this.b.screenX();
+    const by = this.b.screenY();
+
+    const alpha = this.removing ? this.removeAnim : Math.min(this.anim, 1);
+
+    // Determine color
+    let color;
+    if (this.a.fired && this.b.fired) {
+      color = `rgba(80, 200, 140, ${0.5 * alpha})`;
+    } else if (this.a.overloaded || this.b.overloaded) {
+      color = `rgba(200, 80, 80, ${0.4 * alpha})`;
+    } else {
+      color = `rgba(100, 120, 200, ${0.4 * alpha})`;
+    }
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5 * alpha;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.stroke();
+
+    // Signal animation
+    if (this.signalProgress >= 0 && this.signalProgress <= 1) {
+      const p = this.signalProgress;
+      let sx, sy;
+      if (this.signalDirection === 1) {
+        sx = ax + (bx - ax) * p;
+        sy = ay + (by - ay) * p;
+      } else {
+        sx = bx + (ax - bx) * p;
+        sy = by + (ay - by) * p;
+      }
+
+      const gradient = ctx.createRadialGradient(sx, sy, 0, sx, sy, 12);
+      gradient.addColorStop(0, `rgba(255, 220, 100, ${0.9 * alpha})`);
+      gradient.addColorStop(1, 'rgba(255, 220, 100, 0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    this.anim += 0.05;
+  }
+
+  containsPoint(px, py) {
+    const ax = this.a.screenX();
+    const ay = this.a.screenY();
+    const bx = this.b.screenX();
+    const by = this.b.screenY();
+
+    const len = Math.sqrt((bx-ax)**2 + (by-ay)**2);
+    if (len === 0) return false;
+
+    const t = Math.max(0, Math.min(1, ((px-ax)*(bx-ax) + (py-ay)*(by-ay)) / (len*len)));
+    const projX = ax + t * (bx - ax);
+    const projY = ay + t * (by - ay);
+    const dist = Math.sqrt((px-projX)**2 + (py-projY)**2);
+
+    return dist < 10;
+  }
+}
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+
+function loadLevel(index) {
+  const level = LEVELS[index];
+  if (!level) return;
+
+  currentLevel = index;
+  neurons = [];
+  connections = [];
+  connectionHistory = [];
+  cascadeQueue = [];
+  cascading = false;
+  won = false;
+  particles = [];
+  winMessage.classList.remove('show');
+
+  level.neurons.forEach((n, i) => {
+    neurons.push(new Neuron(n.x, n.y, n.value, i));
+  });
+
+  updateStats();
+  gameActive = true;
+}
+
+function addConnection(a, b) {
+  if (a === b) return;
+  if (won || cascading) return;
+
+  // Check if already connected
+  const existing = connections.find(c =>
+    (c.a === a && c.b === b) || (c.a === b && c.b === a)
+  );
+  if (existing) return;
+
+  const conn = new Connection(a, b);
+  connections.push(conn);
+  connectionHistory.push(conn);
+  a.connections++;
+  b.connections++;
+
+  updateStats();
+  checkSolution();
+}
+
+function removeConnection(conn) {
+  if (won || cascading) return;
+
+  conn.a.connections--;
+  conn.b.connections--;
+  connections = connections.filter(c => c !== conn);
+  connectionHistory = connectionHistory.filter(c => c !== conn);
+
+  // Reset fire states
+  neurons.forEach(n => {
+    n.fired = false;
+    n.firing = false;
+    n.fireAnim = 0;
+  });
+
+  updateStats();
+}
+
+function undoConnection() {
+  if (connectionHistory.length === 0 || won || cascading) return;
+
+  // Reset all fire states first
+  neurons.forEach(n => {
+    n.fired = false;
+    n.firing = false;
+    n.fireAnim = 0;
+  });
+
+  const last = connectionHistory.pop();
+  last.a.connections--;
+  last.b.connections--;
+  connections = connections.filter(c => c !== last);
+
+  updateStats();
+}
+
+function resetLevel() {
+  loadLevel(currentLevel);
+}
+
+function checkSolution() {
+  // Check if all neurons are satisfied
+  const allSatisfied = neurons.every(n => n.satisfied);
+  if (!allSatisfied) return;
+
+  // Start cascade animation
+  startCascade();
+}
+
+function startCascade() {
+  cascading = true;
+
+  // All neurons fire simultaneously since all are satisfied
+  neurons.forEach((n, i) => {
+    n.firing = true;
+    n.cascadeDelay = i * 150;
+  });
+
+  setTimeout(() => {
+    finishCascade();
+  }, neurons.length * 150 + 500);
+}
+
+function finishCascade() {
+  neurons.forEach(n => {
+    n.fired = true;
+    n.firing = false;
+  });
+
+  won = true;
+  cascading = false;
+
+  // Stars
+  const par = LEVELS[currentLevel].par;
+  const used = connections.length;
+  let stars;
+  if (used <= par) stars = 3;
+  else if (used <= par + 1) stars = 2;
+  else stars = 1;
+
+  document.getElementById('win-stars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+  document.getElementById('win-detail').textContent =
+    `${used} synapse${used !== 1 ? 's' : ''} used (par: ${par})`;
+
+  if (currentLevel >= maxUnlocked) {
+    maxUnlocked = currentLevel + 1;
+    saveProgress();
+  }
+
+  // Celebration particles
+  for (let i = 0; i < 50; i++) {
+    particles.push({
+      x: W * 0.5,
+      y: H * 0.5,
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8,
+      life: 1,
+      color: ['#80dca0', '#ffd870', '#70b0ff', '#c0a0ff'][Math.floor(Math.random() * 4)]
+    });
+  }
+
+  setTimeout(() => {
+    winMessage.classList.add('show');
+    if (currentLevel >= LEVELS.length - 1) {
+      document.getElementById('next-btn').textContent = '🎉 All Complete!';
+      document.getElementById('next-btn').onclick = showMenu;
+    }
+  }, 800);
+}
+
+function nextLevel() {
+  winMessage.classList.remove('show');
+  if (currentLevel < LEVELS.length - 1) {
+    loadLevel(currentLevel + 1);
+  } else {
+    showMenu();
+  }
+}
+
+function showHint() {
+  if (!gameActive || won) return;
+  const level = LEVELS[currentLevel];
+  if (level.hint) {
+    const btn = document.getElementById('hint-btn');
+    tooltip.style.display = 'block';
+    tooltip.style.left = (btn.getBoundingClientRect().left) + 'px';
+    tooltip.style.top = (btn.getBoundingClientRect().top - 60) + 'px';
+    tooltip.textContent = level.hint;
+    setTimeout(() => { tooltip.style.display = 'none'; }, 4000);
+  }
+}
+
+function updateStats() {
+  document.getElementById('level-display').textContent = currentLevel + 1;
+  document.getElementById('connections-display').textContent = connections.length;
+  document.getElementById('par-display').textContent = LEVELS[currentLevel]?.par || '—';
+
+  const fired = neurons.filter(n => n.fired).length;
+  document.getElementById('fired-display').textContent = `${fired}/${neurons.length}`;
+}
+
+// ============================================================
+// MENU
+// ============================================================
+
+function showMenu() {
+  overlay.classList.remove('hidden');
+  gameActive = false;
+  winMessage.classList.remove('show');
+
+  const select = document.getElementById('level-select');
+  select.innerHTML = '';
+
+  LEVELS.forEach((level, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'level-btn';
+    btn.textContent = i + 1;
+
+    if (i <= maxUnlocked) {
+      btn.classList.add(i < maxUnlocked ? 'completed' : 'current');
+      btn.onclick = () => {
+        overlay.classList.add('hidden');
+        loadLevel(i);
+      };
+      btn.title = level.name;
+    } else {
+      btn.classList.add('locked');
+      btn.title = 'Locked';
+    }
+
+    select.appendChild(btn);
+  });
+}
+
+function startGame() {
+  overlay.classList.add('hidden');
+  loadLevel(Math.min(maxUnlocked, LEVELS.length - 1));
+}
+
+// ============================================================
+// INPUT
+// ============================================================
+
+function getMousePos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * (canvas.width / rect.width) / dpr,
+    y: (e.clientY - rect.top) * (canvas.height / rect.height) / dpr
+  };
+}
+
+canvas.addEventListener('mousedown', (e) => {
+  if (!gameActive || won || cascading) return;
+  const pos = getMousePos(e);
+  mouseX = pos.x;
+  mouseY = pos.y;
+
+  // Check if clicking a connection to remove it
+  for (const conn of connections) {
+    if (conn.containsPoint(pos.x, pos.y)) {
+      // Make sure we're not clicking on a neuron
+      const onNeuron = neurons.some(n => n.containsPoint(pos.x, pos.y));
+      if (!onNeuron) {
+        removeConnection(conn);
+        return;
+      }
+    }
+  }
+
+  // Check if clicking a neuron
+  for (const neuron of neurons) {
+    if (neuron.containsPoint(pos.x, pos.y)) {
+      dragging = neuron;
+      return;
+    }
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const pos = getMousePos(e);
+  mouseX = pos.x;
+  mouseY = pos.y;
+
+  hoverNeuron = null;
+  for (const neuron of neurons) {
+    if (neuron.containsPoint(pos.x, pos.y)) {
+      hoverNeuron = neuron;
+      break;
+    }
+  }
+
+  // Update drag target
+  dragTarget = null;
+  if (dragging) {
+    for (const neuron of neurons) {
+      if (neuron !== dragging && neuron.containsPoint(pos.x, pos.y)) {
+        dragTarget = neuron;
+        break;
+      }
+    }
+  }
+});
+
+canvas.addEventListener('mouseup', (e) => {
+  if (!gameActive || won || cascading) return;
+
+  if (dragging && dragTarget) {
+    addConnection(dragging, dragTarget);
+  }
+  dragging = null;
+  dragTarget = null;
+});
+
+canvas.addEventListener('mouseleave', () => {
+  hoverNeuron = null;
+  if (dragging) {
+    dragging = null;
+    dragTarget = null;
+  }
+});
+
+// Touch support
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (!gameActive || won || cascading) return;
+  const touch = e.touches[0];
+  const pos = getMousePos(touch);
+  mouseX = pos.x;
+  mouseY = pos.y;
+
+  for (const neuron of neurons) {
+    if (neuron.containsPoint(pos.x, pos.y)) {
+      dragging = neuron;
+      return;
+    }
+  }
+
+  // Check connection removal
+  for (const conn of connections) {
+    if (conn.containsPoint(pos.x, pos.y)) {
+      removeConnection(conn);
+      return;
+    }
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const pos = getMousePos(touch);
+  mouseX = pos.x;
+  mouseY = pos.y;
+
+  dragTarget = null;
+  if (dragging) {
+    for (const neuron of neurons) {
+      if (neuron !== dragging && neuron.containsPoint(pos.x, pos.y)) {
+        dragTarget = neuron;
+        break;
+      }
+    }
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (dragging && dragTarget) {
+    addConnection(dragging, dragTarget);
+  }
+  dragging = null;
+  dragTarget = null;
+}, { passive: false });
+
+// ============================================================
+// RENDERING
+// ============================================================
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  W = container.clientWidth;
+  H = container.clientHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function drawBackground(t) {
+  ctx.fillStyle = '#0a0a12';
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(40, 40, 70, 0.3)';
+  ctx.lineWidth = 0.5;
+  const gridSize = 50;
+  for (let x = 0; x < W; x += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+  }
+  for (let y = 0; y < H; y += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+}
+
+function drawDragLine(t) {
+  if (!dragging) return;
+
+  const ax = dragging.screenX();
+  const ay = dragging.screenY();
+  const bx = dragTarget ? dragTarget.screenX() : mouseX;
+  const by = dragTarget ? dragTarget.screenY() : mouseY;
+
+  ctx.strokeStyle = dragTarget
+    ? 'rgba(100, 180, 255, 0.6)'
+    : 'rgba(100, 120, 200, 0.3)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(ax, ay);
+  ctx.lineTo(bx, by);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function updateParticles() {
+  particles = particles.filter(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.1;
+    p.life -= 0.015;
+    return p.life > 0;
+  });
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.fillStyle = p.color.replace(')', `, ${p.life})`).replace('rgb', 'rgba');
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3 * p.life, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+function updateCascade(t) {
+  if (!cascading) return;
+
+  neurons.forEach(n => {
+    if (n.firing) {
+      n.cascadeDelay -= 16;
+      if (n.cascadeDelay <= 0) {
+        n.fireAnim = Math.min(n.fireAnim + 0.04, 1);
+        if (n.fireAnim >= 1) {
+          // Create signal particles along connections
+          connections.forEach(c => {
+            if (c.a === n || c.b === n) {
+              if (c.signalProgress < 0) {
+                c.signalProgress = 0;
+                c.signalDirection = c.a === n ? 1 : -1;
+              }
+            }
+          });
+        }
+      }
+    }
+  });
+
+  // Update signal progress
+  connections.forEach(c => {
+    if (c.signalProgress >= 0 && c.signalProgress <= 1) {
+      c.signalProgress += 0.03;
+    }
+  });
+}
+
+function render(t) {
+  animFrame = requestAnimationFrame(render);
+
+  drawBackground(t);
+
+  // Draw connections
+  connections.forEach(c => c.draw(ctx, t));
+
+  // Draw drag line
+  drawDragLine(t);
+
+  // Draw neurons
+  neurons.forEach(n => n.draw(ctx, t));
+
+  // Update and draw particles
+  updateParticles();
+  drawParticles();
+
+  // Update cascade
+  updateCascade(t);
+
+  // Level name
+  if (gameActive) {
+    const level = LEVELS[currentLevel];
+    ctx.fillStyle = 'rgba(60, 70, 110, 0.5)';
+    ctx.font = '14px "Segoe UI", system-ui, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(level.name, 16, 12);
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+
+window.addEventListener('resize', resize);
+resize();
+
+showMenu();
+render(0);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
+    undoConnection();
+  } else if (e.key === 'r' && !e.ctrlKey && !e.metaKey) {
+    if (gameActive) resetLevel();
+  } else if (e.key === 'Escape') {
+    showMenu();
+  } else if (e.key === 'h') {
+    showHint();
+  }
+});
+</script>
+</body>
+</html>

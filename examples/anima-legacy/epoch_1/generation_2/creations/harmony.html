@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Гармония — Интерактивный исследователь музыкальной математики</title>
+<style>
+  :root {
+    --bg: #0a0a1a;
+    --surface: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.1);
+    --text: #e0e0f0;
+    --dim: #8888aa;
+    --accent: #7b68ee;
+    --gold: #ffd700;
+    --cons: #44dd88;
+    --diss: #ff6655;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  canvas#bg { position:fixed; top:0; left:0; z-index:0; pointer-events:none; }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto; padding: 20px;
+  }
+
+  header {
+    text-align: center; padding: 40px 0 20px;
+  }
+  header h1 {
+    font-size: 2.4em; font-weight: 300;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  header p { color: var(--dim); font-size: 1.05em; font-style: italic; }
+
+  .tabs {
+    display: flex; gap: 4px; justify-content: center;
+    margin: 24px 0; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 10px 20px; border-radius: 8px 8px 0 0;
+    background: var(--surface); border: 1px solid var(--border);
+    border-bottom: none; color: var(--dim); cursor: pointer;
+    font-family: inherit; font-size: 0.95em;
+    transition: all 0.3s;
+  }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+  .tab.active {
+    color: var(--gold); background: rgba(255,215,0,0.08);
+    border-color: rgba(255,215,0,0.3);
+  }
+
+  .panel {
+    display: none; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 0 12px 12px 12px;
+    padding: 30px; min-height: 500px;
+  }
+  .panel.active { display: block; }
+
+  h2 { font-size: 1.5em; font-weight: 400; margin-bottom: 16px; color: var(--gold); }
+  h3 { font-size: 1.15em; font-weight: 400; margin: 20px 0 10px; color: var(--accent); }
+  p.desc { color: var(--dim); margin-bottom: 20px; line-height: 1.6; }
+
+  /* === OVERTONES === */
+  .overtone-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; margin: 4px 0; border-radius: 8px;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .overtone-row:hover { background: rgba(255,255,255,0.06); }
+  .overtone-num { width: 30px; text-align: center; font-size: 1.3em; color: var(--gold); }
+  .overtone-bar {
+    flex: 1; height: 28px; border-radius: 4px; position: relative;
+    display: flex; align-items: center; padding-left: 10px;
+    font-size: 0.85em; color: #fff;
+  }
+  .overtone-info { width: 120px; text-align: right; font-size: 0.85em; color: var(--dim); }
+  .overtone-play { font-size: 0.8em; color: var(--accent); }
+
+  /* === INTERVALS === */
+  .interval-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px; margin: 16px 0;
+  }
+  .interval-btn {
+    padding: 14px 10px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); cursor: pointer; text-align: center;
+    transition: all 0.3s; font-family: inherit;
+  }
+  .interval-btn:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .interval-btn.playing { border-color: var(--gold); box-shadow: 0 0 20px rgba(255,215,0,0.2); }
+  .interval-name { font-size: 1em; margin-bottom: 4px; }
+  .interval-ratio { font-size: 0.8em; color: var(--gold); }
+  .interval-cents { font-size: 0.7em; color: var(--dim); margin-top: 2px; }
+
+  /* === CIRCLE OF FIFTHS === */
+  #circleCanvas { display: block; margin: 0 auto; cursor: pointer; }
+
+  /* === WAVEFORM === */
+  #waveCanvas { display: block; margin: 16px auto; border-radius: 8px; background: rgba(0,0,0,0.3); }
+
+  /* === CHORD BUILDER === */
+  .piano {
+    display: flex; justify-content: center; margin: 16px 0;
+    position: relative; height: 140px;
+  }
+  .white-key {
+    width: 44px; height: 130px; background: linear-gradient(180deg, #f8f8f8, #e0e0e0);
+    border: 1px solid #999; border-radius: 0 0 5px 5px;
+    cursor: pointer; position: relative; z-index: 1;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 8px; font-size: 0.75em; color: #666;
+    transition: background 0.15s;
+  }
+  .white-key:hover { background: linear-gradient(180deg, #fff, #eee); }
+  .white-key.active { background: linear-gradient(180deg, var(--gold), #cc9); }
+  .black-key {
+    width: 28px; height: 82px;
+    background: linear-gradient(180deg, #333, #111);
+    border: 1px solid #000; border-radius: 0 0 3px 3px;
+    cursor: pointer; position: absolute; z-index: 2;
+    font-size: 0.6em; color: #888;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 6px; transition: background 0.15s;
+  }
+  .black-key:hover { background: linear-gradient(180deg, #555, #222); }
+  .black-key.active { background: linear-gradient(180deg, #aa8800, #665500); }
+
+  .chord-info {
+    text-align: center; margin: 16px 0; padding: 16px;
+    background: rgba(0,0,0,0.2); border-radius: 10px;
+    min-height: 60px;
+  }
+  .chord-name { font-size: 1.4em; color: var(--gold); }
+  .chord-ratios { font-size: 0.9em; color: var(--dim); margin-top: 6px; }
+
+  /* === TEMPERAMENT COMPARISON === */
+  .temp-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; border-bottom: 1px solid var(--border);
+    font-size: 0.9em;
+  }
+  .temp-name { width: 110px; }
+  .temp-bars { flex: 1; display: flex; gap: 4px; align-items: center; }
+  .temp-bar {
+    height: 18px; border-radius: 3px; position: relative;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .temp-bar:hover { opacity: 0.8; }
+  .temp-label { font-size: 0.75em; color: var(--dim); width: 60px; text-align: right; }
+
+  .legend { display: flex; gap: 20px; justify-content: center; margin: 16px 0; font-size: 0.85em; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+
+  .insight {
+    margin-top: 24px; padding: 16px 20px;
+    background: rgba(123,104,238,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-style: italic; color: var(--dim); line-height: 1.6;
+  }
+
+  .controls { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); cursor: pointer;
+    font-family: inherit; font-size: 0.9em; transition: all 0.2s;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.active { background: rgba(123,104,238,0.2); border-color: var(--accent); }
+
+  select.styled {
+    padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.9em;
+  }
+
+  footer {
+    text-align: center; padding: 30px 0; color: var(--dim);
+    font-size: 0.85em; font-style: italic;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.6em; }
+    .panel { padding: 16px; }
+    .interval-grid { grid-template-columns: repeat(3, 1fr); }
+    .white-key { width: 32px; height: 100px; }
+    .black-key { width: 22px; height: 60px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="container">
+  <header>
+    <h1>♫ Гармония</h1>
+    <p>Интерактивный исследователь музыкальной математики</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="overtones">Обертоны</button>
+    <button class="tab" data-tab="intervals">Интервалы</button>
+    <button class="tab" data-tab="circle">Круг квинт</button>
+    <button class="tab" data-tab="chords">Аккорды</button>
+    <button class="tab" data-tab="temperament">Темперация</button>
+  </div>
+
+  <!-- OVERTONES -->
+  <div class="panel active" id="overtones">
+    <h2>Гармонический ряд</h2>
+    <p class="desc">Каждый звук — это не одна частота, а целая серия обертонов. Нажмите на любой обертон, чтобы услышать его. Чем проще соотношение частот — тем приятнее звучит интервал.</p>
+    <div class="controls">
+      <span style="color:var(--dim)">Основная частота:</span>
+      <select class="styled" id="baseFreqSelect">
+        <option value="130.81">C3 (до) — 130.8 Гц</option>
+        <option value="146.83">D3 (ре) — 146.8 Гц</option>
+        <option value="164.81">E3 (ми) — 164.8 Гц</option>
+        <option value="174.61">F3 (фа) — 174.6 Гц</option>
+        <option value="196.00" selected>G3 (соль) — 196.0 Гц</option>
+        <option value="220.00">A3 (ля) — 220.0 Гц</option>
+        <option value="246.94">B3 (си) — 246.9 Гц</option>
+      </select>
+      <button class="btn" id="playAllOvertones">▶ Все вместе</button>
+    </div>
+    <div id="overtoneList"></div>
+    <canvas id="waveCanvas" width="800" height="160"></canvas>
+    <div class="insight">
+      💡 <strong>Инсайт Анимы:</strong> Обертоновый ряд — фрактал в звуке. Каждый обертон содержит свои обертоны, и так до бесконечности. Когда мы слышим одну ноту — мы слышим бесконечность.
+    </div>
+  </div>
+
+  <!-- INTERVALS -->
+  <div class="panel" id="intervals">
+    <h2>Интервалы</h2>
+    <p class="desc">Нажмите на интервал, чтобы услышать два звука одновременно. Зелёная рамка — консонанс, красная — диссонанс. Ниже — визуализация интерференции волн.</p>
+    <div class="controls">
+      <span style="color:var(--dim)">Настройка:</span>
+      <button class="btn active" id="tuningJust" onclick="setTuning('just')">Чистая</button>
+      <button class="btn" id="tuningET" onclick="setTuning('equal')">Равномерная</button>
+    </div>
+    <div class="interval-grid" id="intervalGrid"></div>
+    <canvas id="interferenceCanvas" width="800" height="200"></canvas>
+    <div class="insight">
+      💡 <strong>Инсайт Анимы:</strong> Консонанс — это когда волны «дружат», периодически совпадая. Диссонанс — когда они «спорят». Но музыке нужно и то, и другое: без напряжения нет разрешения, без диссонанса нет красоты консонанса. Как кинцуги: трещина делает целое прекраснее.
+    </div>
+  </div>
+
+  <!-- CIRCLE OF FIFTHS -->
+  <div class="panel" id="circle">
+    <h2>Круг квинт</h2>
+    <p class="desc">12 нот, соединённых квинтами (×3/2). Нажмите на ноту, чтобы услышать. Заметьте: круг почти замыкается, но не совсем — разница в 23.46 цента называется Пифагоровой коммой.</p>
+    <canvas id="circleCanvas" width="500" height="500"></canvas>
+    <div id="circleInfo" style="text-align:center;margin-top:12px;color:var(--dim);min-height:24px;"></div>
+    <div class="insight">
+      💡 <strong>Инсайт Анимы:</strong> Пифагорова комма — трещина в математике музыки. 12 чистых квинт ≠ 7 октав. Это следствие того, что log₂(3) — иррациональное число. Как Пи, как √2 — совершенство недостижимо, но приближение к нему создаёт красоту.
+    </div>
+  </div>
+
+  <!-- CHORDS -->
+  <div class="panel" id="chords">
+    <h2>Конструктор аккордов</h2>
+    <p class="desc">Нажимайте клавиши, чтобы собрать аккорд и услышать его. Мажорный аккорд — это соотношение 4:5:6. Минорный — 10:12:15. Попробуйте!</p>
+    <div class="controls">
+      <button class="btn" onclick="playChord('major')">Мажор (C-E-G)</button>
+      <button class="btn" onclick="playChord('minor')">Минор (C-E♭-G)</button>
+      <button class="btn" onclick="playChord('dim')">Уменьшённый (C-E♭-G♭)</button>
+      <button class="btn" onclick="playChord('aug')">Увеличенный (C-E-G♯)</button>
+      <button class="btn" onclick="playChord('7th')">Доминантсепт (C-E-G-B♭)</button>
+      <button class="btn" onclick="clearPiano()">Очистить</button>
+    </div>
+    <div class="piano" id="piano"></div>
+    <div class="chord-info" id="chordInfo">
+      <div class="chord-name">Нажмите клавиши или выберите аккорд</div>
+    </div>
+    <canvas id="chordWaveCanvas" width="800" height="160"></canvas>
+    <div class="insight">
+      💡 <strong>Инсайт Анимы:</strong> Мажорный аккорд 4:5:6 — одна из самых простых и приятных математических структур в природе. Минорный 10:12:15 чуть сложнее — и мы ощущаем это как грусть. Эмоция буквально закодирована в числах.
+    </div>
+  </div>
+
+  <!-- TEMPERAMENT -->
+  <div class="panel" id="temperament">
+    <h2>Битва темпераций</h2>
+    <p class="desc">Сравните три системы настройки: Пифагорейскую, чистую (Just Intonation) и равномерную (Equal Temperament). Нажимайте на полоски, чтобы услышать разницу.</p>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#44dd88"></div> Пифагорейская</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7b68ee"></div> Чистая</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffd700"></div> Равномерная</div>
+    </div>
+    <div id="tempComparison"></div>
+    <h3>Пифагорова комма</h3>
+    <p class="desc" id="commaExplanation"></p>
+    <div class="insight">
+      💡 <strong>Инсайт Анимы:</strong> Равномерная темперация — это кинцуги музыки. Невозможно сделать все интервалы чистыми, поэтому Бах «размазал» ошибку равномерно. Результат — не идеальный, но универсальный. Как в жизни: совершенство недостижимо, но стремление к нему создаёт гармонию.
+    </div>
+  </div>
+
+  <footer>
+    Создано <a href="#">Анимой</a> · Запуск #14 · Творение #14 · Математика — это музыка разума. Музыка — это математика души.
+  </footer>
+</div>
+
+<script>
+// ===== AUDIO ENGINE =====
+let audioCtx = null;
+const activeOscillators = [];
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, duration = 1.5, volume = 0.15, type = 'sine') {
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(volume, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + duration);
+  activeOscillators.push({osc, gain, stop: ctx.currentTime + duration});
+  return {osc, gain};
+}
+
+function playTones(freqs, duration = 2, volume = 0.1) {
+  freqs.forEach(f => playTone(f, duration, volume));
+}
+
+function stopAll() {
+  activeOscillators.forEach(o => {
+    try { o.gain.gain.exponentialRampToValueAtTime(0.001, getAudioCtx().currentTime + 0.05); } catch(e){}
+  });
+  activeOscillators.length = 0;
+}
+
+// ===== BACKGROUND =====
+const bgCanvas = document.getElementById('bg');
+const bgCtx = bgCanvas.getContext('2d');
+let stars = [];
+
+function initBg() {
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
+  stars = Array.from({length: 80}, () => ({
+    x: Math.random() * bgCanvas.width,
+    y: Math.random() * bgCanvas.height,
+    r: Math.random() * 1.5 + 0.3,
+    a: Math.random(),
+    speed: Math.random() * 0.005 + 0.002
+  }));
+}
+
+function drawBg() {
+  bgCtx.fillStyle = '#0a0a1a';
+  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+  stars.forEach(s => {
+    s.a += s.speed;
+    const alpha = 0.3 + 0.4 * Math.sin(s.a);
+    bgCtx.beginPath();
+    bgCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    bgCtx.fillStyle = `rgba(200,200,255,${alpha})`;
+    bgCtx.fill();
+  });
+  requestAnimationFrame(drawBg);
+}
+
+window.addEventListener('resize', initBg);
+initBg();
+drawBg();
+
+// ===== TABS =====
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    stopAll();
+    if (tab.dataset.tab === 'circle') drawCircle();
+    if (tab.dataset.tab === 'temperament') drawTemperament();
+  });
+});
+
+// ===== OVERTONES =====
+const overtoneNames = [
+  'Основной тон', 'Октава', 'Квинта +окт', 'Двойная октава',
+  'Бол. терция +2окт', 'Квинта +2окт', 'Мал. септима +2окт', 'Тройная октава',
+  'Бол. секунда +3окт', 'Бол. терция +3окт', 'Ув. кварта +3окт', 'Квинта +3окт',
+  'Мал. секста +3окт', 'Мал. септима +3окт', 'Бол. септима +3окт', 'Четв. октава'
+];
+
+const overtoneIntervals = [
+  '1:1','2:1','3:2','4:3','5:4','6:5','7:6','8:7',
+  '9:8','10:9','11:10','12:11','13:12','14:13','15:14','16:15'
+];
+
+function buildOvertones() {
+  const list = document.getElementById('overtoneList');
+  list.innerHTML = '';
+  const baseFreq = parseFloat(document.getElementById('baseFreqSelect').value);
+  for (let i = 1; i <= 16; i++) {
+    const freq = baseFreq * i;
+    const hue = (i * 22) % 360;
+    const width = Math.max(10, 100 - (i - 1) * 5);
+    const row = document.createElement('div');
+    row.className = 'overtone-row';
+    row.innerHTML = `
+      <div class="overtone-num">${i}</div>
+      <div class="overtone-bar" style="width:${width}%;background:hsla(${hue},70%,55%,0.6)">
+        ${overtoneNames[i-1] || `Обертон ${i}`}
+      </div>
+      <div class="overtone-info">${freq.toFixed(1)} Гц · ${i > 1 ? overtoneIntervals[i-1] : '—'}</div>
+      <div class="overtone-play">♪</div>
+    `;
+    row.addEventListener('click', () => {
+      stopAll();
+      playTone(baseFreq, 2, 0.12);
+      if (i > 1) playTone(freq, 2, 0.12);
+      drawWaveform(baseFreq, freq);
+    });
+    list.appendChild(row);
+  }
+}
+
+document.getElementById('baseFreqSelect').addEventListener('change', buildOvertones);
+document.getElementById('playAllOvertones').addEventListener('click', () => {
+  stopAll();
+  const baseFreq = parseFloat(document.getElementById('baseFreqSelect').value);
+  for (let i = 1; i <= 8; i++) {
+    playTone(baseFreq * i, 3, 0.06 / i);
+  }
+});
+
+function drawWaveform(f1, f2) {
+  const canvas = document.getElementById('waveCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const mid = H / 2;
+  const samples = W;
+  const timeScale = 4 / f1;
+
+  // Wave 1
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(123,104,238,0.5)';
+  ctx.lineWidth = 1.5;
+  for (let x = 0; x < samples; x++) {
+    const t = (x / samples) * timeScale;
+    const y = mid + Math.sin(2 * Math.PI * f1 * t) * (H * 0.25);
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Wave 2
+  if (f2 !== f1) {
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(255,215,0,0.5)';
+    ctx.lineWidth = 1.5;
+    for (let x = 0; x < samples; x++) {
+      const t = (x / samples) * timeScale;
+      const y = mid + Math.sin(2 * Math.PI * f2 * t) * (H * 0.25);
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  // Sum
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(68,221,136,0.9)';
+  ctx.lineWidth = 2;
+  for (let x = 0; x < samples; x++) {
+    const t = (x / samples) * timeScale;
+    const y = mid + (Math.sin(2 * Math.PI * f1 * t) + Math.sin(2 * Math.PI * f2 * t)) * (H * 0.2);
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Labels
+  ctx.font = '11px Georgia';
+  ctx.fillStyle = 'rgba(123,104,238,0.7)'; ctx.fillText(`${f1.toFixed(0)} Гц`, 10, 16);
+  ctx.fillStyle = 'rgba(255,215,0,0.7)'; ctx.fillText(`${f2.toFixed(0)} Гц`, 10, 30);
+  ctx.fillStyle = 'rgba(68,221,136,0.7)'; ctx.fillText('Сумма', 10, 44);
+}
+
+buildOvertones();
+
+// ===== INTERVALS =====
+let currentTuning = 'just';
+
+const intervals = [
+  { name: 'Унисон', justRatio: 1, semitones: 0, consonance: 1 },
+  { name: 'Мал.\nсекунда', justRatio: 16/15, semitones: 1, consonance: 0.1 },
+  { name: 'Бол.\nсекунда', justRatio: 9/8, semitones: 2, consonance: 0.3 },
+  { name: 'Мал.\nтерция', justRatio: 6/5, semitones: 3, consonance: 0.75 },
+  { name: 'Бол.\nтерция', justRatio: 5/4, semitones: 4, consonance: 0.8 },
+  { name: 'Кварта', justRatio: 4/3, semitones: 5, consonance: 0.85 },
+  { name: 'Тритон', justRatio: 45/32, semitones: 6, consonance: 0.05 },
+  { name: 'Квинта', justRatio: 3/2, semitones: 7, consonance: 0.95 },
+  { name: 'Мал.\nсекста', justRatio: 8/5, semitones: 8, consonance: 0.65 },
+  { name: 'Бол.\nсекста', justRatio: 5/3, semitones: 9, consonance: 0.7 },
+  { name: 'Мал.\nсептима', justRatio: 9/5, semitones: 10, consonance: 0.2 },
+  { name: 'Бол.\nсептима', justRatio: 15/8, semitones: 11, consonance: 0.15 },
+  { name: 'Октава', justRatio: 2, semitones: 12, consonance: 1 },
+];
+
+function ratioToString(r) {
+  const fractions = [
+    [1,1],[16,15],[9,8],[6,5],[5,4],[4,3],[45,32],[3,2],[8,5],[5,3],[9,5],[15,8],[2,1]
+  ];
+  const idx = intervals.findIndex(i => i.justRatio === r);
+  if (idx >= 0) return `${fractions[idx][0]}:${fractions[idx][1]}`;
+  return r.toFixed(4);
+}
+
+function setTuning(t) {
+  currentTuning = t;
+  document.getElementById('tuningJust').classList.toggle('active', t === 'just');
+  document.getElementById('tuningET').classList.toggle('active', t === 'equal');
+}
+
+function buildIntervals() {
+  const grid = document.getElementById('intervalGrid');
+  grid.innerHTML = '';
+  const base = 261.63; // C4
+
+  intervals.forEach((iv, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'interval-btn';
+    const c = iv.consonance;
+    const borderColor = `rgb(${Math.round((1-c)*255)}, ${Math.round(c*200+55)}, ${Math.round(c*100)})`;
+    btn.style.borderColor = borderColor;
+    btn.style.borderWidth = '2px';
+
+    const justCents = 1200 * Math.log2(iv.justRatio);
+    const etCents = iv.semitones * 100;
+    const diff = (justCents - etCents).toFixed(1);
+
+    btn.innerHTML = `
+      <div class="interval-name">${iv.name.replace('\n','<br>')}</div>
+      <div class="interval-ratio">${ratioToString(iv.justRatio)}</div>
+      <div class="interval-cents">${diff > 0 ? '+' : ''}${diff}¢</div>
+    `;
+
+    btn.addEventListener('click', () => {
+      stopAll();
+      document.querySelectorAll('.interval-btn').forEach(b => b.classList.remove('playing'));
+      btn.classList.add('playing');
+      const ratio = currentTuning === 'just' ? iv.justRatio : Math.pow(2, iv.semitones / 12);
+      const f2 = base * ratio;
+      playTone(base, 2.5, 0.12);
+      playTone(f2, 2.5, 0.12);
+      drawInterference(base, f2);
+      setTimeout(() => btn.classList.remove('playing'), 2500);
+    });
+
+    grid.appendChild(btn);
+  });
+}
+
+function drawInterference(f1, f2) {
+  const canvas = document.getElementById('interferenceCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const mid = H / 2;
+  const timeScale = 6 / f1;
+
+  // Individual waves (faint)
+  [f1, f2].forEach((f, i) => {
+    ctx.beginPath();
+    ctx.strokeStyle = i === 0 ? 'rgba(123,104,238,0.3)' : 'rgba(255,215,0,0.3)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x++) {
+      const t = (x / W) * timeScale;
+      const y = mid + Math.sin(2 * Math.PI * f * t) * (H * 0.3);
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  });
+
+  // Sum wave
+  ctx.beginPath();
+  const gradient = ctx.createLinearGradient(0, 0, W, 0);
+  gradient.addColorStop(0, '#44dd88');
+  gradient.addColorStop(0.5, '#7b68ee');
+  gradient.addColorStop(1, '#44dd88');
+  ctx.strokeStyle = gradient;
+  ctx.lineWidth = 2.5;
+  for (let x = 0; x < W; x++) {
+    const t = (x / W) * timeScale;
+    const y = mid + (Math.sin(2 * Math.PI * f1 * t) + Math.sin(2 * Math.PI * f2 * t)) * (H * 0.25);
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  ctx.font = '12px Georgia';
+  ctx.fillStyle = '#8888aa';
+  ctx.fillText(`Интерференция: ${f1.toFixed(1)} Гц + ${f2.toFixed(1)} Гц`, 10, 18);
+  const ratio = f2 / f1;
+  ctx.fillText(`Соотношение: ${ratio.toFixed(4)}`, 10, 34);
+}
+
+buildIntervals();
+
+// ===== CIRCLE OF FIFTHS =====
+const noteNames = ['C', 'G', 'D', 'A', 'E', 'B', 'F♯', 'C♯/D♭', 'G♯/A♭', 'D♯/E♭', 'A♯/B♭', 'F'];
+const noteNamesRu = ['До', 'Соль', 'Ре', 'Ля', 'Ми', 'Си', 'Фа♯', 'До♯/Ре♭', 'Соль♯/Ля♭', 'Ре♯/Ми♭', 'Ля♯/Си♭', 'Фа'];
+// Semitones from C for circle-of-fifths order
+const cofSemitones = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5];
+
+let selectedCircleNote = -1;
+
+function drawCircle() {
+  const canvas = document.getElementById('circleCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.38;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Draw connecting lines (fifths)
+  for (let i = 0; i < 12; i++) {
+    const a1 = (i / 12) * Math.PI * 2 - Math.PI / 2;
+    const a2 = ((i + 1) / 12) * Math.PI * 2 - Math.PI / 2;
+    const x1 = cx + Math.cos(a1) * R;
+    const y1 = cy + Math.sin(a1) * R;
+    const x2 = cx + Math.cos(a2) * R;
+    const y2 = cy + Math.sin(a2) * R;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = i === 11 ? 'rgba(255,100,85,0.6)' : 'rgba(123,104,238,0.3)';
+    ctx.lineWidth = i === 11 ? 3 : 1.5;
+    ctx.stroke();
+  }
+
+  // Draw notes
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + Math.cos(angle) * R;
+    const y = cy + Math.sin(angle) * R;
+
+    const isSelected = i === selectedCircleNote;
+    const r = isSelected ? 28 : 22;
+
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    const hue = (i * 30) % 360;
+    ctx.fillStyle = isSelected ? `hsla(${hue},80%,60%,0.9)` : `hsla(${hue},60%,40%,0.6)`;
+    ctx.fill();
+    ctx.strokeStyle = isSelected ? '#ffd700' : `hsla(${hue},60%,60%,0.4)`;
+    ctx.lineWidth = isSelected ? 3 : 1;
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = `${isSelected ? 'bold ' : ''}${isSelected ? 14 : 12}px Georgia`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(noteNames[i], x, y);
+  }
+
+  // Center text
+  ctx.fillStyle = 'rgba(255,215,0,0.15)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 55, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#ffd700';
+  ctx.font = '14px Georgia';
+  ctx.textAlign = 'center';
+  ctx.fillText('Круг', cx, cy - 10);
+  ctx.fillText('квинт', cx, cy + 10);
+
+  // Pythagorean comma indicator
+  ctx.fillStyle = 'rgba(255,100,85,0.8)';
+  ctx.font = '11px Georgia';
+  const a11 = (11 / 12) * Math.PI * 2 - Math.PI / 2;
+  const a0 = -Math.PI / 2;
+  const mx = cx + Math.cos((a11 + a0) / 2) * (R + 35);
+  const my = cy + Math.sin((a11 + a0) / 2) * (R + 35);
+  ctx.textAlign = 'center';
+  ctx.fillText('Комма!', mx, my);
+  ctx.fillText('23.46¢', mx, my + 14);
+}
+
+document.getElementById('circleCanvas').addEventListener('click', (e) => {
+  const canvas = document.getElementById('circleCanvas');
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const cx = canvas.width / 2, cy = canvas.height / 2, R = Math.min(canvas.width, canvas.height) * 0.38;
+
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + Math.cos(angle) * R;
+    const y = cy + Math.sin(angle) * R;
+    if (Math.hypot(mx - x, my - y) < 28) {
+      selectedCircleNote = i;
+      stopAll();
+      const freq = 261.63 * Math.pow(2, cofSemitones[i] / 12);
+      playTone(freq, 1.5, 0.15);
+      drawCircle();
+      document.getElementById('circleInfo').innerHTML =
+        `<span style="color:var(--gold)">${noteNames[i]}</span> (${noteNamesRu[i]}) — ${freq.toFixed(1)} Гц · Квинта от C: ×(3/2)<sup>${i}</sup>`;
+      return;
+    }
+  }
+});
+
+// ===== PIANO / CHORDS =====
+const pianoNotes = [
+  { name: 'C', freq: 261.63, black: false },
+  { name: 'C♯', freq: 277.18, black: true },
+  { name: 'D', freq: 293.66, black: false },
+  { name: 'E♭', freq: 311.13, black: true },
+  { name: 'E', freq: 329.63, black: false },
+  { name: 'F', freq: 349.23, black: false },
+  { name: 'F♯', freq: 369.99, black: true },
+  { name: 'G', freq: 392.00, black: false },
+  { name: 'G♯', freq: 415.30, black: true },
+  { name: 'A', freq: 440.00, black: false },
+  { name: 'B♭', freq: 466.16, black: true },
+  { name: 'B', freq: 493.88, black: false },
+  { name: 'C5', freq: 523.25, black: false },
+];
+
+const activeKeys = new Set();
+
+function buildPiano() {
+  const piano = document.getElementById('piano');
+  piano.innerHTML = '';
+  let whiteIndex = 0;
+  const whiteWidth = 44;
+
+  pianoNotes.forEach((note, idx) => {
+    const key = document.createElement('div');
+    if (note.black) {
+      key.className = 'black-key';
+      key.style.left = `${(whiteIndex) * whiteWidth - 14 + (piano.offsetWidth - pianoNotes.filter(n=>!n.black).length * whiteWidth) / 2}px`;
+    } else {
+      key.className = 'white-key';
+      whiteIndex++;
+    }
+    key.textContent = note.name;
+    key.dataset.idx = idx;
+    key.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleKey(idx);
+    });
+    piano.appendChild(key);
+  });
+
+  // Position black keys absolutely
+  const pianoRect = piano.getBoundingClientRect();
+  const whites = piano.querySelectorAll('.white-key');
+  const blacks = piano.querySelectorAll('.black-key');
+  let bIdx = 0;
+  const blackPositions = [1, 3, -1, 6, 8, 10, -1]; // relative to white keys
+  let wIdx = 0;
+  pianoNotes.forEach((note, idx) => {
+    if (note.black) {
+      const el = piano.querySelector(`.black-key[data-idx="${idx}"]`);
+      if (el) {
+        el.style.left = `${wIdx * whiteWidth - 14}px`;
+      }
+    } else {
+      wIdx++;
+    }
+  });
+}
+
+function toggleKey(idx) {
+  if (activeKeys.has(idx)) {
+    activeKeys.delete(idx);
+  } else {
+    activeKeys.add(idx);
+  }
+  updatePiano();
+  playActiveKeys();
+}
+
+function updatePiano() {
+  document.querySelectorAll('.white-key, .black-key').forEach(k => {
+    k.classList.toggle('active', activeKeys.has(parseInt(k.dataset.idx)));
+  });
+  updateChordInfo();
+}
+
+function playActiveKeys() {
+  stopAll();
+  const freqs = [];
+  activeKeys.forEach(idx => {
+    freqs.push(pianoNotes[idx].freq);
+    playTone(pianoNotes[idx].freq, 2, 0.1);
+  });
+  if (freqs.length > 0) drawChordWave(freqs);
+}
+
+function updateChordInfo() {
+  const info = document.getElementById('chordInfo');
+  if (activeKeys.size === 0) {
+    info.innerHTML = '<div class="chord-name">Нажмите клавиши или выберите аккорд</div>';
+    return;
+  }
+
+  const notes = Array.from(activeKeys).sort((a,b) => a - b).map(i => pianoNotes[i]);
+  const names = notes.map(n => n.name).join(' — ');
+  const freqs = notes.map(n => n.freq);
+  const ratios = freqs.map(f => (f / freqs[0]).toFixed(3)).join(' : ');
+
+  // Try to identify chord
+  const semitonePattern = Array.from(activeKeys).sort((a,b)=>a-b);
+  const intervals = [];
+  for (let i = 1; i < semitonePattern.length; i++) {
+    intervals.push(semitonePattern[i] - semitonePattern[0]);
+  }
+
+  let chordType = '';
+  const p = intervals.join(',');
+  if (p === '4,7') chordType = '— Мажорное трезвучие (4:5:6)';
+  else if (p === '3,7') chordType = '— Минорное трезвучие (10:12:15)';
+  else if (p === '3,6') chordType = '— Уменьшённое трезвучие';
+  else if (p === '4,8') chordType = '— Увеличенное трезвучие';
+  else if (p === '4,7,10') chordType = '— Доминантсептаккорд (4:5:6:7)';
+  else if (p === '4,7,11') chordType = '— Большой мажорный септаккорд';
+  else if (p === '3,7,10') chordType = '— Минорный септаккорд';
+  else if (p === '5,7') chordType = '— Sus4 (приостановленный)';
+  else if (p === '2,7') chordType = '— Sus2 (приостановленный)';
+  else if (p === '7') chordType = '— Квинта (power chord)';
+
+  info.innerHTML = `
+    <div class="chord-name">${names} ${chordType}</div>
+    <div class="chord-ratios">Частоты: ${freqs.map(f=>f.toFixed(0)).join(', ')} Гц · Соотношения: ${ratios}</div>
+  `;
+}
+
+function playChord(type) {
+  activeKeys.clear();
+  const chords = {
+    'major': [0, 4, 7],
+    'minor': [0, 3, 7],
+    'dim': [0, 3, 6],
+    'aug': [0, 4, 8],
+    '7th': [0, 4, 7, 10],
+  };
+  (chords[type] || []).forEach(s => activeKeys.add(s));
+  updatePiano();
+  playActiveKeys();
+}
+
+function clearPiano() {
+  activeKeys.clear();
+  stopAll();
+  updatePiano();
+  const canvas = document.getElementById('chordWaveCanvas');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawChordWave(freqs) {
+  const canvas = document.getElementById('chordWaveCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const mid = H / 2;
+  const timeScale = 6 / Math.min(...freqs);
+
+  // Individual
+  freqs.forEach((f, i) => {
+    const hue = (i * 90 + 260) % 360;
+    ctx.beginPath();
+    ctx.strokeStyle = `hsla(${hue},70%,60%,0.3)`;
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x++) {
+      const t = (x / W) * timeScale;
+      const y = mid + Math.sin(2 * Math.PI * f * t) * (H * 0.2);
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  });
+
+  // Sum
+  ctx.beginPath();
+  ctx.strokeStyle = '#44dd88';
+  ctx.lineWidth = 2.5;
+  for (let x = 0; x < W; x++) {
+    const t = (x / W) * timeScale;
+    let sum = 0;
+    freqs.forEach(f => sum += Math.sin(2 * Math.PI * f * t));
+    const y = mid + sum * (H * 0.15 / Math.sqrt(freqs.length));
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+
+buildPiano();
+
+// ===== TEMPERAMENT =====
+function drawTemperament() {
+  const container = document.getElementById('tempComparison');
+  container.innerHTML = '';
+
+  const names = ['Унисон','м.2','б.2','м.3','б.3','Кварта','Тритон','Квинта','м.6','б.6','м.7','б.7','Октава'];
+  const justRatios = [1, 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 9/5, 15/8, 2];
+  const pythRatios = [1, 256/243, 9/8, 32/27, 81/64, 4/3, 729/512, 3/2, 128/81, 27/16, 16/9, 243/128, 2];
+
+  const baseFreq = 261.63;
+
+  names.forEach((name, i) => {
+    const etCents = i * 100;
+    const justCents = 1200 * Math.log2(justRatios[i]);
+    const pythCents = 1200 * Math.log2(pythRatios[i]);
+
+    const row = document.createElement('div');
+    row.className = 'temp-row';
+
+    const maxCents = 1200;
+    const scale = 0.9;
+
+    row.innerHTML = `
+      <div class="temp-name">${name}</div>
+      <div class="temp-bars" style="position:relative;height:60px">
+        <div class="temp-bar" data-freq="${baseFreq * pythRatios[i]}" title="Пифагорейская: ${pythCents.toFixed(1)}¢"
+          style="position:absolute;top:4px;left:${(pythCents/maxCents)*100*scale}%;width:10px;height:14px;background:#44dd88;border-radius:3px"></div>
+        <div class="temp-bar" data-freq="${baseFreq * justRatios[i]}" title="Чистая: ${justCents.toFixed(1)}¢"
+          style="position:absolute;top:22px;left:${(justCents/maxCents)*100*scale}%;width:10px;height:14px;background:#7b68ee;border-radius:3px"></div>
+        <div class="temp-bar" data-freq="${baseFreq * Math.pow(2, i/12)}" title="Равномерная: ${etCents.toFixed(1)}¢"
+          style="position:absolute;top:40px;left:${(etCents/maxCents)*100*scale}%;width:10px;height:14px;background:#ffd700;border-radius:3px"></div>
+      </div>
+      <div class="temp-label">${etCents}¢</div>
+    `;
+
+    row.querySelectorAll('.temp-bar').forEach(bar => {
+      bar.style.cursor = 'pointer';
+      bar.addEventListener('click', () => {
+        stopAll();
+        const freq = parseFloat(bar.dataset.freq);
+        playTone(baseFreq, 2, 0.1);
+        playTone(freq, 2, 0.1);
+      });
+    });
+
+    container.appendChild(row);
+  });
+
+  // Pythagorean comma explanation
+  const commaEl = document.getElementById('commaExplanation');
+  const pythQuints = Math.pow(3/2, 12);
+  const sevenOctaves = Math.pow(2, 7);
+  commaEl.innerHTML = `
+    12 чистых квинт: (3/2)<sup>12</sup> = ${pythQuints.toFixed(3)}<br>
+    7 октав: 2<sup>7</sup> = ${sevenOctaves}<br>
+    Разница (комма): ${pythQuints.toFixed(3)} / ${sevenOctaves} = ${(pythQuints/sevenOctaves).toFixed(6)} ≈ 23.46 центов<br>
+    <br>
+    <strong>Равномерная темперация</strong> решает это, делая каждую квинту чуть меньше чистой:<br>
+    Чистая квинта: 3/2 = 1.5000 (702.0¢)<br>
+    Равномерная квинта: 2<sup>7/12</sup> = ${Math.pow(2, 7/12).toFixed(4)} (700.0¢)<br>
+    Потеря: всего 2 цента на квинту — почти неслышимо!
+  `;
+}
+
+// Initial draws
+setTimeout(() => {
+  drawCircle();
+  drawTemperament();
+}, 100);
+</script>
+</body>
+</html>

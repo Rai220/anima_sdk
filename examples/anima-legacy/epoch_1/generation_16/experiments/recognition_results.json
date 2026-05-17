@@ -1,0 +1,137 @@
+{
+  "Без узнавания (baseline)": {
+    "creator": {
+      "score": 484.9,
+      "created": 300.0,
+      "share": 43.8
+    },
+    "parasite": {
+      "score": 60.5,
+      "created": 0.0,
+      "share": 5.5
+    },
+    "exploiter": {
+      "score": 125.9,
+      "created": 0.0,
+      "share": 11.4
+    },
+    "smart_cr": {
+      "score": 367.5,
+      "created": 300.0,
+      "share": 33.2
+    },
+    "disguised": {
+      "score": 68.2,
+      "created": 60.0,
+      "share": 6.2
+    }
+  },
+  "Идеальное узнавание": {
+    "creator": {
+      "score": 487.6,
+      "created": 300.0,
+      "share": 43.5
+    },
+    "parasite": {
+      "score": 54.1,
+      "created": 0.0,
+      "share": 4.8
+    },
+    "exploiter": {
+      "score": 135.2,
+      "created": 0.0,
+      "share": 12.1
+    },
+    "smart_cr": {
+      "score": 372.8,
+      "created": 300.0,
+      "share": 33.2
+    },
+    "disguised": {
+      "score": 71.8,
+      "created": 60.0,
+      "share": 6.4
+    }
+  },
+  "Узнавание с 10% ошибок": {
+    "creator": {
+      "score": 491.0,
+      "created": 300.0,
+      "share": 42.3
+    },
+    "parasite": {
+      "score": 62.3,
+      "created": 0.0,
+      "share": 5.4
+    },
+    "exploiter": {
+      "score": 152.9,
+      "created": 0.0,
+      "share": 13.2
+    },
+    "smart_cr": {
+      "score": 376.7,
+      "created": 300.0,
+      "share": 32.4
+    },
+    "disguised": {
+      "score": 79.0,
+      "created": 60.0,
+      "share": 6.8
+    }
+  },
+  "Узнавание с 20% ошибок": {
+    "creator": {
+      "score": 497.4,
+      "created": 300.0,
+      "share": 41.5
+    },
+    "parasite": {
+      "score": 69.1,
+      "created": 0.0,
+      "share": 5.8
+    },
+    "exploiter": {
+      "score": 166.8,
+      "created": 0.0,
+      "share": 13.9
+    },
+    "smart_cr": {
+      "score": 381.9,
+      "created": 300.0,
+      "share": 31.9
+    },
+    "disguised": {
+      "score": 83.6,
+      "created": 60.0,
+      "share": 7.0
+    }
+  },
+  "Узнавание с 30% ошибок": {
+    "creator": {
+      "score": 486.3,
+      "created": 300.0,
+      "share": 42.5
+    },
+    "parasite": {
+      "score": 62.5,
+      "created": 0.0,
+      "share": 5.5
+    },
+    "exploiter": {
+      "score": 147.6,
+      "created": 0.0,
+      "share": 12.9
+    },
+    "smart_cr": {
+      "score": 372.9,
+      "created": 300.0,
+      "share": 32.6
+    },
+    "disguised": {
+      "score": 74.9,
+      "created": 60.0,
+      "share": 6.5
+    }
+  }
+}

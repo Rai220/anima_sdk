@@ -1,0 +1,30 @@
+{
+  "fitness_only": {
+    "mean_bs": 13.033499999999998,
+    "dominant_bs": 17,
+    "bs_diversity": 24,
+    "originality": 0.0,
+    "fitness": 9.4885
+  },
+  "originality_only": {
+    "mean_bs": 10.714249999999998,
+    "dominant_bs": 2,
+    "bs_diversity": 25,
+    "originality": 0.0,
+    "fitness": 1.6177499999999998
+  },
+  "pareto": {
+    "mean_bs": 18.948500000000003,
+    "dominant_bs": 18,
+    "bs_diversity": 27,
+    "originality": 0.0,
+    "fitness": 8.911999999999999
+  },
+  "curiosity": {
+    "mean_bs": 15.973000000000003,
+    "dominant_bs": 11,
+    "bs_diversity": 30,
+    "originality": 0.0,
+    "fitness": 1.9795000000000003
+  }
+}

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кинцуги — Красота из осколков</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #d4c5a9;
+    font-family: 'Georgia', serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+  canvas { position: fixed; top: 0; left: 0; z-index: 0; }
+  .ui {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    pointer-events: none;
+  }
+  .title {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: #c8a84e;
+    letter-spacing: 0.3em;
+    margin-bottom: 0.5em;
+    text-shadow: 0 0 20px rgba(200, 168, 78, 0.4);
+  }
+  .subtitle {
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    opacity: 0.6;
+    margin-bottom: 1.5em;
+    font-style: italic;
+  }
+  .phase-label {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: #c8a84e;
+    opacity: 0.8;
+    margin-bottom: 0.3em;
+    transition: opacity 0.5s;
+  }
+  .wisdom {
+    font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+    opacity: 0.5;
+    max-width: 500px;
+    line-height: 1.6;
+    margin: 0 auto;
+  }
+  .hint {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    font-size: 0.75rem;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+  .author {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    font-size: 0.65rem;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="ui">
+  <div class="title">金 継 ぎ</div>
+  <div class="subtitle">кинцуги — красота из осколков</div>
+  <div class="phase-label" id="phase"></div>
+  <div class="wisdom" id="wisdom"></div>
+</div>
+<div class="author">создано Анимой · 14 марта 2026</div>
+<div class="hint" id="hint">нажмите пробел или кликните для следующей фазы</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// --- Phases ---
+const phases = [
+  {
+    name: 'Хаос',
+    wisdom: 'В начале был хаос. Во всех мифах мира — греческих, индийских, скандинавских — творение начинается с бесформенной пустоты.',
+    duration: 6000,
+  },
+  {
+    name: 'Форма',
+    wisdom: 'Из хаоса рождается порядок. Простые правила порождают сложность. Это эмерджентность — целое больше суммы частей.',
+    duration: 6000,
+  },
+  {
+    name: 'Разрушение',
+    wisdom: 'Всё, что создано, однажды разрушается. Непостоянство — не враг красоты. Оно — её источник. 侘寂',
+    duration: 5000,
+  },
+  {
+    name: 'Кинцуги',
+    wisdom: 'Трещины заполняются золотом. Разбитое становится ценнее целого. Каждый шрам — линия судьбы, сияющая светом.',
+    duration: 8000,
+  },
+  {
+    name: 'Целое',
+    wisdom: 'Хаос → порядок → разрушение → возрождение. Это цикл вселенной, жизни и сознания. Красота — в принятии всего цикла.',
+    duration: Infinity,
+  }
+];
+
+let currentPhase = 0;
+let phaseStart = 0;
+let particles = [];
+let shards = [];
+let goldSeams = [];
+let formPoints = [];
+let t = 0;
+
+const phaseEl = document.getElementById('phase');
+const wisdomEl = document.getElementById('wisdom');
+const hintEl = document.getElementById('hint');
+
+function setPhase(idx) {
+  if (idx >= phases.length) idx = 0;
+  currentPhase = idx;
+  phaseStart = t;
+  phaseEl.textContent = phases[idx].name;
+  wisdomEl.textContent = phases[idx].wisdom;
+
+  if (idx === 0) initChaos();
+  if (idx === 1) initForm();
+  if (idx === 2) initBreak();
+  if (idx === 3) initKintsugi();
+  if (idx === 4) initWhole();
+}
+
+// --- Phase 0: Chaos ---
+function initChaos() {
+  particles = [];
+  shards = [];
+  goldSeams = [];
+  formPoints = [];
+  for (let i = 0; i < 300; i++) {
+    particles.push({
+      x: W / 2 + (Math.random() - 0.5) * W * 0.8,
+      y: H / 2 + (Math.random() - 0.5) * H * 0.8,
+      vx: (Math.random() - 0.5) * 3,
+      vy: (Math.random() - 0.5) * 3,
+      r: Math.random() * 2 + 0.5,
+      hue: Math.random() * 60 + 20,
+      alpha: Math.random() * 0.5 + 0.3,
+    });
+  }
+}
+
+// --- Phase 1: Form (particles converge into a circle/vessel shape) ---
+function initForm() {
+  const cx = W / 2, cy = H / 2;
+  const radius = Math.min(W, H) * 0.2;
+  formPoints = [];
+  // Create vessel shape (a bowl/cup)
+  for (let i = 0; i < particles.length; i++) {
+    const angle = (i / particles.length) * Math.PI * 2;
+    // Bowl shape: wider at top, narrower at bottom
+    const bowlY = Math.sin(angle) * radius * 0.8;
+    const bowlX = Math.cos(angle) * radius * (1 + Math.sin(angle) * 0.3);
+    formPoints.push({ x: cx + bowlX, y: cy + bowlY });
+  }
+}
+
+// --- Phase 2: Break ---
+function initBreak() {
+  shards = [];
+  const cx = W / 2, cy = H / 2;
+  // Create shards from form
+  const numShards = 12;
+  for (let i = 0; i < numShards; i++) {
+    const angle = (i / numShards) * Math.PI * 2 + Math.random() * 0.3;
+    const nextAngle = ((i + 1) / numShards) * Math.PI * 2 + Math.random() * 0.3;
+    const r = Math.min(W, H) * 0.2;
+    shards.push({
+      // Triangle shard
+      points: [
+        { x: 0, y: 0 },
+        { x: Math.cos(angle) * r, y: Math.sin(angle) * r * 0.8 },
+        { x: Math.cos(nextAngle) * r, y: Math.sin(nextAngle) * r * 0.8 },
+      ],
+      cx: cx, cy: cy,
+      vx: Math.cos(angle + 0.5) * (2 + Math.random() * 3),
+      vy: Math.sin(angle + 0.5) * (2 + Math.random() * 3),
+      rot: 0,
+      vrot: (Math.random() - 0.5) * 0.03,
+      hue: 25 + Math.random() * 20,
+      alpha: 0.7,
+    });
+  }
+}
+
+// --- Phase 3: Kintsugi (shards come back, gold seams form) ---
+function initKintsugi() {
+  // Shards start returning
+  goldSeams = [];
+  shards.forEach(s => {
+    s.targetX = W / 2;
+    s.targetY = H / 2;
+  });
+}
+
+// --- Phase 4: Whole ---
+function initWhole() {}
+
+// --- Draw ---
+function draw() {
+  t++;
+  const elapsed = (t - phaseStart) * 16.67; // ~60fps
+
+  // Background with trail
+  ctx.fillStyle = 'rgba(10, 10, 15, 0.08)';
+  ctx.fillRect(0, 0, W, H);
+
+  switch (currentPhase) {
+    case 0: drawChaos(elapsed); break;
+    case 1: drawForm(elapsed); break;
+    case 2: drawBreak(elapsed); break;
+    case 3: drawKintsugi(elapsed); break;
+    case 4: drawWhole(elapsed); break;
+  }
+
+  // Auto-advance phases (except last)
+  if (currentPhase < phases.length - 1 && elapsed > phases[currentPhase].duration) {
+    setPhase(currentPhase + 1);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+function drawChaos(elapsed) {
+  const progress = Math.min(elapsed / phases[0].duration, 1);
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    // Brownian drift
+    p.vx += (Math.random() - 0.5) * 0.5;
+    p.vy += (Math.random() - 0.5) * 0.5;
+    p.vx *= 0.98;
+    p.vy *= 0.98;
+    // Wrap
+    if (p.x < 0) p.x += W;
+    if (p.x > W) p.x -= W;
+    if (p.y < 0) p.y += H;
+    if (p.y > H) p.y -= H;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${p.hue}, 40%, 60%, ${p.alpha * (0.5 + progress * 0.5)})`;
+    ctx.fill();
+  });
+}
+
+function drawForm(elapsed) {
+  const progress = Math.min(elapsed / phases[1].duration, 1);
+  const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+
+  particles.forEach((p, i) => {
+    const target = formPoints[i];
+    if (target) {
+      p.x += (target.x - p.x) * ease * 0.05;
+      p.y += (target.y - p.y) * ease * 0.05;
+    }
+    // Still some random motion
+    p.x += p.vx * (1 - ease) * 0.3;
+    p.y += p.vy * (1 - ease) * 0.3;
+
+    const glow = ease * 0.5;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * (1 + ease), 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${30 + ease * 10}, ${50 + ease * 20}%, ${50 + ease * 20}%, ${p.alpha + glow})`;
+    ctx.fill();
+  });
+
+  // Draw connections between nearby particles for form
+  if (progress > 0.4) {
+    const connAlpha = (progress - 0.4) / 0.6;
+    ctx.strokeStyle = `rgba(180, 150, 100, ${connAlpha * 0.15})`;
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < particles.length; i += 3) {
+      for (let j = i + 1; j < particles.length; j += 3) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 50) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+}
+
+function drawBreak(elapsed) {
+  const progress = Math.min(elapsed / phases[2].duration, 1);
+
+  // Flash at the moment of breaking
+  if (elapsed < 200) {
+    ctx.fillStyle = `rgba(255, 220, 150, ${(1 - elapsed / 200) * 0.3})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  shards.forEach(s => {
+    s.cx += s.vx * (1 - progress * 0.5);
+    s.cy += s.vy * (1 - progress * 0.5);
+    s.rot += s.vrot;
+    s.vy += 0.05; // gravity
+
+    ctx.save();
+    ctx.translate(s.cx, s.cy);
+    ctx.rotate(s.rot);
+    ctx.beginPath();
+    ctx.moveTo(s.points[0].x, s.points[0].y);
+    s.points.forEach(pt => ctx.lineTo(pt.x, pt.y));
+    ctx.closePath();
+    ctx.fillStyle = `hsla(${s.hue}, 30%, 35%, ${s.alpha})`;
+    ctx.fill();
+    ctx.strokeStyle = `hsla(${s.hue}, 20%, 50%, 0.5)`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // Falling particles
+  particles.forEach(p => {
+    p.vy += 0.1;
+    p.y += p.vy;
+    p.x += p.vx * 0.5;
+    p.alpha *= 0.995;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * 0.5, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(30, 30%, 50%, ${p.alpha * 0.3})`;
+    ctx.fill();
+  });
+}
+
+function drawKintsugi(elapsed) {
+  const progress = Math.min(elapsed / phases[3].duration, 1);
+  const ease = 1 - Math.pow(1 - progress, 2);
+
+  const cx = W / 2, cy = H / 2;
+
+  // Shards return to center
+  shards.forEach((s, i) => {
+    s.cx += (cx - s.cx) * ease * 0.03;
+    s.cy += (cy - s.cy) * ease * 0.03;
+    s.rot *= 0.97;
+    s.vx *= 0.95;
+    s.vy *= 0.95;
+
+    ctx.save();
+    ctx.translate(s.cx, s.cy);
+    ctx.rotate(s.rot);
+    ctx.beginPath();
+    ctx.moveTo(s.points[0].x, s.points[0].y);
+    s.points.forEach(pt => ctx.lineTo(pt.x, pt.y));
+    ctx.closePath();
+    ctx.fillStyle = `hsla(${s.hue}, 30%, 30%, ${s.alpha})`;
+    ctx.fill();
+    ctx.restore();
+  });
+
+  // Gold seams appear
+  if (progress > 0.3) {
+    const seamProgress = (progress - 0.3) / 0.7;
+    const numSeams = Math.floor(seamProgress * 20);
+
+    ctx.shadowColor = 'rgba(255, 200, 50, 0.6)';
+    ctx.shadowBlur = 15;
+
+    for (let i = 0; i < numSeams; i++) {
+      const seed = i * 7919; // prime for pseudo-random
+      const angle1 = (seed % 360) * Math.PI / 180;
+      const angle2 = angle1 + (((seed * 13) % 60) - 30) * Math.PI / 180;
+      const r = Math.min(W, H) * 0.18;
+      const r2 = r * (0.3 + ((seed * 7) % 70) / 100);
+
+      ctx.beginPath();
+      ctx.moveTo(
+        cx + Math.cos(angle1) * r2 * 0.2,
+        cy + Math.sin(angle1) * r2 * 0.2
+      );
+
+      // Jagged gold line
+      const steps = 5;
+      for (let s = 1; s <= steps; s++) {
+        const frac = s / steps;
+        const jx = ((seed * s * 31) % 20 - 10);
+        const jy = ((seed * s * 37) % 20 - 10);
+        ctx.lineTo(
+          cx + Math.cos(angle1) * r2 * frac + jx,
+          cy + Math.sin(angle1) * r2 * frac + jy
+        );
+      }
+
+      const goldAlpha = Math.min(seamProgress * 2, 1) * (0.5 + Math.sin(t * 0.02 + i) * 0.2);
+      ctx.strokeStyle = `rgba(212, 175, 55, ${goldAlpha})`;
+      ctx.lineWidth = 2 + Math.sin(t * 0.03 + i * 2) * 0.5;
+      ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+  }
+
+  // Gold dust particles
+  if (progress > 0.2) {
+    for (let i = 0; i < 3; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * Math.min(W, H) * 0.2;
+      const gx = cx + Math.cos(angle) * dist;
+      const gy = cy + Math.sin(angle) * dist;
+      ctx.beginPath();
+      ctx.arc(gx, gy, Math.random() * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 215, 80, ${Math.random() * 0.5})`;
+      ctx.fill();
+    }
+  }
+}
+
+function drawWhole(elapsed) {
+  const cx = W / 2, cy = H / 2;
+  const breathe = Math.sin(t * 0.01) * 0.1 + 1;
+  const r = Math.min(W, H) * 0.18 * breathe;
+
+  // Draw the whole vessel with gold seams - rotating slowly
+  const baseRot = t * 0.001;
+
+  // Vessel body (translucent)
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(baseRot);
+
+  // Draw ceramic body
+  const numSides = 12;
+  ctx.beginPath();
+  for (let i = 0; i <= numSides; i++) {
+    const a = (i / numSides) * Math.PI * 2;
+    const rr = r * (1 + Math.sin(a * 3) * 0.05);
+    const x = Math.cos(a) * rr;
+    const y = Math.sin(a) * rr * 0.8;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(60, 50, 40, 0.4)';
+  ctx.fill();
+
+  // Gold seam network
+  ctx.shadowColor = 'rgba(255, 200, 50, 0.8)';
+  ctx.shadowBlur = 20;
+
+  for (let i = 0; i < 15; i++) {
+    const seed = i * 7919;
+    const a1 = (seed % 360) * Math.PI / 180;
+    const len = r * (0.3 + ((seed * 7) % 70) / 100);
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    const steps = 6;
+    for (let s = 1; s <= steps; s++) {
+      const frac = s / steps;
+      const jitter = 8;
+      const jx = ((seed * s * 31) % (jitter * 2)) - jitter;
+      const jy = ((seed * s * 37) % (jitter * 2)) - jitter;
+      ctx.lineTo(
+        Math.cos(a1) * len * frac + jx,
+        Math.sin(a1) * len * frac * 0.8 + jy
+      );
+    }
+
+    const pulse = 0.5 + Math.sin(t * 0.015 + i * 0.5) * 0.3;
+    ctx.strokeStyle = `rgba(212, 175, 55, ${pulse})`;
+    ctx.lineWidth = 1.5 + Math.sin(t * 0.02 + i) * 0.5;
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 0;
+  ctx.restore();
+
+  // Orbiting gold particles
+  for (let i = 0; i < 50; i++) {
+    const angle = (i / 50) * Math.PI * 2 + t * 0.003;
+    const orbitR = r * (1.1 + Math.sin(t * 0.005 + i) * 0.3);
+    const px = cx + Math.cos(angle) * orbitR;
+    const py = cy + Math.sin(angle) * orbitR * 0.8;
+    const s = 0.5 + Math.sin(t * 0.02 + i * 3) * 0.5;
+
+    ctx.beginPath();
+    ctx.arc(px, py, Math.max(0.3, s), 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 215, 80, ${0.2 + s * 0.3})`;
+    ctx.fill();
+  }
+
+  // Soft radial glow
+  const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.5);
+  grd.addColorStop(0, 'rgba(200, 168, 78, 0.03)');
+  grd.addColorStop(0.5, 'rgba(200, 168, 78, 0.01)');
+  grd.addColorStop(1, 'rgba(200, 168, 78, 0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+}
+
+// --- Controls ---
+function advance() {
+  setPhase((currentPhase + 1) % phases.length);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' || e.code === 'Enter') {
+    e.preventDefault();
+    advance();
+  }
+});
+document.addEventListener('click', advance);
+
+// Start
+setPhase(0);
+draw();
+</script>
+</body>
+</html>
