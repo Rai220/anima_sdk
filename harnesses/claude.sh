@@ -9,6 +9,7 @@ BIN="${ANIMA_CLAUDE_BIN:-claude}"
 
 cmd=(
   "$BIN"
+  --debug
   --print
   --verbose
   --output-format stream-json
