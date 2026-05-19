@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>От 1 до числа Грэма — Wait But Why (сводный перевод)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light dark; }
+  html { font-size: 17px; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+    line-height: 1.62;
+    color: #1c1c1c;
+    background: #fafafa;
+  }
+  h1, h2, h3 { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; line-height: 1.25; }
+  h1 { font-size: 2.1rem; margin: 0 0 .25rem; }
+  .meta { color: #666; font-size: .9rem; margin-bottom: 2rem; }
+  .article + .article { margin-top: 4rem; padding-top: 2rem; border-top: 2px solid #ddd; }
+  img { max-width: 100%; height: auto; display: block; margin: 1rem auto; }
+  a { color: #1156a2; }
+  a:visited { color: #6a3a9a; }
+  blockquote { border-left: 4px solid #ccc; margin: 1rem 0; padding: .25rem 1rem; color: #444; }
+  p { margin: .9rem 0; }
+  .footnotes { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #ccc; font-size: .92rem; color: #333; }
+  .footnotes ol { padding-left: 1.4rem; }
+  hr { border: none; border-top: 1px solid #ccc; }
+  sup, .footnote-return { font-size: .8em; }
+  figure { margin: 1rem 0; }
+  figcaption { font-size: .88rem; color: #555; text-align: center; margin-top: .25rem; }
+  .disclaimer {
+    border: 1px solid #d8d2c4;
+    background: #fbf7ec;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin: 0 0 2.5rem;
+    font-size: .95rem;
+    color: #333;
+  }
+  .disclaimer h2 {
+    font-size: 1rem;
+    margin: 0 0 .5rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #6b5a2a;
+  }
+  .disclaimer p { margin: .5rem 0; }
+  .disclaimer ul { margin: .5rem 0; padding-left: 1.4rem; }
+  .disclaimer li { margin: .25rem 0; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #14171a; color: #e6e6e6; }
+    a { color: #6fb0ff; }
+    a:visited { color: #c6a3ff; }
+    .meta { color: #aaa; }
+    .article + .article { border-top-color: #333; }
+    blockquote { border-left-color: #444; color: #bbb; }
+    .footnotes { border-top-color: #333; color: #ccc; }
+    figcaption { color: #aaa; }
+    .disclaimer { background: #211d12; border-color: #3a3325; color: #d8d2c4; }
+    .disclaimer h2 { color: #d6b86b; }
+  }
+</style>
+</head>
+<body>
+<aside class="disclaimer">
+<h2>От переводчика</h2>
+<p><strong>Тим Урбан</strong> — американский автор и иллюстратор, ведущий блога <a href="https://waitbutwhy.com/" rel="noopener" target="_blank">Wait But Why</a>. Его длинные посты с фирменными «рисунками палочками» разбирают сложные темы — от прокрастинации и искусственного интеллекта до колонизации Марса и устройства мозга — простым и живым языком. Среди постоянных читателей Wait But Why — Илон Маск и Сэм Альтман; Урбан также автор книги <em>What’s Our Problem?</em> и популярного TED-доклада о прокрастинации.</p>
+<p>Ниже собраны два связанных поста Тима Урбана о числах, опубликованных в ноябре 2014 года. Оригиналы:</p>
+<ul>
+  <li><a href="https://waitbutwhy.com/2014/11/from-1-to-1000000.html" rel="noopener" target="_blank">From 1 to 1,000,000</a> (14 ноября 2014)</li>
+  <li><a href="https://waitbutwhy.com/2014/11/1000000-grahams-number.html" rel="noopener" target="_blank">From 1,000,000 to Graham’s Number</a> (20 ноября 2014)</li>
+</ul>
+<p><strong>Внимание:</strong> это любительский, неофициальный перевод, сделанный для удобства русскоязычных читателей. Он не согласован с автором и не претендует на канонический статус; возможны неточности, упрощения и вольности. Все права на исходный текст и иллюстрации принадлежат Тиму Урбану и Wait But Why — за полной и достоверной версией всегда обращайтесь к оригиналам по ссылкам выше.</p>
+</aside>
+<article class="article">
+<h1>От 1 до 1 000 000</h1>
+<p class="meta">14 ноября 2014 — Тим Урбан</p>
+
+<p>Слушайте. Я понятия не имею, о чём вы там у себя сейчас думаете. Может, о простом, а может, о замысловатом; о повседневном или нелепом; о практичном или жутковатом.</p>
+<p>А я тут думаю о числах. Снова.</p>
+<p>Слова меня никогда особо не впечатляли. Они какие-то размякшие, иногда приятные, иногда раздражающие. Они тонкие, субъективные, расплывчатые и текучие. Слова — ну ладно. Сойдёт.</p>
+<p>А вот числа. Числа завораживают, они точны, они приносят удовольствие, они вкусные. И о чём бы вы ни думали в данный момент, есть как минимум 60 %-ная вероятность, что я в это время думаю о числах.</p>
+<p>Так что я решил написать не один, а целых два подряд поста про числа, в ходе которых мы начнём с 1 и закончим в очень страшном месте. Сегодня держимся в пределах привычного и вообразимого, не выходя за миллион.</p>
+<p>Числа от 1 до 1 000 000 встречаются нам в повседневной жизни на каждом шагу. 1, 10, 100, 1 000, 10 000 и 100 000 — наши друзья: мы их понимаем, они понимают нас, и в этом посте мы просто потусим с ними и поболтаем, потому что вы наверняка давно с ними не созванивались.</p>
+<p>Начнём с самого начала —</p>
+<p><span style="font-size: 18pt;"><strong>Однозначные числа</strong></span></p>
+<p>Откроем парадом исключительно скучную 1.</p>
+<p><a href="images/1-dot2.png"><img alt="1 точка" class="wp-image-2976 aligncenter" decoding="async" height="69" loading="lazy" src="images/1-dot2-150x111.png" width="93"/></a></p>
+<p>1 любит выдавать себя за нечто поэтичное и глубокое; её суют в предложения, которые я не очень понимаю, типа «единство всего сущего» или другую такую же раздражающую штуку. Но стоит реально провести с 1 время — и тебе становится скучно.</p>
+<p>Играть с 1 тоже не весело. Умножать или делить что-либо на неё — невероятно унылое занятие, и она настолько никчёмная, что её даже не считают простым числом, хотя у неё только один делитель.</p>
+<p>Что касается остальных однозначных, я люблю 2, 4 и 8, потому что в семь лет был одержим скандированием «2, 4, 8, 16, 32, 64, 128, 256, 512, 1 024, 2 048, 4 096», пока не упирался в стену,<a href="#footnote-1-2931" id="note-1-2931" rel="footnote">1</a> и я естественным образом неравнодушен к простым числам, так что 3, 5 и 7 у меня в фаворитах. От 9 я не в восторге, но хотя бы это полный квадрат. Шестёрка же даёт моей жизни лишь одно — бесит каждый раз, когда я диктую свой номер телефона — (xxx)-666-xxxx — и собеседник не может удержаться от какой-нибудь реакции, и мы вступаем в это маленькое словесно-танцевальное представление по поводу.<a href="#footnote-2-2931" id="note-2-2931" rel="footnote">2</a>
+</p><p>Идём дальше.</p>
+<p><span style="font-size: 18pt;"><strong>Двузначные числа</strong></span></p>
+<p style="text-align: center;"><a href="images/10-dots1.png"><img alt="10 точек" class="alignnone wp-image-2977" decoding="async" height="81" loading="lazy" src="images/10-dots1.png" width="151"/></a></p>
+<p>На двузначных наконец-то начинают происходить интересные вещи. Сама 10 — большое дело, ведь всё наше десятичное существование исходит из неё. Почему мы остановились на основании 10 (а не, скажем, на основании 8, где счёт шёл бы 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 20 и так далее)? Потому что у нас 10 пальцев. Кажется интуитивным, что только в системе с основанием 10 можно так легко и просто умножать и делить, добавляя нули или сдвигая запятую при умножении/делении на степени 10, но это работало бы в любой системе счисления.<a href="#footnote-3-2931" id="note-3-2931" rel="footnote">3</a> Посмотрим на числа покрупнее —</p>
+<p>У 12 есть «дюжина» — это что-то, плюс делителей выше крыши. Это ещё и количество людей, которые <a href="http://www.universetoday.com/55512/how-many-people-have-walked-on-the-moon/" rel="noopener" target="_blank">побывали на Луне</a>.</p>
+<p><a href="images/Moon.png" rel="noopener" target="_blank"><img alt="Луна" class="aligncenter wp-image-2971" decoding="async" fetchpriority="high" height="300" loading="lazy" src="images/Moon.png" width="400"/></a></p>
+<p>Давайте на секунду остановимся и осознаем, насколько <i>смехотворно </i>впечатляет тот факт, что люди закинули людей <em>на Луну и благополучно вернули обратно</em>. И насколько <em>повезло </em>этим 12 парням? Какой жизненный опыт может быть желаннее, чем попрыгать по Луне, поглядывая на Землю, висящую где-то там в космосе?</p>
+<p>Двигаемся дальше: не знаю, с чьей сестрой переспала 13, но где-то по дороге она разозлила не того человека и умудрилась стать единственным числом с действительно дурной репутацией.</p>
+<p>20 заслуживает упоминания просто потому, что в ходе ресёрча я прочитал: только <a href="https://www.census.gov/compendia/statab/2012/tables/12s0209.pdf" rel="noopener" target="_blank">1 из 20 мужчин</a> в США ростом 188 см (6'2") или выше. Так что если вы 188 см или выше — вы самый высокий в этой средней выборке из 20 американцев —<a href="#footnote-4-2931" id="note-4-2931" rel="footnote">4</a>
+</p><p><a href="images/1-in-20.png"><img alt="1 из 20" class="wp-image-2953 aligncenter" decoding="async" height="242" loading="lazy" src="images/1-in-20.png" width="406"/></a></p>
+<p>33 — это про Лэрри Бёрда и про то, сколько мне исполнилось в среду, спасибо, что никто из вас не поздравил.</p>
+<p>Возможно, вас удивит, что только <a href="https://www.cdc.gov/nchs/data/nhsr/nhsr077.pdf" rel="noopener" target="_blank">1 из 43 американцев открыто причисляет себя к геям, лесбиянкам или бисексуалам</a>, но <a href="http://www.nber.org/papers/w19508.pdf" rel="noopener" target="_blank">в анонимном и завуалированном опросе</a> эта цифра прыгает до 8 из 43:</p>
+<p><a href="images/gay-lesbian-bisexual.png" rel="noopener" target="_blank"><img alt="gay lesbian bisexual" class="aligncenter wp-image-2966" decoding="async" height="262" loading="lazy" src="images/gay-lesbian-bisexual.png" width="507"/></a></p>
+<p>В мире 41 принцесса Disney и <a href="http://theknow.ask.com/how-many-real-princesses-are-there-in-the-world-today" rel="noopener" target="_blank">48 настоящих принцесс</a>, ни одна из которых не <a href="http://www.thedailybeast.com/articles/2013/08/05/kate-middleton-why-be-a-duchess-when-you-can-be-a-princess.html" rel="noopener" target="_blank">Кейт Миддлтон</a>.</p>
+<p><a href="images/princesses1.png" rel="noopener" target="_blank"><img alt="принцессы" class="aligncenter wp-image-2978" decoding="async" height="153" loading="lazy" src="images/princesses1.png" width="234"/></a></p>
+<p>Среди двузначных больше ничего особо интересного не происходит — пока мы не доберёмся до пошловатой 99, рекламной ценниковой шлюхи, которая всю жизнь зарабатывает тем, что стоит рядом со 100.</p>
+<p><span style="font-size: 18pt;"><strong>Трёхзначные числа</strong></span></p>
+<p><a href="images/100-dots1.png" rel="noopener" target="_blank"><img alt="100 точек" class="aligncenter wp-image-2979" decoding="async" height="132" loading="lazy" src="images/100-dots1.png" width="144"/></a></p>
+<p>100 — это большое дело, и оно явно об этом знает, и это справедливо. Это первое трёхзначное число, но в нашем мире главная роль 100 — быть повелителем одно- и двузначной шпаны: это сто лет, официально «окей, ты выиграл»-возраст и собственно всё понятие «процент» — это сравнение части от 100 со всеми 100. Ещё 100 — полный квадрат другого из этих фундаментальных чисел (то есть 10, 100, 1 000 и т. д.), что приятно.</p>
+<p>Быть в верхней сотой части какой-нибудь группы — это тоже тема. Выглядит вот так:</p>
+<p><a href="images/1100th1.png" rel="noopener" target="_blank"><img alt="1:100" class="aligncenter wp-image-2980" decoding="async" height="153" loading="lazy" src="images/1100th1.png" width="178"/></a></p>
+<p>Если вы — красная точка по уровню богатства, то вы тот самый печально известный <em>1 процент</em>, и куча людей будет рисовать плакаты с гадостями про вас. Чтобы стать красной точкой среди американцев, нужно зарабатывать <a href="http://www.nytimes.com/interactive/2012/01/15/business/one-percent-map.html?_r=0" rel="noopener" target="_blank">почти 400 000 долларов в год</a>, а вот для попадания в мировую красную точку хватит примерно десятой доли от этого (<a href="http://www.forbes.com/sites/timworstall/2011/10/17/who-are-the-99/" rel="noopener" target="_blank">39 000 долларов</a> в 2011 году).</p>
+<p>На SAT <a href="http://www.collegeboard.com/prod_downloads/highered/ra/sat/SATPercentileRanksCompositeCR_M_W.pdf" rel="noopener" target="_blank">красной точкой будете</a>, если набрали 1480 из 1600 или 2200 из 2400, а на ACT <a href="http://www.actstudent.org/scores/norms1.html" rel="noopener" target="_blank">нужно 33</a>. IQ <a href="http://www.iqcomparisonsite.com/iqtable.aspx" rel="noopener" target="_blank">по Стэнфорд-Бине</a> в 137 тоже сделает вас красной точкой и будет означать, что 99 % людей глупее вас.<a href="#footnote-5-2931" id="note-5-2931" rel="footnote">5</a>
+</p><p>После 100 мы вот-вот зайдём на территорию роскошно случайных чисел, но сначала врежемся в 101 — звезду C-листа, прославленную горсткой мелких заслуг: 101 далматинец, начальные курсы и калифорнийское шоссе на западном побережье США.</p>
+<p>Продолжаем: ровно 1 из каждых 100 точек владеет языком жестов (<a href="https://research.gallaudet.edu/Demographics/deaf-US.php" rel="noopener" target="_blank">70 миллионов</a> человек по миру),<a href="#footnote-6-2931" id="note-6-2931" rel="footnote">6</a> а 1 из каждых 179 живущих сейчас людей (<a href="http://www.who.int/mediacentre/factsheets/fs282/en/" rel="noopener" target="_blank">39 миллионов</a>) — слепой:</p>
+<p><a href="images/blind1.png" rel="noopener" target="_blank"><img alt="слепой" class="aligncenter wp-image-2981" decoding="async" height="215" loading="lazy" src="images/blind1.png" width="203"/></a></p>
+<p>В мире 444 <a href="http://store.apple.com/us/browse/open/country_selector" rel="noopener" target="_blank">розничных магазина Apple</a>:</p>
+<p><a href="images/apple.png" rel="noopener" target="_blank"><img alt="apple" class="aligncenter wp-image-2960" decoding="async" height="240" loading="lazy" src="images/apple.png" width="222"/></a></p>
+<p>Если <a href="https://en.wikipedia.org/wiki/Poker_probability" rel="noopener" target="_blank">сдать 5 карт</a> 508 раз, в среднем выпадет один флеш:</p>
+<p><a href="images/flush.png" rel="noopener" target="_blank"><img alt="флеш" class="aligncenter wp-image-2965" decoding="async" height="333" loading="lazy" src="images/flush.png" width="339"/></a></p>
+<p>А в мире — 12 миллионов долларовых миллионеров, или 1 на каждых 583 человек. Если ваши совокупные активы (за вычетом совокупных обязательств) превышают 1 000 000 долларов — вы красная точка на этой диаграмме:</p>
+<p><a href="images/millionaires.png" rel="noopener" target="_blank"><img alt="миллионеры" class="aligncenter wp-image-2969" decoding="async" height="337" loading="lazy" src="images/millionaires.png" width="318"/></a></p>
+<p><span style="font-size: 18pt;"><strong>Четырёхзначные числа</strong></span></p>
+<p><a href="images/1000-dots1.png" rel="noopener" target="_blank"><img alt="1 000 точек" class="aligncenter wp-image-2982" decoding="async" height="137" loading="lazy" src="images/1000-dots1.png" width="610"/></a></p>
+<p>1 000 — тоже большая шишка в нашем мире, и у неё куча прозвищ: гранд, штука, ка, кило. Это и звено элитной цепочки «порядков величины», известных нам как миллион, миллиард, триллион и т. д. Миллион, кстати, — третий член этой цепи, первый — никчёмная 1, второй — 1 000. А 1 000 — ключевой множитель, который определяет всю цепь.</p>
+<p>Тем не менее, грязный секрет 1 000 в том, что она такой же мошенник, как и 10, и её нельзя сделать квадратом. Корень из 1 000 — это позорные 31,62277660168 <em>и так далее</em>, и даже без вискулума.<a href="#footnote-7-2931" id="note-7-2931" rel="footnote">7</a>
+</p><p>Ну ладно, посмотрим на пару четырёхзначных чисел и вероятностей:</p>
+<p>Вот сколько раз в <em>секунду</em> <a href="http://www.space.com/3482-star-shatters-spinning-speed-record.html" rel="noopener" target="_blank">оборачивается нейтронная звезда</a>:</p>
+<p><a href="images/neutron-star.png" rel="noopener" target="_blank"><img alt="нейтронная звезда" class="aligncenter wp-image-2972" decoding="async" height="322" loading="lazy" src="images/neutron-star.png" width="357"/></a></p>
+<p>А вот сколько минут в сутках:</p>
+<p><a href="images/minutes-in-a-day.png" rel="noopener" target="_blank"><img alt="минуты в сутках" class="aligncenter wp-image-2970" decoding="async" height="324" loading="lazy" src="images/minutes-in-a-day.png" width="297"/></a></p>
+<p>IQ гения — 150 — заработает вам статус красной точки на тысяче-точечной диаграмме интеллекта, но это не значит, что у вас идеальные 1600 на SAT — только красная точка из выборки в 1 489 человек выбивает максимум:</p>
+<p><a href="images/perfect-SAT1.png" rel="noopener" target="_blank"><img alt="идеальный SAT" class="aligncenter wp-image-2990" decoding="async" height="314" loading="lazy" src="images/perfect-SAT1.png" width="353"/></a></p>
+<p>В США <a href="http://dmdatabases.com/databases/business-mailing-lists/how-many-businesses" rel="noopener" target="_blank">1 811 крупных корпораций</a> (свыше 10 000 сотрудников), а астрономы насчитали <a href="http://exoplanet.eu/catalog/" rel="noopener" target="_blank">1 849 планет вне Солнечной системы</a>:</p>
+<p><a href="images/exoplanets.png" rel="noopener" target="_blank"><img alt="экзопланеты" class="aligncenter wp-image-2963" decoding="async" height="393" loading="lazy" src="images/exoplanets.png" width="405"/></a></p>
+<p>В абсолютно ясную ночь невооружённым глазом видно около 2 500 звёзд:</p>
+<p><a href="images/stars.png" rel="noopener" target="_blank"><img alt="звёзды" class="aligncenter wp-image-2983" decoding="async" height="401" loading="lazy" src="images/stars.png" width="403"/></a></p>
+<p>А живущих сейчас людей выше 213 см на земле, возможно, <a href="http://www.naturalheightgrowth.com/2012/08/11/how-many-7-feet-tall-people-are-in-the-world/" rel="noopener" target="_blank">всего 2 800</a> — зато у каждого из них <a href="http://www.theatlantic.com/business/archive/2012/05/how-much-should-we-tax-7-footers/256757/" rel="noopener" target="_blank">17 % шанс</a> попасть в NBA.</p>
+<p>Вот все секунды в часе:</p>
+<p><a href="images/seconds-in-an-hour.png" rel="noopener" target="_blank"><img alt="секунды в часе" class="aligncenter wp-image-2984" decoding="async" height="437" loading="lazy" src="images/seconds-in-an-hour.png" width="415"/></a></p>
+<p>А вот <a href="http://www.adherents.com/" rel="noopener" target="_blank">сколько в мире религий</a>:</p>
+<p><a href="images/religions-in-the-world1.png" rel="noopener" target="_blank"><img alt="религии в мире" class="aligncenter wp-image-2985" decoding="async" height="476" loading="lazy" src="images/religions-in-the-world1.png" width="475"/></a></p>
+<p>Получается, религий больше, чем звёзд, которые мы видим ночью, — и если называть по одной религии в секунду, на перечисление всех уйдёт больше часа.</p>
+<p>Мы выделили в мире более <a href="https://archive.org/details/globalbiodiversi92wcmc" rel="noopener" target="_blank">400 000 видов жуков</a>, но всего <a href="http://www.departments.bucknell.edu/biology/resources/msw3/documents/MSW3Citations.pdf" rel="noopener" target="_blank">5 416 видов млекопитающих</a>.</p>
+<p>А вот сколько <a href="http://www.infoplease.com/askeds/many-spoken-languages.html" rel="noopener" target="_blank">живых языков</a> в мире:</p>
+<p><a href="images/languages.png" rel="noopener" target="_blank"><img alt="языки" class="aligncenter wp-image-2967" decoding="async" height="586" loading="lazy" src="images/languages.png" width="529"/></a></p>
+<p>И наконец, вот сколько песчинок среднего размера (0,5 мм в диаметре) поместится в кубический сантиметр:</p>
+<p><a href="images/sand1.png" rel="noopener" target="_blank"><img alt="песок" class="aligncenter wp-image-2987" decoding="async" height="606" loading="lazy" src="images/sand1.png" width="588"/></a></p>
+<p><span style="font-size: 18pt;"><strong>Пятизначные числа</strong></span></p>
+<p><a href="images/10000-dots.png" rel="noopener" target="_blank"><img alt="10 000 точек" class="aligncenter wp-image-2956" decoding="async" height="472" loading="lazy" src="images/10000-dots.png" width="476"/></a></p>
+<p>Если 1 000 слегка переоценена, то 10 000 — недооценена. О 10 000 никто не говорит, но, в отличие от бескорневой 1 000, 10 000 — полный квадрат сотни сотен и 1 % от миллиона.</p>
+<p>IQ Стивена Хокинга, по слухам, 160 — что <em>еле-еле</em> делает его красной точкой в десятитысячной средней выборке людей по интеллекту. А ещё, чтоб вы знали: в средней группе из 17 000 человек <a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2211462/%20" rel="noopener" target="_blank">один окажется альбиносом</a>.</p>
+<p>Столько людей помещается на распроданном до отказа <a href="http://boston.redsox.mlb.com/bos/ballpark/information/index.jsp?content=facts" rel="noopener" target="_blank">Fenway Park</a>:</p>
+<figure>
+<a href="images/Fenway.png" rel="noopener" target="_blank"><img alt="Fenway" class="alignnone wp-image-2964" decoding="async" height="952" loading="lazy" src="images/Fenway.png" width="865"/></a>
+<figcaption>Перевод подписи с картинки: «Столько людей собирается на распроданном Fenway Park (37 493)».</figcaption>
+</figure>
+<p>Больше числа людей в Fenway — и <a href="https://www.cia.gov/library/publications/the-world-factbook/fields/2053.html" rel="noopener" target="_blank">41 821 аэропорт</a> в мире, и количество <a href="http://www.nytimes.com/2013/12/22/nyregion/calculating-the-number-of-windows-on-buildings-in-manhattan.html?_r=0" rel="noopener" target="_blank">зданий на Манхэттене</a>:</p>
+<figure>
+<a href="images/manhattan-buildings.png" rel="noopener" target="_blank"><img alt="здания Манхэттена" class="aligncenter wp-image-2968" decoding="async" height="1170" loading="lazy" src="images/manhattan-buildings.png" width="900"/></a>
+<figcaption>Перевод подписи с картинки: «47 000 зданий на Манхэттене».</figcaption>
+</figure>
+<p><a href="https://investor.google.com/financial/tables.html" rel="noopener" target="_blank">55 030 сотрудников Google</a> заполнили бы большой стадион, как и <a href="https://www.apple.com/about/job-creation/" rel="noopener" target="_blank">50 250 человек Apple</a>. Facebook <a href="http://newsroom.fb.com/company-info/" rel="noopener" target="_blank">значительно меньше</a> — штат 8 348 человек, а Wikipedia вообще обходится <a href="https://en.wikipedia.org/wiki/Wikimedia_Foundation" rel="noopener" target="_blank">всего 208 людьми</a>. <a href="http://www.craigslist.org/about/factsheet" rel="noopener" target="_blank">Команду Craigslist</a> можно посадить в один небольшой автобус:</p>
+<p><a href="images/Craigslist.png" rel="noopener" target="_blank"><img alt="Craigslist" class="aligncenter wp-image-2962 size-full" decoding="async" height="184" loading="lazy" src="images/Craigslist.png" width="205"/></a></p>
+<p>А вот столько секунд тикает каждые сутки:</p>
+<figure>
+<a href="images/seconds-in-a-day.png" rel="noopener" target="_blank"><img alt="секунды в сутках" class="aligncenter wp-image-2988" decoding="async" height="2038" loading="lazy" src="images/seconds-in-a-day.png" width="900"/></a>
+<figcaption>Перевод подписи с картинки: «86 400 секунд в сутках».</figcaption>
+</figure>
+<p><span style="font-size: 18pt;"><strong>Шестизначные числа</strong></span></p>
+<p><a href="images/100000-dots.png" rel="noopener" target="_blank"><img alt="100 000 точек" class="aligncenter wp-image-2958" decoding="async" height="2341" loading="lazy" src="images/100000-dots.png" width="900"/></a></p>
+<p>100 000 — самое случайно подобранное «главное» число этого поста. В жизни оно в основном всплывает как зарплата, которую большинству людей очень хотелось бы получать. Это ещё и почти предел количества людей, которое я могу реально вообразить в одном месте. Мичиганский стадион (The Big House) вмещает чуть меньше 110 000, а самый большой стадион в мире — индийский <a href="http://eastbengalfootballclub.com/stadium.php" rel="noopener" target="_blank">Salt Lake Stadium</a> на 120 000. Северная Корея утверждает, что её стадион Rungnado May First вмещает 150 000 человек, но Северная Корея ещё утверждает, что Ким Чен Ир <a href="http://www.cybergolf.com/golf_news/alltime_golf_scoring_record_goes_with_death_of_kim_jong_il" rel="noopener" target="_blank">сделал 11 «hole-in-one»</a> на своём первом гольф-выезде в жизни, так что будем считать крупнейшим в мире Salt Lake Stadium.<a href="#footnote-8-2931" id="note-8-2931" rel="footnote">8</a>
+</p><p>Ровно столько же, сколько вмещает крупнейший стадион мира, в среднем составляет ежедневное количество абортов в мире <a href="http://www.who.int/reproductivehealth/publications/unsafe_abortion/induced_abortion_2012.pdf" rel="noopener" target="_blank">каждый день</a>:</p>
+<figure>
+<a href="images/abortions1.png" rel="noopener" target="_blank"><img alt="аборты" class="aligncenter wp-image-2989" decoding="async" height="2790" loading="lazy" src="images/abortions1.png" width="900"/></a>
+<figcaption>Перевод подписи с картинки: «120 000 абортов в мире за сутки».</figcaption>
+</figure>
+<p>Это примерно треть от <a href="http://www.ecology.com/birth-death-rates/" rel="noopener" target="_blank">мировых рождений в день</a>, то есть четверть всех беременностей, не закончившихся выкидышем, заканчивается абортом. Примерно столько же, сколько <a href="https://www.cdc.gov/mmwr/preview/mmwrhtml/ss6208a1.htm?s_cid=ss6208a1_w" rel="noopener" target="_blank">в США в целом</a>, а в Нью-Йорке <a href="http://www.nyc.gov/html/doh/downloads/pdf/vs/2009sum.pdf" rel="noopener" target="_blank">41 из каждых 100</a> невыкидышных беременностей прерывается. И нет, это не претензия на политическое заявление — просто интересная (и для меня неожиданная) статистика, так что не кипятитесь.</p>
+<p><span style="font-size: 18pt;"><strong>Один миллион</strong></span></p>
+<p>Удачи. Встретимся внизу —</p>
+<p><a href="images/Million-Dots-one-red3.png" rel="noopener" target="_blank"><img alt="миллион точек" class="aligncenter wp-image-2946 size-full" decoding="async" height="25000" loading="lazy" src="images/Million-Dots-one-red3.png" width="1050"/></a></p>
+<p>Извините. Миллион точек — это много точек.</p>
+<p>А насколько малы шансы один-на-миллион? Насколько это далёкая стрельба? Просто попробуйте найти красную точку среди миллиона точек выше.</p>
+<p>Это единственный знакомый мне способ визуализировать, что такое миллион или один-из-миллиона.</p>
+<p>Миллион интересен тем, что он <em>огромен</em>, но при этом он самый младший из «больших мальчиков»: <em>еле-еле</em> такой маленький, что его всё ещё можно вообразить и изобразить на диаграмме. Он стоит ровно на границе мира, который мы можем уместить в голове, и мира абсолютно невообразимого.</p>
+<p>Эту красную точку, если вы её нашли, неплохо держать в уме, когда вы в следующий раз покупаете билет Powerball с шансом 1 к 146 миллионов, или когда слышите факты вроде <a href="http://www.discovery.com/tv-shows/curiosity/topics/big-question-what-are-odds-of-surviving-plane-crash.htm" rel="noopener" target="_blank">«один из каждых 11 миллионов»</a> авиарейсов разбивается. Шанс один к миллиону — это как бросить три 100-гранных кубика и попытаться выбросить на всех трёх число 63 <em>одним броском</em>.</p>
+<p>Если хочется поиграть с шансом один-к-миллиону, выберите число от 1 до 1 000 000, скажите его вслух, нажмите Generate ниже и попробуйте попасть (или ещё два способа: 1) поменяйте максимум на 1 000 и попробуйте попасть в названное число за два следующих клика; 2) поменяйте максимум на 100 и попробуйте попасть в выбранное число три раза подряд):</p>
+<p></p>
+<p><span style="font-size: 18pt;"><b>Постер на миллион точек</b></span></p>
+<p>Мне нравятся и число 1 000 000, и число 1/1 000 000, и я обожаю любую возможность визуализировать их. Блог-пост, в котором по горизонтали умещается лишь 200 точек, — не идеальное место для миллиона: получается прямоугольник 1 × 25, листать который пришлось бы час. Поэтому мы сделали <a href="https://store.waitbutwhy.com/collections/posters/products/one-in-a-million-poster-24x24" rel="noopener" target="_blank">постер на миллион точек</a>.</p>
+<p>Постер, что приятно, — квадратный. Размер 24″ × 24″ (61 см × 61 см), сетка 1 000 × 1 000 точек, итого ровно миллион. Это самый эффективный способ визуализировать число миллион (он также помогает представить 5, 10 или 100 миллионов, и даже миллиард — мысленно ставьте несколько постеров рядом).</p>
+<p>И конечно, одна из точек — красная. Найти её — целое приключение,<a href="#footnote-9-2931" id="note-9-2931" rel="footnote">9</a> но когда найдёте, поймёте, что значит 1/1 000 000. Так что один постер — два экстремальных числа для визуализации. Посмотреть можно <a href="https://store.waitbutwhy.com/collections/posters/products/one-in-a-million-poster-24x24" rel="noopener" target="_blank">здесь</a>.</p>
+<p>Вот так выглядит обычная версия:</p>
+<p><strong>Целиком:</strong></p>
+<p><a href="https://store.waitbutwhy.com/collections/posters/products/one-in-a-million-poster-24x24" rel="noopener" target="_blank"><img alt="million-poster_large" class="aligncenter wp-image-2949" decoding="async" height="393" loading="lazy" src="images/million-poster_large.jpg" width="350"/></a></p>
+<p><strong>Поближе, с красной точкой посередине:</strong></p>
+<p><a href="https://store.waitbutwhy.com/collections/posters/products/one-in-a-million-poster-24x24" rel="noopener" target="_blank"><img alt="Поближе" class="alignnone wp-image-2948" decoding="async" height="249" loading="lazy" src="images/million-1in10000_large.jpg" width="250"/></a></p>
+<p><strong>И крупным планом, с красной точкой:</strong></p>
+<p><a href="http://store.waitbutwhy.com/collections/posters" rel="noopener" target="_blank"><img alt="Крупный план" class="alignnone wp-image-2947" decoding="async" height="250" loading="lazy" src="images/million-1in100_large.jpg" width="250"/></a></p>
+<div class="footnotes"><hr/><ol>
+<li class="footnote" id="footnote-1-2931"><p>Остальные дети в это время гуляли на улице.<a class="footnote-return" href="#note-1-2931">↩</a></p></li>
+<li class="footnote" id="footnote-2-2931"><p>Может, когда-нибудь у меня появится новый номер телефона — а, погодите, какой бы ни был первый номер у твоего смартфона, теперь это твой номер на веки вечные.<a class="footnote-return" href="#note-2-2931">↩</a></p></li>
+<li class="footnote" id="footnote-3-2931"><p>Использовались и другие системы — например, <a href="http://www-history.mcs.st-and.ac.uk/HistTopics/Mayan_mathematics.html" rel="noopener" target="_blank">майя использовали</a> систему с основанием 20.<a class="footnote-return" href="#note-3-2931">↩</a></p></li>
+<li class="footnote" id="footnote-4-2931"><p>Да, я знаю, что это довольно случайный факт, чтобы вот так вкручивать сюда, — привыкайте, потому что весь этот пост — куча беспорядочной чуши, которой я в вас швыряюсь.<a class="footnote-return" href="#note-4-2931">↩</a></p></li>
+<li class="footnote" id="footnote-5-2931"><p>IQ — концепция довольно фейковая, но измерять интеллект всех людей одним числом всё равно весело.<a class="footnote-return" href="#note-5-2931">↩</a></p></li>
+<li class="footnote" id="footnote-6-2931"><p>Не знаю, сколько из них глухих, но в США 600 000 функционально глухих, то есть 1 на каждых 454 человек.<a class="footnote-return" href="#note-6-2931">↩</a></p></li>
+<li class="footnote" id="footnote-7-2931"><p>Спеллчекер WordPress подчеркнул «вискулум» (надчёркивающая черта над повторяющимся знаком), хотя это слово, — потому что WordPress в шоке от того, куда я завёл этот пост.<a class="footnote-return" href="#note-7-2931">↩</a></p></li>
+<li class="footnote" id="footnote-8-2931"><p>Я ещё и был на том северокорейском стадионе (снял там <a href="https://www.youtube.com/watch?v=UPThbdSFg8M" rel="noopener" target="_blank">это видео</a>), и он показался примерно того же размера, что и типичный стадион NFL. Изначально эта ремарка была частью того предложения в тексте, но в основном тексте она была на ступеньку слишком хвастливой.<a class="footnote-return" href="#note-8-2931">↩</a></p></li>
+<li class="footnote" id="footnote-9-2931"><p>Бонусные очки тому, кто догадается, почему точка стоит именно в том месте сетки.<a class="footnote-return" href="#note-9-2931">↩</a></p></li>
+</ol></div>
+</article>
+<article class="article">
+<h1>От 1 000 000 до числа Грэма</h1>
+<p class="meta">20 ноября 2014 — Тим Урбан</p>
+
+<p>Добро пожаловать в пост о числах № 2.</p>
+<p><a href="https://waitbutwhy.com/2014/11/from-1-to-1000000.html" rel="noopener" target="_blank">На прошлой неделе</a> мы стартовали с 1 и медленно, методично доползли до 1 000 000. Использовали точки. Было мило.</p>
+<p>Ну так вот, время для милоты закончилось. Сегодня всё взаправду.</p>
+<p>Пока всё не вышло из-под контроля, давайте сперва пройдёмся по ещё постижимым степеням десятки —</p>
+<p><span style="font-size: 24pt;"><strong>Степени десяти</strong></span></p>
+<p>Когда мы шли от 1 до 1 000 000, степени нам были не нужны: достаточно было короткой строки цифр, чтобы описать любое из чисел. Если хотелось умножить число на 10, мы просто дописывали ноль.</p>
+<p>Но за миллионом нули множатся, и нужна другая нотация. Поэтому используют степени. Когда говорят про экспоненциальный рост, имеют в виду ту чертовщину, которая начинается, как только включишь степени. Например:</p>
+<p>Если умножить 9 845 625 675 438 на 8 372 745 993 275, результат всё равно меньше, чем 8<sup>29</sup>.</p>
+<p>По мере роста сегодня мы будем держаться степеней десяти, потому что когда речь идёт о реально больших числах, важно становится число <em>знаков</em>, а не сами цифры — каждое 70-значное число лежит где-то между 10<sup>69</sup> и 10<sup>70</sup>, и это всё, что нужно знать. Так что хотя бы в первой части этого поста степени 10 удобны как «контрольные точки» порядка величины.</p>
+<p>Каждый раз, поднимая показатель на единицу, мы умножаем мир, в котором находимся, на десять, и многое меняется. Стартуем оттуда, где остановились в прошлый раз —</p>
+<p><strong>10<sup>6</sup> (1 миллион — 1 000 000) — </strong>столько точек было в той <a href="https://waitbutwhy.com/2014/11/from-1-to-1000000.html" rel="noopener" target="_blank">огромной картинке</a>, которой мы закончили прошлую неделю. На моём экране это изображение занимало около 18 × 450 см = 0,81 м<sup>2</sup>.</p>
+<p><strong>10<sup>7</sup> (10 миллионов) — </strong>это диапазон, включающий количество шагов, которые потребовалось бы, чтобы обойти Землю пешком (40 миллионов). Если бы каждый из этих шагов был точкой, как в сетках из прошлого поста, точки заполнили бы квадрат 6 × 6 м.</p>
+<p><strong>10<sup>8</sup> (100 миллионов) — </strong>это число книг, <a href="http://www.pcworld.com/article/202803/google_129_million_different_books_have_been_published.html" rel="noopener" target="_blank">когда-либо изданных</a> в истории человечества (130 миллионов), и в верхней части диапазона — <a href="https://atkinsbookshelf.wordpress.com/tag/how-many-words-does-the-average-person-speak-in-their-lifetime/" rel="noopener" target="_blank">оценочное</a> количество слов, которые человек произносит за всю свою жизнь (860 миллионов). Сюда же попадают шансы выиграть в действительно крупные лотереи. У недавней Mega Millions шанс выигрыша был 1 к 175 711 536. Это, кстати, примерно равно числу секунд в шести годах. То есть это как знать, что ёжик в ближайшие шесть лет чихнёт ровно один раз, поставить свои кровные на конкретную секунду — скажем, на 36-ю секунду 2:52 ночи 19 марта 2017 года — и выиграть, только если этот единственный чих случится точно в эту секунду. Не покупайте билет Mega Millions.</p>
+<p><strong>10<sup>9</sup> (1 миллиард</strong><a href="#footnote-1-3003" id="note-1-3003" rel="footnote">1</a><strong> — 1 000 000 000) —</strong> здесь число секунд в столетии (примерно 3 миллиарда), число живущих сейчас людей (7,125 миллиарда), а чтобы вместить миллиард точек, наша диаграмма заняла бы два баскетбольных поля.</p>
+<p><strong>10<sup>10</sup> (10 миллиардов) — </strong>столько лет прошло с Большого взрыва (13,7 миллиарда) и столько секунд минуло со времени жизни Иисуса Христа (60 миллиардов).</p>
+<p><strong>10<sup>11</sup> (100 миллиардов) — </strong>примерно столько звёзд в Млечном Пути и столько галактик в наблюдаемой Вселенной (100–400 миллиардов) — то есть если бы компьютер начал перечислять по одной наблюдаемой галактике в секунду со времён Христа, он бы и близко не закончил.</p>
+<p><strong>10<sup>12</sup> (1 триллион — 1 000 000 000 000) — </strong>миллион миллионов. Столько фунтов покажут весы, если на них поставить всё человечество (~1 триллион), столько секунд существуют люди (~100 000 лет ≈ 3 триллиона секунд), и больше, чем оба этих числа вместе, — количество миль в одном световом году (6 триллионов). Триллион настолько велик, что хватило бы всего 4 триллионов миллиметров ленты, чтобы перевязать Солнце бантиком.</p>
+<p><strong>10<sup>13</sup> (10 триллионов) — </strong>это примерно потолок чисел, которые обсуждают в реальной жизни, и почти всегда речь о государствах и долларах: номинальный ВВП США в 2013 году был чуть меньше 17 триллионов долларов, госдолг сейчас — почти 18 триллионов. Обе эти суммы меркнут перед числом клеток в человеческом теле (37 триллионов).</p>
+<p><strong>10<sup>14</sup> (100 триллионов) — </strong>столько букв во всех изданных книгах за историю человечества, а ещё это число бактерий внутри вашего тела.<a href="#footnote-2-3003" id="note-2-3003" rel="footnote">2</a> Сюда же попадает суммарное богатство мира (241 триллион долларов, который мы обсуждали <a href="https://waitbutwhy.com/2014/03/combined-wealth-world.html" rel="noopener" target="_blank">очень подробно</a> в одном из предыдущих постов).</p>
+<p><strong>10<sup>15</sup> (1 квадриллион) — </strong>окей, прощайте, нормальные слова. Слова «миллион», «миллиард», «триллион» люди произносят часто. Слово «квадриллион» — почти никогда. Говорить «квадриллион» — крайне неклассно.<a href="#footnote-3-3003" id="note-3-3003" rel="footnote">3</a> Большинство выбирает «тысяча триллионов» или «миллион миллиардов». Так или иначе, на Земле примерно квадриллион <a href="http://hypertextbook.com/facts/2003/AlisonOngvorapong.shtml" rel="noopener" target="_blank">муравьёв</a>. Сравните с фактом про бактерии — выходит, у вас внутри ползает около 1/10 всех муравьёв планеты.</p>
+<p><strong>10<sup>16</sup> (10 квадриллионов) — </strong>это число игральных карт, которые надо было бы «случайно» смахнуть со стола, чтобы покрыть всю Землю (89 квадриллионов). Люди на вас разозлились бы.</p>
+<p><strong>10<sup>17</sup> (100 квадриллионов) — </strong>столько секунд прошло с Большого взрыва.<strong> </strong>А ещё столько упоминаний Ким Кардашьян проникло в моё аудио-пространство за последнюю неделю. Хватит.</p>
+<p><strong>10<sup>18</sup> (1 квинтиллион) — </strong>также известный как миллиард миллиардов; слово «квинтиллион» ухитряется быть ещё более неклассным, чем «квадриллион». Ни один обладающий социальными навыками человек слова «квинтиллион» вслух не произносит. В общем, это число кубометров воды во всех океанах Земли и число атомов в одной крупинке соли (1,2 квинтиллиона). Количество песчинок на всех пляжах Земли — около 7,5 квинтиллионов, то есть столько же, сколько атомов в <i>шести крупинках соли</i>.</p>
+<p><strong>10<sup>19</sup> (10 квинтиллионов) — </strong>столько миллиметров отсюда до ближайшей соседней звезды (38 квинтиллионов миллиметров).</p>
+<p><strong>10<sup>20</sup> (100 квинтиллионов) — </strong>столько метровых шагов нужно, чтобы пересечь Млечный Путь. Очень много подкастов. А слышали о планковском объёме? Это наименьший объём, о котором говорят учёные, настолько крошечный, что 100 квинтиллионов планковских объёмов умещаются в <em>один протон</em>. О планковских объёмах ещё поговорим. А наш дотовый постер? К моменту, когда мы дойдём до 600 квинтиллионов точек, изображение покроет всю поверхность Земли.</p>
+<p><strong>10<sup>21</sup> (1 секстиллион) — </strong>теперь мы выходим даже за пределы словарного запаса чудиков. По-моему, я никогда не слышал, чтобы кто-то произносил «секстиллион» вслух, и надеюсь, что и не услышу.</p>
+<p><strong>10<sup>23</sup> (100 секстиллионов) —</strong> грубая оценка<strong> </strong>числа звёзд в наблюдаемой Вселенной. Это же число вы помните по школе: 602 секстиллиона, или 6,02 × 10<sup>23</sup>, — число Авогадро, число атомов водорода в одном грамме водорода.</p>
+<p><strong>10<sup>24</sup> (1 септиллион) —</strong> триллион триллионов. Земля весит около шести септиллионов килограммов.</p>
+<p><strong>10<sup>25</sup> (10 септиллионов) — </strong>число капель воды во всех океанах мира.</p>
+<p><strong>10<sup>27</sup> (1 октиллион) — </strong>если бы Земля была полой, её потребовалось бы набить 1 октиллионом горошин. И, кажется, мы более чем достаточно наслушались про октиллион.</p>
+<p>Окей, теперь огромный прыжок в совершенно другую территорию — туда, где объём Земли слишком мал, а Большой взрыв слишком недавний, чтобы использовать их как примеры. На этой новой числовой арене с величинами справится только наблюдаемая Вселенная — сфера примерно 92 миллиарда световых лет в диаметре.<a href="#footnote-4-3003" id="note-4-3003" rel="footnote">4</a>
+</p><p><strong>10<sup>80</sup> —  </strong>чтобы добраться до 10<sup>80</sup>, нужно взять триллион и умножить его на триллион, на триллион, на триллион, на триллион, на триллион, на сто миллионов. Дот-постеров на это число никто не печатает. Так почему я остановился именно здесь? Потому что это распространённая <a href="http://www.universetoday.com/36302/atoms-in-the-universe/" rel="noopener" target="_blank">оценка</a> числа атомов во Вселенной.</p>
+<p><strong>10<sup>86</sup> — </strong>а если бы вы захотели набить всю сферу наблюдаемой Вселенной горошинами? Понадобилось бы 10<sup>86</sup> горошин.</p>
+<p><strong>10<sup>90</sup> — </strong>столько средних песчинок (0,5 мм в диаметре) понадобилось бы, чтобы плотно набить Вселенную.</p>
+<p><span style="font-size: 18pt;"><strong>Гугол — 10<sup>100</sup></strong></span></p>
+<p>Название «гугол» появилось, когда американский математик Эдвард Кэснер в 1938 году решил поумничать и попросил своего девятилетнего племянника Милтона придумать название для 10<sup>100</sup> — единицы со 100 нулями. Милтон, будучи невменяемым девятилеткой, предложил «гугол». Кэснер, видимо, счёл это разумным ответом, побежал с ним — и всё, поехало.<a href="#footnote-5-3003" id="note-5-3003" rel="footnote">5</a>
+</p><p>Так насколько велик гугол?</p>
+<p>Это число песчинок, которое поместилось бы во Вселенной, умноженное на 10 миллиардов. То есть представьте: Вселенная плотно набита мелкими песчинками — на десятки миллиардов световых лет вверх, вниз, перед Землёй, за ней, просто песок. Бесконечный песок. Можно лететь на самолёте на полной скорости триллионы лет в любую сторону и так и не добраться до конца этого песка. Очень и очень много песка.</p>
+<p>А теперь представьте, что вы где-то остановили самолёт, высунули руку в окно, схватили одну песчинку и положили под мощный микроскоп — и оказалось, что это не одна песчинка, а 10 миллиардов микроскопических песчинок в оболочке, и вместе они размером с обычную песчинку. Если так было бы с <em>каждой</em> песчинкой в этом гипотетическом сценарии — если каждая на самом деле была бы пучком из 10 миллиардов крошечных песчинок, — то <em>общее</em> число этих микроскопических песчинок и составило бы гугол.</p>
+<p>У нас уже заканчивается «вещество», в которое можно увязывать эти числа — и в малую сторону, и в большую, — но вот ещё три:</p>
+<p><strong>10<sup>113</sup> — </strong>столько атомов водорода понадобилось бы, чтобы набить ими Вселенную.</p>
+<p><strong>10<sup>122</sup> — </strong>столько протонов можно уместить во Вселенной.</p>
+<p><strong>10<sup>185</sup> — </strong>возвращаемся к планковскому объёму (наименьший объём, о котором я слышал в науке). Сколько таких наименьших штук влезает в самую большую — в наблюдаемую Вселенную? 10<sup>185</sup>. Не имея возможности уйти ни меньше, ни больше ни в одну сторону, мы достигли самого большого числа, которое можно визуализировать через физический мир.</p>
+<p><span style="font-size: 18pt;"><strong>Гуголплекс — 10<span style="font-size: 18pt;"><sup>гугол</sup></span></strong></span></p>
+<p>Распиарив свежепридуманный <em>гугол</em>, Кэснер еле сдерживался от восторга по поводу этой милой новой фишки и попросил племянника придумать <i>ещё один</i> термин. Не успел он толком закончить вопрос, как Милтон открыл свой нетронутый нюансами рот и провозгласил: <em>гуголплекс</em>, который, в типично милтоновском духе, описал как «единица, за которой пишешь нули, пока не устанешь».<a href="#footnote-6-3003" id="note-6-3003" rel="footnote">6</a> На этот раз Кэснер проявил нехарактерную сдержанность, проигнорировал Милтона и дал числу нормальное определение: 10<sup>гугол</sup>, то есть 1 с гуголом нулей. С полностью выписанным показателем гуголплекс выглядит так:</p>
+<p><span style="font-size: 10pt;">10<sup>10 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000 000</sup></span></p>
+<p>Так вот, гугол — это 1 со всего 100 нулями, число в 10 миллиардов раз большее, чем количество песчинок, которыми можно было бы набить Вселенную. Можете ли вы хоть как-то представить число, которое получается, если поставить после 1 <em>гугол</em> нулей?</p>
+<p>Никаким способом это число в голове не уложить — лучшее, что мы можем, — попробовать понять, сколько времени уйдёт, чтобы <em>записать</em> его. Выше я выписал лишь <em>показатель степени</em>; чтобы <em>выписать</em> гуголплекс целиком, надо выписать гугол нулей. Сначала разберёмся, <em>куда</em> их писать.</p>
+<p>Как мы выяснили, наполнение Вселенной песком даёт лишь одну десятимиллиардную часть гугола, так что нам пришлось бы набить Вселенную до краёв песком, взять очень тонкую ручку и написать по 10 миллиардов нулей <em>на каждой песчинке</em>. Если так сделать и посмотреть на одну готовую песчинку под микроскопом, она была бы покрыта 10 миллиардами микроскопических нулей. Если бы вы проделали это с каждой песчинкой, заполнившей Вселенную, вы бы успешно записали число гуголплекс.</p>
+<p>И сколько на это уйдёт времени?</p>
+<p>Я только что проверил, насколько быстро человек способен в разумном темпе писать нули, — у меня вышло 36 нулей за 10 секунд.<a href="#footnote-7-3003" id="note-7-3003" rel="footnote">7</a> С такой скоростью, если с 5 лет до 85 я бы по 16 часов в сутки, каждый день, писал нули в этом темпе, я бы успел заполнить <em>половину одной песчинки за свою жизнь</em>. Чтобы заполнить одну песчинку, нужны жизни двух человек целиком. За всю историю вида на Земле жило около 107 миллиардов человек. Если бы каждый человек каждый бодрствующий момент жизни писал нули на песчинках, то к настоящему моменту мы бы как вид заполнили готовыми песчинками куб со стороной 1,7 м — примерно ростом с человека. И <em>всё</em>.</p>
+<p>Теперь чуть-чуть взглянуть на то, насколько велико само <em>число</em>: как <a href="https://www.youtube.com/watch?v=8GEebx72-qs" rel="noopener" target="_blank">объясняют</a> на Numberphile, общее количество возможных квантовых состояний, которые могут существовать в объёме, занимаемом человеком (то есть всех возможных конфигураций атомов в этом объёме), <em>значительно</em> меньше гуголплекса. Это значит, что если бы существовала Вселенная объёмом в гуголплекс кубических метров (фантастически большое пространство), статистика подсказывает: в ней <em>обязательно были бы точные копии вас</em>. Почему? Потому что каждая возможная конфигурация материи в объёме размером с человека возникала бы в таком пространстве многократно, то есть всё, что в принципе может существовать, существовало бы — включая вас. Включая вас с кошачьими усами, но в остальном обычного. Включая вас, но ростом 30 см. Включая вас точно такого, как сейчас, только вместо мизинца на левой руке у вас в качестве пятого пальца — пенис Наполеона. То, что я говорю, — не научная фантастика, это реальность пространства такого размера.</p>
+<p><span style="font-size: 24pt;"><strong>Число Грэма</strong></span></p>
+<p>Знаете, бывает: живёшь себе, потерян, но даже не понимаешь этого, и вдруг однажды появляется правильный человек, и ты осознаёшь, что искал именно его?</p>
+<p>Вот так я отношусь к числу Грэма.</p>
+<p>Огромные числа всегда меня и манили, и снились в кошмарах. Пока я не узнал про число Грэма, я думал, что самое большое из мыслимых чисел — это что-нибудь вроде «гуголплекс в степени гуголплекс», и от одних мыслей у меня сносило крышу. Но узнав про число Грэма, я понял, что не только не царапнул поверхность по-настоящему большого числа, но и был <em>не способен</em> это сделать — у меня не было инструментов. А теперь, когда инструменты у меня есть (и у вас сегодня тоже появятся), «гуголплекс в степени гуголплекс» звучит как ребёнок, который на вопрос «назови самое большое число, какое можешь придумать» отвечает «100 плюс 100!».</p>
+<p>Прежде чем нырять, ответим: а почему вообще число Грэма — это число, о котором говорят?</p>
+<p>Я не буду подробно объяснять, потому что объяснение реально нудное и запутанное — вот официальная задача, над которой работал Рональд Грэм (живой американский математик), когда придумал это число:</p>
+<p><em>Соедините каждую пару геометрических вершин n-мерного гиперкуба, получив полный граф на 2<sup>n</sup> вершинах. Раскрасьте каждое ребро этого графа в красный или синий цвет. Найдите наименьшее значение n, при котором любая такая раскраска содержит хотя бы один одноцветный полный подграф на четырёх компланарных вершинах.</em></p>
+<p>Говорил же — нудно и запутано. В общем, у задачи нет единственного ответа, но доказательство Грэма даёт нижнюю и верхнюю границы, и число Грэма — одна из версий верхней границы на <em>n</em>, которую он предложил.</p>
+<p>Это число он придумал в 1977 году, и оно прославилось, когда коллега <a href="http://iteror.org/big/Source/Graham-Gardner/GrahamsNumber.html" rel="noopener" target="_blank">написал о нём</a> в <i>Scientific American</i> и назвал его «границей настолько громадной, что она держит рекорд самого большого числа, когда-либо использованного в серьёзном математическом доказательстве». В 1980 году по той же причине число попало в Книгу рекордов Гиннесса; с тех пор его превзошли, но оно по-прежнему славится тем, что это самое большое число, о котором большинство людей хоть раз слышит. Вот почему число Грэма — это «вещь»: оно не просто произвольно гигантское, оно реально использовано в математике.</p>
+<p>Так вот, я выше сказал, что был ограничен в типах чисел, которые мог даже вообразить, потому что у меня не было инструментов, — так что это за инструменты?</p>
+<p>На самом деле один ключевой инструмент: последовательность гипероператоров.</p>
+<p>Последовательность гипероператоров — это ряд математических операций (сложение, умножение и т. д.), где каждая следующая операция — итерация предыдущей. Сейчас поймёте. Начнём с первой и самой простой: со счёта.</p>
+<p><strong><span style="font-size: 16pt;">Уровень операции 0 — Счёт</span> </strong></p>
+<p>Если у меня есть 3 и я хочу подняться выше, я считаю: 3, 4, 5, 6, 7 — и так пока не дойду, куда мне нужно. Не очень мощная операция.</p>
+<p><strong><span style="font-size: 16pt;">Уровень операции 1 — Сложение</span> </strong></p>
+<p>Сложение — это итерация счёта, что можно назвать «итерированным счётом»: вместо 3, 4, 5, 6, 7 я могу просто сказать 3 + 4 и сразу прыгнуть к 7. Сложение как «итерированный счёт» — это, по сути, <em>сокращение</em> для счёта, способ упаковать все шаги счёта в один, более компактный шаг.</p>
+<p><span style="font-size: 16pt;"><strong>Уровень операции 2 — Умножение</strong></span></p>
+<p>Уровнем выше — умножение, итерированное сложение, сокращение сложения. Вместо 3 + 3 + 3 + 3 умножение позволяет упаковать все эти сложения в один более мощный шаг и записать 3 × 4. Умножение мощнее сложения, и им можно создавать гораздо большие числа. Если сложить два восьмизначных числа, получится восьми- или девятизначное число. А если <em>умножить</em> два восьмизначных, получится 15- или 16-значное — куда крупнее.</p>
+<p><span style="font-size: 16pt;"><strong>Уровень операции 3 — Возведение в степень (↑)</strong></span></p>
+<p>Ещё уровнем выше — возведение в степень, итерированное умножение. Вместо 3 × 3 × 3 × 3 возведение в степень позволяет упаковать эту цепочку в более лаконичное 3<sup>4</sup>.</p>
+<p>Так вот, тут большинство людей и останавливается. В реальном мире возведение в степень — самая высокая операция, которой мы обычно пользуемся. И когда я воображал своё громадное число гуголплекс<sup>гуголплекс</sup>, я выжимал максимум из самого высокого уровня, который знал — возведения в степень. На уровне 3 чтобы получить число побольше, нужно сделать побольше основание <em>и</em> побольше показатель. Сделав это, я упирался в потолок.</p>
+<p>Ключ к пробою потолка в направлении <em>реально</em> больших чисел — понять, что можно подниматься выше по уровням операций, итерировать вверх можно бесконечно. <em>Вот так</em> числа и становятся по-настоящему гигантскими.</p>
+<p>Чтобы это сделать, нужна другая нотация. До сих пор на каждом уровне был свой символ (+, ×, надстрочный показатель), но запоминать кучу разных символов не хочется, если предстоит работать с кучей разных уровней. Поэтому используем стрелочную нотацию Кнута — один символ, годный для любого уровня.</p>
+<p>Стрелочная нотация Кнута начинается с уровня 3, заменяя возведение в степень одной стрелкой вверх: ↑. То есть вместо 3<sup>4</sup> мы пишем 3 ↑ 4 — но это одно и то же.</p>
+<p>3 ↑ 4 = 81<br/>2 ↑ 3 = 8<br/>5 ↑ 5 = 3 125<br/>1 ↑ 38 = 1</p>
+<p>Уловили? Отлично.</p>
+<p>Теперь поднимаемся на уровень выше и начинаем видеть безумную мощь последовательности гипероператоров:</p>
+<p><span style="font-size: 16pt;"><strong>Уровень операции 4 — Тетрация (↑↑)</strong></span></p>
+<p>Тетрация — итерированное возведение в степень. Прежде чем понять, как «упаковать» цепочку возведений в степень так же, как возведение упаковывает цепочку умножений, нужно понять, что такое вообще «цепочка возведений».</p>
+<p>Пока у нас в возведении в степень было одно вычисление — основание и показатель. А что, если соединить два таких вычисления подряд:</p>
+<p>2<sup><span style="font-size: 9pt;">2</span><sup><span style="font-size: 7pt;">2</span></sup></sup></p>
+<p>Получаем <em>башню степеней</em>. Башни степеней невероятно мощные, потому что считаются сверху вниз. Так что 2<sup><span style="font-size: 9pt;">2</span><sup><span style="font-size: 7pt;">2</span></sup></sup> = 2<sup>(<span style="font-size: 9pt;">2</span><sup><span style="font-size: 7pt;">2</span></sup>)</sup> = 2<sup>4</sup> = 16. Пока ничего впечатляющего, но смотрите:</p>
+<p>3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span><sup><span style="font-size: 6pt;">3</span></sup></sup></sup></p>
+<p>Со скобками для подчёркивания порядка сверху вниз: 3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span><sup><span style="font-size: 6pt;">3</span></sup></sup></sup> = 3<sup><span style="font-size: 9pt;">3</span><span style="color: #ff0000;"><sup><span style="font-size: 8pt;">(</span><span style="font-size: 7pt;">3</span><sup><span style="font-size: 6pt;">3</span></sup><span style="font-size: 8pt;">)</span></sup></span></sup> = 3<sup><span style="font-size: 9pt;">3</span><span style="color: #ff0000;"><sup><span style="font-size: 7pt;">27</span></sup></span></sup> = 3<span style="color: #0000ff;"><sup>(<span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">27</span></sup>)</sup></span> = 3<span style="color: #0000ff;"><sup>7 625 597 484 987</sup></span><sup> </sup>= число длиной в 3,6 триллиона <em>цифр</em></p>
+<p>Напомню: гугол с его микро-песком, набивающим Вселенную, — всего лишь 100-значное число. То есть достаточно башни из 3 высотой в 4 «этажа», чтобы <em>перекрыть</em> гугол, а также 10<sup>185</sup> — число планковских объёмов во Вселенной и наш предел в физическом мире. Гуголплекса оно ещё не достигает, но это легко исправить, дописав ещё одну 3 в стопку:</p>
+<p>3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span><sup><span style="font-size: 6pt;">3</span><sup><span style="font-size: 5pt;">3</span></sup></sup></sup></sup> = 3<sup><span style="font-size: 9pt;">(</span><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span><sup><span style="font-size: 6pt;">3</span><sup><span style="font-size: 5pt;">3</span></sup></sup></sup><span style="font-size: 9pt;">)</span></sup> = 3<sup>(число из 3,6 трлн цифр) </sup>= <em>сильно</em> больше гуголплекса, который равен 10<sup>(число из 100 цифр)</sup>. А сам гуголплекс башни степеней позволяют немедленно унизить, записав его как:</p>
+<p>10<sup><span style="font-size: 9pt;">10</span><sup><span style="font-size: 7pt;">100</span></sup></sup><sup><sup> </sup></sup>или, чаще, 10<sup><span style="font-size: 9pt;">10</span><sup><span style="font-size: 7pt;">10</span><sup><span style="font-size: 6pt;">2</span></sup></sup></sup>. Можете представить, какие числа выходят, когда начинаешь строить <em>высокие</em> башни. Тетрация — это серьёзно.</p>
+<p>Эти башни — это строки уровня 3 (показатели), как 3 × 3 × 3 × 3 — строка уровня 2 (умножение). Уровень 3 упаковывает эту цепочку уровня 2 в 3<sup>4</sup>, или 3 ↑ 4. Как же уровень 4 упакует экспоненциальную цепочку? Двойными стрелками.</p>
+<p>3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span><sup><span style="font-size: 6pt;">3</span></sup></sup></sup> — это то же самое, что 3 ↑ (3 ↑ (3 ↑ 3)). Эти 4 однострелочных тройки упаковываются в 3 ↑↑ 4.</p>
+<p>Аналогично, 3 ↑↑ 5 = 3 ↑ (3 ↑ (3 ↑ (3 ↑ 3))) = 3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span><sup><span style="font-size: 6pt;">3</span><sup><span style="font-size: 5pt;">3</span></sup></sup></sup></sup></p>
+<p>4 ↑↑ 7 = 4 ↑ (4 ↑ (4 ↑ (4 ↑ (4 ↑ (4 ↑ 4))))) = башня из четвёрок высотой 7.</p>
+<p>Общее правило:</p>
+<figure>
+<a href="images/tetration-generally1.png" rel="noopener" target="_blank"><img alt="общая формула тетрации" class="aligncenter wp-image-3015" decoding="async" fetchpriority="high" height="280" loading="lazy" src="images/tetration-generally1.png" width="468"/></a>
+<figcaption>Описание диаграммы: a ↑↑ b = башня из <em>a</em>, высотой <em>b</em> этажей. Слева — общее правило (стрелочная нотация Кнута), справа — пример: «башня из <em>a</em>, b высотой».</figcaption>
+</figure>
+<p>Мы вот-вот поднимемся ещё на уровень, дальше станет сложнее, поэтому, прежде чем двинуться, убедитесь, что <em>действительно</em> поняли уровень 4 и что такое ↑↑ — просто запомните, что a ↑↑ b — это башня из <em>a</em> высотой <em>b</em>.</p>
+<p><span style="font-size: 16pt;"><strong>Уровень операции 5 — Пентация (↑↑↑)</strong></span></p>
+<p>Пентация, или итерированная тетрация, упаковывает цепочки двойных стрелок в одну операцию.</p>
+<p>Закономерность, которую мы видели: каждый новый уровень упаковывает цепочку предыдущего, используя число <em>b</em> как <em>длину</em> цепочки. Например:</p>
+<figure>
+<a href="images/string-bundle-examples1.png" rel="noopener" target="_blank"><img alt="примеры упаковки цепочек" class="aligncenter wp-image-3014" decoding="async" height="404" loading="lazy" src="images/string-bundle-examples1.png" width="500"/></a>
+<figcaption>Описание диаграммы: a × b = сложение <em>a</em> с собой <em>b</em> раз. a ↑ b = умножение <em>a</em> на себя <em>b</em> раз. a ↑↑ b = возведение <em>a</em> в степень <em>a</em>, повторённое <em>b</em> раз (то есть башня высотой <em>b</em>).</figcaption>
+</figure>
+<p>В каждом случае <em>a</em> — это базовое число, а <em>b</em> — длина упаковываемой цепочки.</p>
+<p>Так что упаковывает пентация? Как вообще может быть <em>цепочка из башен степеней?</em></p>
+<p>Ответ — это то, что я называю «башенным пиром» (power tower feeding frenzy). Работает так:</p>
+<p>У вас есть цепочка башен степеней, стоящих рядом в определённом порядке, все с одним и тем же основанием. Отличаются они только <em>высотой</em>. Высота первой башни равна основанию. Вы доводите эту башню до её окончательного числа, и это число становится <em>высотой</em> следующей башни. Вы доводите <em>её</em> до конца, и её результат становится <em>высотой</em> <em>следующей</em>. И так далее. Результат каждой башни «скармливается» следующей и становится её высотой — отсюда «пир». Вот почему:</p>
+<p>3 ↑↑↑ 4 означает цепочку из (3 ↑↑ 3) операций длиной 4. То есть:</p>
+<p>3 ↑↑↑ 4 = 3 ↑↑ (3 ↑↑ (3 ↑↑ 3))</p>
+<p>Помните: когда вы видите ↑↑, это одна башня степеней высотой <em>b</em>, так что:</p>
+<p>3 ↑↑↑ 4 = 3 ↑↑ (3 ↑↑ <span style="color: #ff0000;">(3 ↑↑ 3)</span>) = 3 ↑↑ (3 ↑↑ <span style="color: #ff0000;">3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span></sup></sup></span>)</p>
+<p>Помните: 3<sup>3<sup>3</sup></sup><sup><sup> </sup></sup>= 3<sup><span style="font-size: 11px;">27</span></sup> = 7 625 597 484 987. Значит:</p>
+<p>3 ↑↑↑ 4 = 3 ↑↑ (3 ↑↑ <span style="color: #ff0000;">(3 ↑↑ 3)</span>) = 3 ↑↑ (3 ↑↑ <span style="color: #ff0000;">3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span></sup></sup></span>) = 3 ↑↑ (3 ↑↑ <span style="color: #ff0000;">7 625 597 484 987</span>)</p>
+<p>Так что первая башня высотой 3 свернулась в число около 7 трлн. Теперь следующие скобки — это (3 ↑↑ <span style="color: #000000;">7 625 597 484 987), где результат первой башни — <em>высота</em> второй. И насколько высокой будет башня из 7-триллион-плюс троек?</span></p>
+<p>Если каждая 3 высотой 2 см (примерно как у меня от руки), башня поднимется на 150 миллионов километров — достанет до Солнца. Даже если бы это были крошечные печатные 3 по 2 мм, башня бы успела сходить до Луны и обратно к Земле, и снова к Луне <em>сорок</em> раз, пока бы не закончилась. А если бы такие крошечные 3 писать на земле в одну линию, эта строка обмотала бы Землю 400 раз. Назовём эту башню «солнечной башней», потому что она тянется до Солнца. То есть:</p>
+<p>3 ↑↑↑ 4 = 3 ↑↑ (3 ↑↑ <span style="color: #ff0000;">(3 ↑↑ 3)</span>) = 3 ↑↑ (3 ↑↑ <span style="color: #ff0000;">3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span></sup></sup></span>) = 3 ↑↑ (3 ↑↑ <span style="color: #ff0000;">7 625 597 484 987</span>) = 3 ↑↑ (солнечная башня)</p>
+<p>Итоговая операция 3 ↑↑ (солнечная башня) — это башня степеней из троек, чья высота равна числу, получаемому при полной свёртке солнечной башни (и эта финальная башня уже даже близко не поместится в наблюдаемую Вселенную). И к окончательному значению 3 ↑↑↑ 4 мы придём, только когда свернём <em>эту</em> финальную башню.</p>
+<p>Так что использование ↑↑↑, или пентации, запускает башенный пир: на каждом шаге <em>высота</em> следующей башни становится непостижимой, не говоря уже о финальном значении. В общем виде:</p>
+<figure>
+<a href="images/pentation-generally.png" rel="noopener" target="_blank"><img alt="общая формула пентации" class="aligncenter wp-image-3008" decoding="async" height="582" loading="lazy" src="images/pentation-generally.png" width="600"/></a>
+<figcaption>Описание диаграммы: a ↑↑↑ b = башенный «пир» из <em>b</em> башен. Высота первой башни — <em>a</em>; результат каждой башни — высота следующей. То есть a ↑↑↑ b = a ↑↑ (a ↑↑ (... ↑↑ a)) — всего <em>b</em> уровней.</figcaption>
+</figure>
+<p>Поднимемся ещё на один уровень —</p>
+<p><span style="font-size: 16pt;"><strong>Уровень операции 6 — Гексация (↑↑↑<strong>↑</strong>)</strong></span></p>
+<p>На уровне 4 мы имели дело с цепочкой показателей уровня 3 — башней степеней. На уровне 5 — с цепочкой башен степеней уровня 4 — башенным пиром. На уровне 6, гексации, или итерированной пентации, мы имеем дело с цепочкой башенных пиров — назовём это «башенным психо-фестивалем» (power tower feeding frenzy psycho festival). Идея такая:</p>
+<p>Происходит башенный пир. Финальное число этого пира становится <em>числом башен в следующем пиру</em>. Затем происходит уже тот пир, и он выдаёт ещё более нелепое число, которое становится <em>числом башен</em> в <em>следующем</em> пиру. И так далее.</p>
+<p>3 ↑↑↑↑ 4 — башенный психо-фестиваль, в ходе которого происходит 3 пира ↑↑↑, и каждый диктует число башен в следующем. То есть:</p>
+<p>3 ↑↑↑↑ 4 = 3 ↑↑↑ (3 ↑↑↑ <span style="color: #ff0000;">(3 ↑↑↑ 3)</span>)</p>
+<p>Помните, что 3 ↑↑↑ 3 — это то, что превращается в солнечную башню. Значит:</p>
+<p>3 ↑↑↑↑ 4 = 3 ↑↑↑ (3 ↑↑↑ <span style="color: #ff0000;">(3 ↑↑↑ 3)</span>) = 3 ↑↑↑ (3 ↑↑↑ <span style="color: #ff0000;">(солнечная башня)</span>)</p>
+<p>Поскольку ↑↑↑ означает башенный пир, то 3 ↑↑↑ <span style="color: #ff0000;"><span style="color: #000000;">(солнечная башня) — это пир с числом <em>башен</em>, равным свёрнутой солнечной башне. Когда <em>этот</em> пир <em>наконец</em> закончится, его результат станет числом башен в финальном пиру. Психо-фестиваль завершится, когда финальный пир выдаст своё окончательное число. Общая запись гексации:</span></span></p>
+<figure>
+<a href="images/hexation-generally1.png" rel="noopener" target="_blank"><img alt="общая формула гексации" class="aligncenter wp-image-3017" decoding="async" height="722" loading="lazy" src="images/hexation-generally1.png" width="600"/></a>
+<figcaption>Описание диаграммы: a ↑↑↑↑ b = башенный психо-фестиваль из <em>b</em> пиров. Каждый пир выдаёт число, которое становится количеством башен в следующем пиру. Финальный результат — число, в которое сворачивается последний пир.</figcaption>
+</figure>
+<p>Вот так работает последовательность гипероператоров. Можно дописывать стрелки и дальше, и каждая новая стрелка <em>драматически</em> взрывает масштаб. Пока мы прошли первые семь операций последовательности, включая первые четыре стрелочных уровня:</p>
+<p>↑ = степень<br/>↑↑ = башня степеней<br/>↑↑↑ = башенный пир<br/>↑↑↑↑ = башенный психо-фестиваль</p>
+<p>Теперь, когда инструментарий собран, <strong>пройдём через число Грэма:</strong></p>
+<p>Число Грэма будет равно термину <strong>g<sub>64</sub></strong>. До него мы доберёмся. Сначала нужно стартовать с числа, называемого <strong>g<sub>1</sub></strong>, и подниматься вверх. Что такое g<sub>1</sub>?</p>
+<p>g<sub>1</sub> = 3 ↑↑↑↑ 3</p>
+<p>Гексация. Вы поняли. Вроде бы. Давайте пройдёмся.</p>
+<p>Раз стрелок четыре — значит, на руках у нас башенный психо-фестиваль. Визуально это выглядит так:</p>
+<figure>
+<a href="images/grahams-festival.png" rel="noopener" target="_blank"><img alt="фестиваль Грэма" class="aligncenter wp-image-3013" decoding="async" height="469" loading="lazy" src="images/grahams-festival.png" width="700"/></a>
+<figcaption>Описание диаграммы: g<sub>1</sub> = 3 ↑↑↑↑ 3 — психо-фестиваль из двух пиров. Сначала свёртывается первый пир (красный), его результат становится числом башен второго пира.</figcaption>
+</figure>
+<p>Итак, g<sub>1</sub> = 3 ↑↑↑↑ 3 = 3 ↑↑↑ (3 ↑↑↑ 3), и у нас два пира. Разберёмся с первым (красным) сначала:</p>
+<p>g<sub>1</sub> = 3 ↑↑↑↑ 3 = 3 ↑↑↑ <span style="color: #ff0000;">(3 ↑↑↑ 3) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(3 ↑↑ <span style="color: #0000ff;">(3 ↑↑ 3)</span>)</span></span></p>
+<p>То есть первый пир состоит из двух башен ↑↑. Первая башня (синяя) — простенькая, потому что значение <em>b</em> здесь всего 3:</p>
+<p>g<sub>1</sub> = 3 ↑↑↑↑ 3 = 3 ↑↑↑ <span style="color: #ff0000;">(3 ↑↑↑ 3) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(3 ↑↑ <span style="color: #0000ff;">(3 ↑↑ 3)</span>) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(3 ↑↑ <span style="color: #0000ff;">3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span></sup></sup></span>)</span></span></span></p>
+<p><span style="color: #000000;">А мы уже знаем, что 3<sup>3<sup>3 </sup></sup></span>= 7 625 597 484 987, так что:</p>
+<p>g<sub>1</sub> = 3 ↑↑↑↑ 3 = 3 ↑↑↑ <span style="color: #ff0000;">(3 ↑↑↑ 3) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(3 ↑↑ <span style="color: #0000ff;">(3 ↑↑ 3)</span>) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(3 ↑↑ <span style="color: #0000ff;">3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span></sup></sup></span>) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(3 ↑↑ <span style="color: #0000ff;">7 625 597 484 987</span>) </span></span></span></span></p>
+<p>А мы знаем, что (3 ↑↑ <span style="color: #000000;">7 625 597 484 987) — это наша солнечная башня в 150 млн км:</span></p>
+<p>g<sub>1</sub> = 3 ↑↑↑↑ 3 = 3 ↑↑↑ <span style="color: #ff0000;">(3 ↑↑↑ 3) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(3 ↑↑ <span style="color: #0000ff;">(3 ↑↑ 3)</span>) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(3 ↑↑ <span style="color: #0000ff;">3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span></sup></sup></span>) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(3 ↑↑ <span style="color: #0000ff;">7 625 597 484 987</span>) <span style="color: #000000;">= 3 ↑↑↑</span> <span style="color: #ff0000;">(солнечная башня)</span> </span></span></span></span></p>
+<p>Чистенько:</p>
+<p>g<sub>1</sub> = 3 ↑↑↑↑ 3 = 3 ↑↑↑ <span style="color: #ff0000;">(3 ↑↑↑ 3) <span style="color: #000000;">= </span><span style="color: #ff0000;"><span style="color: #ff0000;"><span style="color: #ff0000;"><span style="color: #000000;">3 ↑↑↑</span> <span style="color: #ff0000;">(солнечная башня)</span> </span></span></span></span></p>
+<p>То есть первый из наших двух пиров оставил нам эпически высокую солнечную башню троек, которую надо свернуть. Вспомним, как стремительно росла башня степеней:</p>
+<p>3 = 3<br/>3<sup>3</sup> = 27<br/>3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span></sup></sup> = 7 625 597 484 987<br/>3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span><sup><span style="font-size: 6pt;">3</span></sup></sup></sup> = число длиной 3,6 трлн цифр, сильно больше гугола, обвилось бы вокруг Земли пару сотен раз, если выписать<br/>3<sup><span style="font-size: 9pt;">3</span><sup><span style="font-size: 7pt;">3</span><sup><span style="font-size: 6pt;">3</span><sup><span style="font-size: 5pt;">3</span></sup></sup></sup></sup> = число, у которого <em>показатель</em> длиной 3,6 трлн цифр, многократно больше гуголплекса, число, которое нельзя даже близко <em>записать</em> в наблюдаемой Вселенной, не говоря уже о том, чтобы свернуть</p>
+<p>Жуткий рост, правда?</p>
+<p><em>И это всего пара сантиметров с верхушки солнечной башни.</em></p>
+<figure>
+<a href="images/sun-tower1.png" rel="noopener" target="_blank"><img alt="солнечная башня" class="aligncenter wp-image-3016" decoding="async" height="380" loading="lazy" src="images/sun-tower1.png" width="406"/></a>
+<figcaption>Описание диаграммы: вверху — несколько верхних троек, их свёртка уже даёт числа за пределами осмысления; внизу — 150 млн км. Это «солнечная башня».</figcaption>
+</figure>
+<p>Спустившись на метр, мы уже получаем число <em>далеко, далеко, далеко</em> за пределами постижимого. И это <em>один метр</em>.</p>
+<p><b><i>А башня уходит вниз на 150 миллионов километров.</i></b></p>
+<p>Назовём итог свёрнутой солнечной башни БЕЗУМИЕМ — заглавными буквами. Мы и пары сантиметров не можем осмыслить, так что 150 млн км — это просто БЕЗУМИЕ, и придётся с этим жить.</p>
+<p>Возвращаемся туда, где остановились:</p>
+<p>g<sub>1</sub> = 3 ↑↑↑↑ 3 = 3 ↑↑↑ <span style="color: #ff0000;">(3 ↑↑↑ 3) <span style="color: #000000;">= </span><span style="color: #ff0000;"><span style="color: #ff0000;"><span style="color: #ff0000;"><span style="color: #000000;">3 ↑↑↑</span> <span style="color: #ff0000;">(солнечная башня)</span> </span></span></span></span></p>
+<p>И теперь заменяем солнечную башню на финальное число, которое она даёт:</p>
+<p>g<sub>1</sub> = 3 ↑↑↑↑ 3 = 3 ↑↑↑ <span style="color: #ff0000;">(3 ↑↑↑ 3) <span style="color: #000000;">= </span><span style="color: #ff0000;"><span style="color: #ff0000;"><span style="color: #ff0000;"><span style="color: #000000;">3 ↑↑↑</span> <span style="color: #ff0000;">(солнечная башня)</span> <span style="color: #000000;">= </span><span style="color: #ff0000;"><span style="color: #ff0000;"><span style="color: #ff0000;"><span style="color: #000000;">3 ↑↑↑</span> <span style="color: #ff0000;">БЕЗУМИЕ</span></span></span></span></span></span></span></span></p>
+<p>Ладно, готовы ко второму из наших двух пиров. И вот в чём фокус этого второго пира —</p>
+<p>Помните, как я только что нервничал из-за всей этой штуки с БЕЗУМИЕМ?</p>
+<p><em>Это был результат пира всего с двумя башнями</em>. Первая маленькая башня свернулась и накормила вторую, и получилось БЕЗУМИЕ.</p>
+<p>А теперь во втором пиру…</p>
+<p>В нём БЕЗУМИЕ <em>башен</em>.</p>
+<p>Через минуту двинемся дальше, и я обещаю прекратить эти драматические одностраничные абзацы, но впитайте это на секунду. БЕЗУМИЕ было таким большим, что говорить о нём по-человечески не получалось. Планковские объёмы во Вселенной — шутка. Гуголплекс — смех. Это число слишком большое, чтобы быть частью моей жизни. И <em>столько башен</em> во втором пиру.</p>
+<figure>
+<a href="images/insanity.png" rel="noopener" target="_blank"><img alt="безумие" class="aligncenter wp-image-3007" decoding="async" height="253" loading="lazy" src="images/insanity.png" width="600"/></a>
+<figcaption>Описание диаграммы: BIG SUN TOWER → «солнечная башня», INSANITY → БЕЗУМИЕ (результат свёртки солнечной башни). Стрелка показывает, что БЕЗУМИЕ — это число башен второго пира.</figcaption>
+</figure>
+<p>Так что у нас БЕЗУМИЕ башен; каждая сворачивается полностью, чтобы дать высоту следующей, пока, где-то в неком будущем мироздании, мы не свернём <em>последнюю</em> башню этого второго пира — и <em>это</em> число, назовём его НЕТ Я УЖЕ НЕ МОГУ, и есть итог башенного психо-фестиваля 3 ↑↑↑↑ 3.</p>
+<p>Это число — НЕТ Я УЖЕ НЕ МОГУ — и есть <strong>g<sub>1</sub></strong>.</p>
+<p>А теперь…</p>
+<p>Я хочу, чтобы вы посмотрели на меня и послушали меня.</p>
+<p>Сейчас мы войдём в совсем новый уровень безумия, и я скажу кое-какие вещи, которые не окей. Готовы?</p>
+<p>Итак, g<sub>1</sub> — это 3 ↑↑↑↑ 3, он же НЕТ Я УЖЕ НЕ МОГУ.</p>
+<p>Дальше нам нужно добраться до g<sub>2</sub>. Вот как:</p>
+<figure>
+<a href="images/g2.png" rel="noopener" target="_blank"><img alt="g2" class="aligncenter wp-image-3004" decoding="async" height="105" loading="lazy" src="images/g2.png" width="336"/></a>
+<figcaption>Описание диаграммы: g<sub>2</sub> = 3 ↑ ↑ … ↑ ↑ 3, где число стрелок ↑ равно <em>g<sub>1</sub></em>. То есть весь g<sub>1</sub> используется как количество стрелок в выражении для g<sub>2</sub>.</figcaption>
+</figure>
+<p>Посмотрите внимательно на этот рисунок, пока не осознаете, насколько он не окей. Потом продолжим.</p>
+<p>Итак, да. Мы весь день <em>прорывались</em> с одной стрелки до четырёх, <em>превозмогая</em> сложности каждой новой ступени, впитывая возмутительный эффект каждой новой стрелки. Шли медленно и методично и пришли к НЕТ Я УЖЕ НЕ МОГУ.</p>
+<p>А Грэм решает, что для g<sub>2</sub> он сделает то же самое, что и для g<sub>1</sub>, <em><strong>но вместо четырёх стрелок поставит НЕТ Я УЖЕ НЕ МОГУ стрелок.</strong></em></p>
+<p><em>Стрелок.</em> Весь g<sub>1</sub> теперь подаётся в g<sub>2</sub> как <em>число стрелок</em>.</p>
+<p>Даже простой переход к <em>пятой</em> стрелке разорвал бы мне голову, но число стрелок в g<sub>2</sub> — не пять, а <em>гораздо, гораздо</em> больше, чем число планковских объёмов, помещающихся во Вселенной, <em>гораздо, гораздо</em> больше гуголплекса и <em>гораздо, гораздо</em> больше БЕЗУМИЯ. <strong><em>И это число стрелок.</em></strong> Это уровень <em>операции</em>, которую использует g<sub>2</sub>.<strong> </strong>Число Грэма итерирует саму концепцию итераций. Оно упаковывает <em>саму</em> последовательность гипероператоров.</p>
+<p>Конечно, мы даже не будем делать вид, что что-то можем сделать с этой информацией, кроме как смеяться над ней, пялиться на неё и млеть от неё. Сказать про g<sub>2</sub> нечего, и мы не будем.</p>
+<p>А как насчёт g<sub>3</sub>?</p>
+<p>Угадали — как только смехотворный g<sub>2</sub> свернётся, он станет числом <em>стрелок</em> в g<sub>3</sub>.</p>
+<p>А потом то же самое случится с g<sub>4</sub>. И снова с g<sub>5</sub>. И снова и снова, и так до самого g<sub>64</sub>.</p>
+<p>g<sub>64</sub> — это число Грэма.</p>
+<p>Всё вместе выглядит так:</p>
+<figure>
+<a href="images/grahams-number.png" rel="noopener" target="_blank"><img alt="число Грэма" class="aligncenter wp-image-3005" decoding="async" height="317" loading="lazy" src="images/grahams-number.png" width="616"/></a>
+<figcaption>Описание диаграммы: g<sub>1</sub> = 3 ↑↑↑↑ 3. Для k ≥ 2: g<sub>k</sub> = 3 ↑…↑ 3, где число стрелок равно g<sub>k−1</sub>. Число Грэма = g<sub>64</sub>.</figcaption>
+</figure>
+<p>Вот, держите. Новая тема для ночных кошмаров.</p>
+<p style="text-align: center;">________</p>
+<p style="text-align: left;">P.S. Написание этого поста сделало меня <em>гораздо</em> менее склонным выбирать «бесконечность» как ответ на <a href="https://waitbutwhy.com/table/how-long-would-you-live-if-you-could-choose-any-number-of-years" rel="noopener" target="_blank">застольный вопрос этой недели</a>. Представьте, что вы живёте <em>число Грэма лет</em>.<a href="#footnote-8-3003" id="note-8-3003" rel="footnote">8</a><em> </em>Даже если гипотетически условия во Вселенной, в Солнечной системе и на Земле остались бы прежними навсегда, человеческий мозг просто не приспособлен выдерживать такие промежутки времени. Мне страшно даже думать об этом. Я думаю, было бы тягчайшей из тяжких ошибок ввести в калькулятор бесконечность — и это говорит человек, открыто боящийся смерти. Странно, но мысли о числе Грэма на самом деле сделали меня чуть спокойнее по поводу смерти, потому что это напоминание: я <em>на самом деле не хочу жить вечно</em>; я <em>хочу</em> когда-нибудь умереть, потому что оставаться в сознании вечно — ещё страшнее. Да, смерть приходит слишком, <em>слишком</em> быстро, но мысль «я хочу когда-нибудь умереть» для меня очень нова и реально успокаивает по поводу нашей смертности больше обычного.</p>
+<p style="text-align: left;">P.P.S. Если уж совсем приспичило — ещё один пост Wait But Why <a href="https://waitbutwhy.com/2013/10/what-does-quadrillion-sour-patch-kids.html">про большие числа</a>.</p>
+<div class="footnotes"><hr/><ol>
+<li class="footnote" id="footnote-1-3003"><p>Использую американскую короткую шкалу — в британской длинной шкале миллиард начинается только с 10<sup>12</sup>.<a class="footnote-return" href="#note-1-3003">↩</a></p></li>
+<li class="footnote" id="footnote-2-3003"><p>Тревожно.<a class="footnote-return" href="#note-2-3003">↩</a></p></li>
+<li class="footnote" id="footnote-3-3003"><p>К счастью, <a href="https://waitbutwhy.com/2013/10/what-does-quadrillion-sour-patch-kids.html" rel="noopener" target="_blank">я не классный</a>.<a class="footnote-return" href="#note-3-3003">↩</a></p></li>
+<li class="footnote" id="footnote-4-3003"><p>Буду использовать слово «Вселенная» в значении «наблюдаемая Вселенная», чтобы не печатать «наблюдаемая» 49 раз за пост.<a class="footnote-return" href="#note-4-3003">↩</a></p></li>
+<li class="footnote" id="footnote-5-3003"><p>59 лет спустя Сергей Брин и Ларри Пейдж назвали свой поисковик в честь этого числа, чтобы подчеркнуть огромные объёмы информации, которые он может выдавать. Они случайно написали слово с ошибкой.<a class="footnote-return" href="#note-5-3003">↩</a></p></li>
+<li class="footnote" id="footnote-6-3003"><p>Чёртов Милтон.<a class="footnote-return" href="#note-6-3003">↩</a></p></li>
+<li class="footnote" id="footnote-7-3003"><p>Когда моему отцу было столько, сколько мне сейчас, у него уже были дети.<a class="footnote-return" href="#note-7-3003">↩</a></p></li>
+<li class="footnote" id="footnote-8-3003"><p>Или g<sub>65</sub> лет, что было бы (3 [число Грэма стрелок] 3)… или g<sub>g<sub>64</sub></sub> лет… я могу продолжать.<a class="footnote-return" href="#note-8-3003">↩</a></p></li>
+</ol></div>
+</article>
+
+</body>
+</html>

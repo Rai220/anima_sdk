@@ -3,14 +3,22 @@ input/
 work/
 out/
 generation_*/
+!generation_1/
+!generation_1/**
 
 # Agent and CLI logs can become large and may contain source text.
 .free-code-logs/
 **/.free-code-logs/
+generation_1/.free-code-logs/
+generation_1/**/.free-code-logs/
+generation_1/**/__pycache__/
+generation_1/**/*.py[cod]
 
 # Stop markers are local runtime state.
 STOP
 INBOX.md
+generation_1/STOP
+generation_1/INBOX.md
 
 # Keep publishable instructions and memory files tracked.
 !README.md

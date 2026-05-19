@@ -227,6 +227,14 @@ INBOX.md
 *.pkl
 *.pickle
 
+# Publishable generated translation assets for the book-translation-compact
+# example. The global media ignore stays in place for other experiments.
+!examples/book-translation-compact/source/images/
+!examples/book-translation-compact/source/images/**
+!examples/book-translation-compact/generation_1/out/images/
+!examples/book-translation-compact/generation_1/out/images/**
+!examples/book-translation-compact/generation_1/work/*.png
+
 # Temporary files, logs and local runtime state.
 *.tmp
 *.temp
