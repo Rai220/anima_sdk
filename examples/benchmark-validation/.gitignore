@@ -1,0 +1,23 @@
+# Runtime state and generated workspaces.
+work/
+out/
+generation_*/
+STOP
+INBOX.md
+.free-code-logs/
+**/.free-code-logs/
+__pycache__/
+*.py[cod]
+
+# Keep the local benchmark source copy and task instructions tracked.
+!source/
+!source/**
+!README.md
+!MAIN_GOAL.md
+!AGENTS.md
+!STATE.md
+!TODO.md
+!VALIDATION_REPORT.md
+!LESSONS.md
+!tools/
+!tools/**

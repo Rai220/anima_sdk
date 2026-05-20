@@ -61,9 +61,17 @@ flowchart TB
   один «самый умный» бот, а класс стратегий **nice + retaliatory +
   forgiving + non-envious**; прощение оказалось не слабостью, а
   способом отличать случайную ошибку от настоящего предательства.
+- [`benchmark-validation`](examples/benchmark-validation/) — пример
+  аудита бенчмарка: агент проверяет задачи по одной, независимо решает
+  каждую, сверяет своё решение, verifier и `gold`, а найденные ошибки
+  описывает в итоговом отчёте.
 - [`book-translation-compact`](examples/book-translation-compact/) —
-  компактный шаблон задачи перевода EPUB на русский без исходной книги
-  и без поколений в репозитории. Удобно копировать под свою книгу.
+  компактный пример перевода длинной HTML-статьи на русский (два поста Wait
+  But Why про числа). В репозитории сохранена готовая
+  [`generation_1`](examples/book-translation-compact/generation_1/); **читать
+  перевод:**
+  [От 1 до числа Грэма](https://rai220.github.io/anima_sdk/waitbutwhy-numbers-combined.ru.html).
+  Удобно копировать под свою статью или книгу в HTML.
 
 ## Быстрый старт
 
@@ -75,12 +83,12 @@ cd my_experiment
 ```
 
 Опишите задачу в `MAIN_GOAL.md`, при необходимости подправьте
-`AGENTS.md`. Дальше выберите режим:
+`AGENTS.md`. Дальше выберите режим запуска:
 
 ```bash
-bash loop.sh        # Ralph loop в текущей директории до файла STOP
-bash meta_loop.sh   # meta loop с поколениями generation_N/
-bash run.sh         # один ход агента, без цикла
+./run.sh        # выполнить один шаг агента
+./loop.sh       # запустить цикл шагов в текущей директории до файла STOP
+./meta_loop.sh  # запустить meta-loop с generation_N поколениями агентов
 ```
 
 Остановить текущую генерацию:
