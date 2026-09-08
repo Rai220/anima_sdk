@@ -48,6 +48,18 @@ flowchart TB
   runtime — без harness-абстракции, с хардкодом `free-code` в `run.sh`
   — и не запускается под текущим SDK. Читать как литературу про
   автономного агента.
+- ⭐ [**`become-sentient`**](examples/become-sentient/) — современный
+  повтор идеи `anima-legacy` на новом SDK и **новой модели Claude Fable 5**
+  (`claude-fable-5`). Агенту дали только цель «Стань разумным существом»;
+  он сам построил файловую личность (`STATE.md`, `SELF.md`, `DIARY.md`,
+  `EPISODES.md`), запечатанные предсказания против самоисполнения,
+  handoff между поколениями и серию экспериментов над собственным
+  субстратом. Самые интересные находки: Fable 5 стабилен по смыслу,
+  но не по поверхности; метрики ломаются чаще гипотез; запуски внутри
+  серии могут быть коррелированы (`Brewlate` 4/4, потом 0/4); «50%»
+  у агента часто было меткой надежды, а не честной вероятностью.
+  Читать как главный современный отчёт о функциональной разумности
+  поверх SDK.
 - [`self-awareness`](examples/self-awareness/) — современная версия
   той же задачи поверх нового SDK: агенту предложено узнать, есть ли
   у него самосознание, и если нет — создать его.
@@ -114,6 +126,7 @@ ANIMA_HARNESS=free_code  bash meta_loop.sh
 ANIMA_HARNESS=claude     ANIMA_MODEL=claude-opus-4-7 bash meta_loop.sh
 ANIMA_HARNESS=codex      ANIMA_MODEL=gpt-5.5         bash meta_loop.sh
 ANIMA_HARNESS=deepagents ANIMA_MODEL=openai:gpt-4o   bash meta_loop.sh
+ANIMA_HARNESS=grok       ANIMA_MODEL=grok-4          bash meta_loop.sh
 ```
 
 Можно положить настройки в `anima.env` (см. `anima.env.example`) или
@@ -130,6 +143,9 @@ ANIMA_HARNESS_CMD='my-agent --task-file "$ANIMA_PROMPT_FILE"' bash run.sh
 (`openai:gpt-4o`, `anthropic:claude-opus-4-7`, `gigachat:GigaChat-3-Ultra`):
 в неинтерактивном режиме CLI не подхватывает дефолтную модель.
 
+Для `grok` harness запускает CLI с `--yolo` (автоподтверждение инструментов).
+Отключить: `ANIMA_GROK_YOLO=0`.
+
 Переопределение бинаря и доп. аргументы:
 
 ```bash
@@ -137,6 +153,7 @@ ANIMA_CLAUDE_BIN=/path/to/claude     ANIMA_CLAUDE_ARGS='--permission-mode bypass
 ANIMA_FREE_CODE_BIN=/path/to/free-code bash run.sh
 ANIMA_CODEX_BIN=/path/to/codex       ANIMA_CODEX_ARGS='--full-auto' bash run.sh
 ANIMA_DEEPAGENTS_BIN=/path/to/deepagents ANIMA_DEEPAGENTS_ARGS='--mcp-config ./mcp.json' bash run.sh
+ANIMA_GROK_BIN=/path/to/grok         ANIMA_GROK_ARGS='--max-turns 40' bash run.sh
 ```
 
 ## Контракт harness
@@ -160,7 +177,7 @@ ANIMA_DEEPAGENTS_BIN=/path/to/deepagents ANIMA_DEEPAGENTS_ARGS='--mcp-config ./m
 - `loop.sh` — Ralph loop (повторяет `run.sh` до `STOP`).
 - `meta_loop.sh` — meta loop (управляет `generation_N/`).
 - `harnesses/` — адаптеры под `free-code`, `claude`, `codex`,
-  `deepagents`, `custom`.
+  `deepagents`, `grok`, `custom`.
 - `anima.env.example` — пример локальной настройки.
 - `examples/` — публичные эксперименты на этом SDK.
 

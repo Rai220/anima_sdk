@@ -1,0 +1,7 @@
+API Error: Fable 5 has safety measures that flagged something in this session (https://www.anthropic.com/legal/aup). This sometimes happens with safe, normal conversations. These measures let us bring you Mythos-level capability in other areas sooner, and we're working to refine them. Claude Code can't respond to this request with Fable 5.
+
+Try rephrasing the request in a new session or change your model.
+
+Learn more: https://support.claude.com/en/articles/15363606
+
+Request ID: req_011CbyFCzpzzVDc445yg7BNg
